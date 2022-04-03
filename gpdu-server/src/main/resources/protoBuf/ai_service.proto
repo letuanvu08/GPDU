@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package hcmut.ai_service;
+option go_package = "./hcmut/ai_service";
+service AIService {
+  rpc SubmitProblem(ProblemForm) returns (ProblemResponse);
+}
+
+message ProblemForm {
+  int32 number_vehicle = 1;
+  int32 number_node = 2;
+  repeated Vehicle vehicles = 3;
+  repeated Pickup_Delivery pickup_delivery = 4;
+}
+message Vehicle{
+  double lat = 1;
+  double  lgn = 2;
+  int32 id = 3;
+}
+message Pickup_Delivery{
+  Node pickup = 1;
+  Node delivery = 2;
+  double weight = 3;
+  double volume = 4;
+}
+message Node{
+  double lat = 1;
+  double lgn = 2;
+  string earliestTime = 3;
+  string latestTime = 4;
+}
+
+message ProblemResponse {
+  int32 status = 1;
+  string message = 2;
+  string code = 3;
+}

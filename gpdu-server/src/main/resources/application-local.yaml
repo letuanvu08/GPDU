@@ -1,0 +1,11 @@
+server:
+  port: 8080
+SECRET_KEY: "4VaLvxpBzwiRYpDPtpVk"
+mongodb:
+  database: mongodb+srv://lvtn:7lXRC0zwqLoF8JJ2@cluster0.6vcvs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+grpc:
+  ai-service:
+    target: "localhost:8081"
+    useSSL: false
+    poolSize: 4
+    deadline: 1000
