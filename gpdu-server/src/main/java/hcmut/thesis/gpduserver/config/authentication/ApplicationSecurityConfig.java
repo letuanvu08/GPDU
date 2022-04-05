@@ -44,14 +44,17 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/users/login",
             "/api/users/register",
             "/ping").permitAll()
-
         .antMatchers(
             "api/orders/**",
-            "api/users/**")
-        .hasAnyRole(TypeUser.ADMIN.name(), TypeUser.DRIVER.name(), TypeUser.CUSTOMER.name())
+            "api/users/**",
+            "api/vehicles/**").hasAnyRole(TypeUser.ADMIN.name(),
+            TypeUser.DRIVER.name(),
+            TypeUser.CUSTOMER.name())
+        .antMatchers("/api/admin/**").hasAnyRole(TypeUser.ADMIN.name())
         .anyRequest()
         .authenticated()
-        .and().sessionManagement()
+        .and()
+        .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .httpBasic();

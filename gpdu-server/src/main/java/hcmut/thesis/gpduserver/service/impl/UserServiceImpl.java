@@ -88,4 +88,23 @@ public class UserServiceImpl implements hcmut.thesis.gpduserver.service.UserServ
     }
   }
 
+  @Override
+  public Boolean assignVehicleForUser(String vehicleId, String userId) {
+    try {
+      Optional<User> userOptional = this.userRepository.getById(userId);
+      if (userOptional.isEmpty()) {
+        log.info("assignVehicleForUser getUserById: {} not found", userId);
+        return false;
+      }
+      User user = userOptional.get();
+      user.setVehicleId(vehicleId);
+      Optional<Boolean> result = userRepository.update(userId, user);
+      log.info("assignVehicleForUser getUserById: {}, result: {}", user, result.orElse(false));
+      return result.orElse(false);
+    } catch (Exception e) {
+      log.error("Error when assignVehicleForUser: {}", e.getMessage());
+      return false;
+    }
+  }
+
 }

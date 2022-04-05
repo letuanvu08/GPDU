@@ -4,7 +4,7 @@ public class CollectionNameEnum {
     public static String USERS = "users";
     public static String VEHICLE = "vehicles";
     public static String ORDERS = "orders";
-    public static String ROUTES = "routes";
+    public static String ROUTINGS = "routings";
 
 
 }

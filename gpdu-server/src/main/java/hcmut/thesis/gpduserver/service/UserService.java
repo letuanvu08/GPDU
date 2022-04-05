@@ -14,4 +14,7 @@ public interface UserService {
 
   PairToken getTokenByUserName(LoginRequest request);
 
+  Boolean assignVehicleForUser(String vehicleId, String userId);
+
+
 }

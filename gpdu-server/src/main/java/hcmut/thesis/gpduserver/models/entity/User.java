@@ -27,5 +27,5 @@ public class User extends PO {
   private String password;
   private String email;
   private String typeUser;
-
+  private String vehicleId;
 }

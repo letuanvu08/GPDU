@@ -1,6 +1,5 @@
 package hcmut.thesis.gpduserver.service.impl;
 
-import com.google.gson.Gson;
 import hcmut.thesis.gpduserver.constants.enumations.StatusOrderEnum;
 import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
 import hcmut.thesis.gpduserver.models.entity.Order;
@@ -15,7 +14,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,15 +67,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public Order getOrderByIdAndUserId(String orderId, String userId) {
-    Document request = new Document().append("_id", new ObjectId(orderId))
-        .append("userId", userId);
-    Optional<Order> orderOptional = this.orderRepository.getByQuery(request);
-    return orderOptional.orElse(null);
-  }
-
-  @Override
-  public List<Order> getOrdersUser(String userId, String status, int offset, int limit) {
+  public List<Order> getOrderBysUserId(String userId, String status, int offset, int limit) {
     try {
       Document request = new Document().append("userId", userId);
       if (!Strings.isBlank(status)) {
@@ -94,6 +84,73 @@ public class OrderServiceImpl implements OrderService {
           status, offset, limit, e.getMessage());
       return new ArrayList<>();
     }
+  }
 
+  @Override
+  public List<Order> getOrdersByVehicleId(String vehicleId, String status, int offset, int limit) {
+    try {
+      Document request = new Document().append("vehicleId", vehicleId);
+      if (!Strings.isBlank(status)) {
+        request.append("currentStatus", status);
+      }
+      Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document(), offset,
+          limit);
+      log.info(
+          "getOrdersByVehicleId by vehicleId: {}, status: {}, offset: {}, limit: {}, result: {}",
+          vehicleId,
+          status, offset, limit,
+          GsonUtils.toJsonString(orders.orElse(new ArrayList<>())));
+      return orders.orElse(new ArrayList<>());
+    } catch (Exception e) {
+      log.error(
+          "getOrdersByVehicleId by vehicleId: {}, status: {}, offset: {}, limit: {}, error: {}",
+          vehicleId,
+          status, offset, limit, e.getMessage());
+      return new ArrayList<>();
+    }
+  }
+
+  @Override
+  public Boolean assignOrderForVehicle(String orderId, String vehicleId) {
+    try {
+      Optional<Order> orderOptional = this.orderRepository.getById(orderId);
+      if (orderOptional.isEmpty()) {
+        log.info("assignOrderForVehicle orderId: {} not found", orderOptional);
+        return false;
+      }
+      Order order = orderOptional.get();
+      order.setVehicleId(vehicleId);
+      Optional<Boolean> result = orderRepository.update(orderId, order);
+      log.info("assignOrderForVehicle orderId: {}, result: {}", order, result.orElse(false));
+      return result.orElse(false);
+    } catch (Exception e) {
+      log.error("Error when assignOrderForVehicle: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public Boolean updateOrderStatus(String orderId, Status status) {
+    try {
+      Optional<Order> orderOptional = this.orderRepository.getById(orderId);
+      if (orderOptional.isEmpty()) {
+        log.info("updateOrderStatus orderId: {} not found", orderOptional);
+        return false;
+      }
+      Order order = orderOptional.get();
+      order.getHistoryStatus().add(status);
+      if (StepOrderEnum.Done.getLabel().equals(status.getStep()) ||
+          StatusOrderEnum.CANCEL.name().equals(status.getStatus())) {
+        order.setCurrentStatus(status.getStatus());
+      }
+      order.setCurrentStatus(status.getStatus());
+      order.setCurrentStep(status);
+      Optional<Boolean> result = orderRepository.update(orderId, order);
+      log.info("updateOrderStatus orderId: {}, result: {}", order, result.orElse(false));
+      return result.orElse(false);
+    } catch (Exception e) {
+      log.error("Error when updateOrderStatus: {}", e.getMessage());
+      return false;
+    }
   }
 }

@@ -2,6 +2,7 @@ package hcmut.thesis.gpduserver.controller.rest;
 
 import hcmut.thesis.gpduserver.constants.enumations.BaseCodeEnum;
 import hcmut.thesis.gpduserver.models.entity.Order;
+import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.entity.UserSecure;
 import hcmut.thesis.gpduserver.models.reponse.ApiResponse;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
@@ -23,29 +24,29 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequestMapping("/api/orders")
 public class OrderController {
-@Autowired
+
+  @Autowired
   private OrderService orderService;
 
   @PostMapping("")
   public ApiResponse<Order> creatOrder(
       @RequestBody FormCreateOrder formCreateOrder,
-      Authentication authentication ){
+      Authentication authentication) {
     UserSecure user = (UserSecure) authentication.getPrincipal();
     formCreateOrder.setUserId(user.getId());
     formCreateOrder.setUserName(user.getUsername());
     Order order = orderService.createOrder(formCreateOrder);
-    if(Objects.isNull(order)){
+    if (Objects.isNull(order)) {
       return new ApiResponse<Order>().fail(BaseCodeEnum.FAIL);
     }
     return new ApiResponse<Order>().success(order);
   }
+
   @GetMapping("/{orderId}")
   public ApiResponse<Order> getOrderById(
-      @PathVariable String orderId,
-      Authentication authentication ){
-    UserSecure user = (UserSecure) authentication.getPrincipal();
-    Order order = orderService.getOrderByIdAndUserId(orderId, user.getId());
-    if(Objects.isNull(order)){
+      @PathVariable String orderId) {
+    Order order = orderService.getOrderById(orderId);
+    if (Objects.isNull(order)) {
       return new ApiResponse<Order>().fail(BaseCodeEnum.FAIL);
     }
     return new ApiResponse<Order>().success(order);
@@ -55,15 +56,34 @@ public class OrderController {
   public ApiResponse<List<Order>> getOrdersUser(
       @RequestParam(required = false, defaultValue = "") String status,
       @RequestParam(required = false, defaultValue = "0") int offset,
-      @RequestParam(required = false,defaultValue = "100") int limit,
-      Authentication authentication ){
+      @RequestParam(required = false, defaultValue = "100") int limit,
+      Authentication authentication) {
     UserSecure user = (UserSecure) authentication.getPrincipal();
-    List<Order> orders = orderService.getOrdersUser(user.getId(), status, offset, limit);
-    if(Objects.isNull(orders)){
+    List<Order> orders = orderService.getOrderBysUserId(user.getId(), status, offset, limit);
+    if (Objects.isNull(orders)) {
       return new ApiResponse<List<Order>>().fail(BaseCodeEnum.FAIL);
     }
     return new ApiResponse<List<Order>>().success(orders);
   }
 
+  @GetMapping("/vehicels/{vehicleId}")
+  public ApiResponse<List<Order>> getOrderByVehicleId(
+      @PathVariable String vehicleId,
+      @RequestParam(required = false, defaultValue = "") String status,
+      @RequestParam(required = false, defaultValue = "0") int offset,
+      @RequestParam(required = false, defaultValue = "100") int limit) {
+    List<Order> orders = orderService.getOrdersByVehicleId(vehicleId, status, offset, limit);
+    if (Objects.isNull(orders)) {
+      return new ApiResponse<List<Order>>().fail(BaseCodeEnum.FAIL);
+    }
+    return new ApiResponse<List<Order>>().success(orders);
+  }
 
+  @PostMapping("/{orderId}/status")
+  public ApiResponse<Boolean> updateStatusOrder(
+      @PathVariable String orderId,
+      @RequestBody Status status) {
+    Boolean result = orderService.updateOrderStatus(orderId, status);
+    return new ApiResponse<Boolean>().success(result);
+  }
 }
