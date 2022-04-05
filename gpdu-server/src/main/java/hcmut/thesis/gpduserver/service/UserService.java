@@ -1,12 +1,17 @@
 package hcmut.thesis.gpduserver.service;
 
-import hcmut.thesis.gpduserver.entity.User;
+import hcmut.thesis.gpduserver.models.entity.User;
+import hcmut.thesis.gpduserver.models.reponse.user.PairToken;
+import hcmut.thesis.gpduserver.models.request.user.FormRegister;
+import hcmut.thesis.gpduserver.models.request.user.LoginRequest;
 
 public interface UserService {
-  User RegisterUser(User user);
+  User registerUser(FormRegister formRegister);
 
-  User GetUserByName(String userName);
+  User getUserByName(String userName);
 
-  User GetUserById(String  id);
+  User getUserById(String  id);
+
+  PairToken getTokenByUserName(LoginRequest request);
 
 }

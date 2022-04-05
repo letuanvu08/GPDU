@@ -2,7 +2,7 @@ package hcmut.thesis.gpduserver.repository.Impl;
 
 import hcmut.thesis.gpduserver.constants.mongodb.CollectionNameEnum;
 import hcmut.thesis.gpduserver.constants.mongodb.DBNameEnum;
-import hcmut.thesis.gpduserver.entity.User;
+import hcmut.thesis.gpduserver.models.entity.User;
 import hcmut.thesis.gpduserver.config.mongodb.MongoDBClient;
 import hcmut.thesis.gpduserver.mongodb.generic.GenericRepository;
 import hcmut.thesis.gpduserver.mongodb.operator.MongoDBOperator;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserRepositoryImpl extends GenericRepository<User> implements UserRepository {
-    private MongoDBOperator mongoDBOperator;
+    private final MongoDBOperator<User> mongoDBOperator;
 
     @Autowired
     public UserRepositoryImpl(MongoDBClient mongoDBClient) {
-        mongoDBOperator = new MongoDBOperator<>(mongoDBClient, DBNameEnum.USER, CollectionNameEnum.USERS, User.class);
+        mongoDBOperator = new MongoDBOperator<>(mongoDBClient, DBNameEnum.GPDU, CollectionNameEnum.USERS, User.class);
     }
 
     @Override
