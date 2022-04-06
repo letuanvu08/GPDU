@@ -13,7 +13,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<Long> count(@NonNull Document query) {
         try {
-            query.putIfAbsent("isDeleted", false);
+            query.putIfAbsent("deleted", false);
             return Optional.of(getMongoDBOperator().count(query));
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -31,7 +31,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
         try {
             Document query = new Document()
                     .append("_id", _id)
-                    .append("isDeleted", false);
+                    .append("deleted", false);
             return Optional.of(getMongoDBOperator().find(query, new Document()));
 
         } catch (Throwable throwable) {
@@ -43,7 +43,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<T> getByQuery(@NonNull Document query) {
         try {
-            query.putIfAbsent("isDeleted", false);
+//            query.putIfAbsent("deleted", false);
 
             return Optional.ofNullable(getMongoDBOperator().find(query, new Document()));
         } catch (Throwable throwable) {
@@ -55,7 +55,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<List<T>> getMany(@NonNull Document query, @NonNull Document sort, int offset, int limit) {
         try {
-            query.putIfAbsent("isDeleted", false);
+            query.putIfAbsent("deleted", false);
             return Optional.of(getMongoDBOperator().findMany(query, sort, offset, limit));
 
         } catch (Throwable throwable) {
@@ -67,7 +67,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<List<T>> getMany(@NonNull Document query, @NonNull Document sort, Document projection, int offset, int limit) {
         try {
-            query.putIfAbsent("isDeleted", false);
+            query.putIfAbsent("deleted", false);
             return Optional.of(getMongoDBOperator().findMany(query, sort, projection, offset, limit));
 
         } catch (Throwable throwable) {
@@ -79,7 +79,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<List<T>> getManyByPage(@NonNull Document query, @NonNull Document sort, int page, int size) {
         try {
-            query.putIfAbsent("isDeleted", false);
+            query.putIfAbsent("deleted", false);
             return Optional.of(getMongoDBOperator().findMany(query, sort, (page - 1) * size, size));
 
         } catch (Throwable throwable) {
@@ -91,7 +91,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<List<T>> getAll(@NonNull Document query, @NonNull Document sort) {
         try {
-            query.putIfAbsent("isDeleted", false);
+            query.putIfAbsent("deleted", false);
             return Optional.of(getMongoDBOperator().findMany(query, sort, 0, 0));
 
         } catch (Throwable throwable) {
@@ -167,7 +167,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
         try {
             Document query = new Document()
                     .append("_id", new ObjectId(_id));
-            return Optional.of(getMongoDBOperator().updateMany(query, new Document("isDeleted", true)));
+            return Optional.of(getMongoDBOperator().updateMany(query, new Document("deleted", true)));
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -178,7 +178,7 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<Boolean> deleteMany(@NonNull Document query) {
         try {
-            return Optional.of(getMongoDBOperator().updateMany(query, new Document("isDeleted", true)));
+            return Optional.of(getMongoDBOperator().updateMany(query, new Document("deleted", true)));
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();
