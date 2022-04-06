@@ -99,14 +99,26 @@ public class VehicleServiceImpl implements VehicleService {
         log.info("updateCurrentLocationVehicle vehicleId: {} not found", vehicleId);
         return null;
       }
-      Optional<Boolean> result = vehicleRepository.update(vehicleId, vehicleOptional.get());
-      log.info("updateCurrentLocationVehicle vehicleId: {}, location :{}, vehicle: {}, result: {}",
-          vehicleId,
-          GsonUtils.toJsonString(location), GsonUtils.toJsonString(vehicleOptional.get()),
+      Vehicle vehicle =vehicleOptional.get();
+      vehicle.setCurrentLocation(location);
+      return updateVehicle(vehicle);
+    } catch (Exception e) {
+      log.error("Error when updateCurrentLocationVehicle vehicleId: {}, exception: {}", vehicleId,
+          e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public Boolean updateVehicle(Vehicle vehicle) {
+    try {
+
+      Optional<Boolean> result = vehicleRepository.update(vehicle.getId().toString(), vehicle);
+      log.info("update vehicle: {}, result: {}", vehicle.getId(), GsonUtils.toJsonString(vehicle),
           result.orElse(false));
       return result.orElse(false);
     } catch (Exception e) {
-      log.error("pdateCurrentLocationVehicle vehicleId: {}, exception: {}", vehicleId,
+      log.error("error update vehicle: {}, exception: {}", GsonUtils.toJsonString(vehicle),
           e.getMessage());
       return false;
     }

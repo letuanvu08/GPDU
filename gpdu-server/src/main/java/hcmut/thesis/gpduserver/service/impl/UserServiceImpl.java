@@ -69,7 +69,7 @@ public class UserServiceImpl implements hcmut.thesis.gpduserver.service.UserServ
   }
 
   @Override
-  public PairToken getTokenByUserName(LoginRequest loginrequest) {
+  public PairToken getTokenByUserNamePassword(LoginRequest loginrequest) {
     try {
       Document request = new Document().append("userName", loginrequest.getUserName())
           .append("password", loginrequest.getPassword());
@@ -81,6 +81,7 @@ public class UserServiceImpl implements hcmut.thesis.gpduserver.service.UserServ
             .refreshToken(jwttUtil.generateRefreshToken(user))
             .build());
       });
+      log.info("getTokenByUserName: {}, successful", loginrequest.getUserName());
       return pairToken.get();
     } catch (Exception e) {
       log.error("Error when getTokenByUserName: {}", e.getMessage());
@@ -98,11 +99,21 @@ public class UserServiceImpl implements hcmut.thesis.gpduserver.service.UserServ
       }
       User user = userOptional.get();
       user.setVehicleId(vehicleId);
-      Optional<Boolean> result = userRepository.update(userId, user);
-      log.info("assignVehicleForUser getUserById: {}, result: {}", user, result.orElse(false));
-      return result.orElse(false);
+      return updateUser(user);
     } catch (Exception e) {
       log.error("Error when assignVehicleForUser: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public Boolean updateUser(User user) {
+    try {
+      Optional<Boolean> result = userRepository.update(user.getId().toString(), user);
+      log.info("updateUser user: {}, result: {}", user, result.orElse(false));
+      return result.orElse(false);
+    } catch (Exception e) {
+      log.error("Error when updateUser: {}", e.getMessage());
       return false;
     }
   }

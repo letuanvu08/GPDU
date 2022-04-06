@@ -51,6 +51,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             TypeUser.DRIVER.name(),
             TypeUser.CUSTOMER.name())
         .antMatchers("/api/admin/**").hasAnyRole(TypeUser.ADMIN.name())
+        .antMatchers("/api/rouging/**").hasAnyRole(TypeUser.DRIVER.name(), TypeUser.ADMIN.name())
         .anyRequest()
         .authenticated()
         .and()

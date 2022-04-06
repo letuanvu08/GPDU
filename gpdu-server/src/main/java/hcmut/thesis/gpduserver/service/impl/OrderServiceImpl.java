@@ -5,6 +5,7 @@ import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
+import hcmut.thesis.gpduserver.models.request.order.OrderListRequest;
 import hcmut.thesis.gpduserver.repository.OrderRepository;
 import hcmut.thesis.gpduserver.service.OrderService;
 import hcmut.thesis.gpduserver.utils.GsonUtils;
@@ -46,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
           .note(form.getNote())
           .build();
       order = orderRepository.insert(orderRequest).orElse(null);
-      log.info("createOrder form: {}, result: {}", form, order);
+      log.info("createOrder form: {}, result: {}", form, GsonUtils.toJsonString(order));
       return order;
     } catch (Exception e) {
       log.error("Error when createOrder: {}", e.getMessage());
@@ -58,7 +59,8 @@ public class OrderServiceImpl implements OrderService {
   public Order getOrderById(String id) {
     try {
       Optional<Order> orderOptional = this.orderRepository.getById(id);
-      log.error(" getOrderById: {}, resultL: {}", id, orderOptional.orElse(null));
+      log.error(" getOrderById: {}, resultL: {}", id,
+          GsonUtils.toJsonString(orderOptional.orElse(null)));
       return orderOptional.orElse(null);
     } catch (Exception e) {
       log.error("Error when getOrderById: {}", e.getMessage());
@@ -67,47 +69,55 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public List<Order> getOrderBysUserId(String userId, String status, int offset, int limit) {
+  public List<Order> getOrderListByRequest(OrderListRequest orderListRequest) {
     try {
-      Document request = new Document().append("userId", userId);
-      if (!Strings.isBlank(status)) {
-        request.append("currentStatus", status);
+      Document request = new Document();
+      if (!Strings.isEmpty(orderListRequest.getUserId())) {
+        request.append("userId", orderListRequest.getUserId());
       }
+      if (!Strings.isEmpty(orderListRequest.getVehicleId())) {
+        request.append("vehicleId", orderListRequest.getVehicleId());
+      }
+      if (!Strings.isEmpty(orderListRequest.getLabelStep())) {
+        request.append("currentStep", new Document("step", orderListRequest.getLabelStep()));
+      }
+      if (!Strings.isEmpty(orderListRequest.getStatus())) {
+        request.append("currentStatus", orderListRequest.getStatus());
+      }
+      int offset = orderListRequest.getOffset();
+      int limit = orderListRequest.getLimit();
       Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document(), offset,
           limit);
-      log.info("getOrdersUser by userId: {}, status: {}, offset: {}, limit: {}, result: {}", userId,
-          status, offset, limit,
+      log.info("getOrdersUser by request: {}, offset: {}, limit: {}, result: {}",
+          GsonUtils.toJsonString(request), offset, limit,
           GsonUtils.toJsonString(orders.orElse(new ArrayList<>())));
       return orders.orElse(new ArrayList<>());
     } catch (Exception e) {
-      log.error("getOrdersUser by userId: {}, status: {}, offset: {}, limit: {}, error: {}", userId,
-          status, offset, limit, e.getMessage());
+      log.error("getOrdersUser by request: {}, error: {}", orderListRequest, e.getMessage());
       return new ArrayList<>();
     }
   }
 
   @Override
+  public List<Order> getOrderBysUserId(String userId, String status, int offset, int limit) {
+    OrderListRequest request = OrderListRequest.builder()
+        .userId(userId)
+        .status(status)
+        .offset(offset)
+        .limit(limit)
+        .build();
+    return getOrderListByRequest(request);
+  }
+
+  @Override
   public List<Order> getOrdersByVehicleId(String vehicleId, String status, int offset, int limit) {
-    try {
-      Document request = new Document().append("vehicleId", vehicleId);
-      if (!Strings.isBlank(status)) {
-        request.append("currentStatus", status);
-      }
-      Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document(), offset,
-          limit);
-      log.info(
-          "getOrdersByVehicleId by vehicleId: {}, status: {}, offset: {}, limit: {}, result: {}",
-          vehicleId,
-          status, offset, limit,
-          GsonUtils.toJsonString(orders.orElse(new ArrayList<>())));
-      return orders.orElse(new ArrayList<>());
-    } catch (Exception e) {
-      log.error(
-          "getOrdersByVehicleId by vehicleId: {}, status: {}, offset: {}, limit: {}, error: {}",
-          vehicleId,
-          status, offset, limit, e.getMessage());
-      return new ArrayList<>();
-    }
+    OrderListRequest request = OrderListRequest.builder()
+        .vehicleId(vehicleId)
+        .status(status)
+        .offset(offset)
+        .limit(limit)
+        .build();
+    return getOrderListByRequest(request);
   }
 
   @Override
@@ -120,9 +130,7 @@ public class OrderServiceImpl implements OrderService {
       }
       Order order = orderOptional.get();
       order.setVehicleId(vehicleId);
-      Optional<Boolean> result = orderRepository.update(orderId, order);
-      log.info("assignOrderForVehicle orderId: {}, result: {}", order, result.orElse(false));
-      return result.orElse(false);
+     return updateOrder(order);
     } catch (Exception e) {
       log.error("Error when assignOrderForVehicle: {}", e.getMessage());
       return false;
@@ -145,11 +153,21 @@ public class OrderServiceImpl implements OrderService {
       }
       order.setCurrentStatus(status.getStatus());
       order.setCurrentStep(status);
-      Optional<Boolean> result = orderRepository.update(orderId, order);
-      log.info("updateOrderStatus orderId: {}, result: {}", order, result.orElse(false));
-      return result.orElse(false);
+     return updateOrder(order);
     } catch (Exception e) {
       log.error("Error when updateOrderStatus: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public Boolean updateOrder(Order order) {
+    try {
+      Optional<Boolean> result = orderRepository.update(order.getId().toString(), order);
+      log.info("updateOrder, order: {}, result: {}", order, result.orElse(false));
+      return result.orElse(false);
+    } catch (Exception e) {
+      log.error("Error when updateOrder: {}, exception: {}", order, e.getMessage());
       return false;
     }
   }

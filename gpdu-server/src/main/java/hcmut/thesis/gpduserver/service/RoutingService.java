@@ -6,5 +6,11 @@ import java.util.List;
 public interface RoutingService {
 
   Routing getRoutingActiveByVehicleId(String vehicleId);
+
   List<Routing> getListRoutingByVehicle(String vehicleId, int offset, int limit);
+
+  Boolean updateActiveRouting(String routingId, Boolean active);
+
+  Boolean updateRouting(Routing routing);
+
 }

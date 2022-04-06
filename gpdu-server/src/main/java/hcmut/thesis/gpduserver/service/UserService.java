@@ -12,9 +12,11 @@ public interface UserService {
 
   User getUserById(String  id);
 
-  PairToken getTokenByUserName(LoginRequest request);
+  PairToken getTokenByUserNamePassword(LoginRequest request);
 
   Boolean assignVehicleForUser(String vehicleId, String userId);
+
+  Boolean updateUser(User user);
 
 
 }

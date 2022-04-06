@@ -16,5 +16,6 @@ public interface VehicleService {
 
   Boolean updateCurrentLocationVehicle(String vehicleId, Location location);
 
+  Boolean updateVehicle(Vehicle vehicle);
 
 }

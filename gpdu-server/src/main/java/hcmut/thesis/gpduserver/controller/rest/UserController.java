@@ -33,34 +33,39 @@ public class UserController {
   private UserValidation userValidation;
 
   @PostMapping("/register")
-  public ApiResponse RegisterAccount(@RequestBody  FormRegister formRegister) throws ValidationException {
+  public ApiResponse<UserDto> RegisterAccount(@RequestBody FormRegister formRegister)
+      throws ValidationException {
     userValidation.asserRegisterAccount(formRegister);
     User user = userService.registerUser(formRegister);
     if (Objects.isNull(user)) {
-      return new ApiResponse<>().fail(BaseCodeEnum.FAIL);
+      return new ApiResponse<UserDto>().fail(BaseCodeEnum.FAIL);
     }
     UserDto userDto = UserDto.convertUserDto(user);
-    return new ApiResponse<>().success(userDto);
+    return new ApiResponse<UserDto>().success(userDto);
   }
 
   @PostMapping("/login")
-  public ApiResponse login(@RequestBody LoginRequest request) throws ValidationException {
+  public ApiResponse<PairToken> login(@RequestBody LoginRequest request)
+      throws ValidationException {
     userValidation.assertLogin(request);
-    PairToken token = userService.getTokenByUserName(request);
+    PairToken token = userService.getTokenByUserNamePassword(request);
     if (Objects.isNull(token)) {
-      return new ApiResponse().fail(BaseCodeEnum.USER_NAME_PASSWORD_INVALID);
+      return new ApiResponse<PairToken>().fail(BaseCodeEnum.USER_NAME_PASSWORD_INVALID);
     }
-    return new ApiResponse<>().success(token);
+    return new ApiResponse<PairToken>().success(token);
   }
 
   @GetMapping("/user")
-  public ApiResponse getUserProfile(Authentication authentication) throws ValidationException {
+  public ApiResponse<UserDto> getUserProfile(Authentication authentication)
+      throws ValidationException {
 
     UserSecure userSecure = (UserSecure) authentication.getPrincipal();
     User user = userService.getUserById(userSecure.getId());
+
     if (Objects.isNull(user)) {
-      return new ApiResponse().fail(BaseCodeEnum.FAIL);
+      return new ApiResponse<UserDto>().fail(BaseCodeEnum.FAIL);
     }
-    return new ApiResponse<>().success(user);
+    UserDto userDto = UserDto.convertUserDto(user);
+    return new ApiResponse<UserDto>().success(userDto);
   }
 }

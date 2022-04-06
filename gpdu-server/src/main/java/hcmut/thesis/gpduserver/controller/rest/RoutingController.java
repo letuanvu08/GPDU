@@ -37,9 +37,9 @@ public class RoutingController {
       Authentication authentication) {
     UserSecure userSecure = (UserSecure) authentication.getPrincipal();
     Vehicle vehicle = vehicleService.getVehicleByOwnerId(userSecure.getId());
-    List<Routing> routings = routingService.getListRoutingByVehicle(vehicle.getId().toString(),
+    List<Routing> routingList = routingService.getListRoutingByVehicle(vehicle.getId().toString(),
         offset, limit);
-    return new ApiResponse<List<Routing>>().success(routings);
+    return new ApiResponse<List<Routing>>().success(routingList);
   }
 
 }
