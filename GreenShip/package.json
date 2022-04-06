@@ -15,6 +15,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-native-fontawesome": "^0.2.7",
     "@gorhom/bottom-sheet": "^4",
+    "@klarna/react-native-vector-drawable": "^0.3.0",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/stack": "^6.1.1",
     "@reduxjs/toolkit": "^1.8.0",
@@ -42,7 +43,9 @@
     "react-native-step-indicator": "^1.0.3",
     "react-native-svg": "^12.3.0",
     "react-native-swiper": "^1.6.0",
+    "react-native-textinput-effects": "^0.6.2",
     "react-native-vector-icons": "^9.1.0",
+    "react-native-vector-image": "^0.3.3",
     "react-redux": "^7.2.6",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "yarn": "^1.22.18"

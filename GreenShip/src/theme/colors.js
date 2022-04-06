@@ -1,6 +1,6 @@
 export default colors = {
   brand: {
-    primary: '#eb2626',
+    primary: '#37bd6b',
   },
   ui: {
     online: "#2FEF10",
