@@ -6,6 +6,7 @@ import {
   View,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import { Button } from "react-native-elements";
 import { Fumi } from "react-native-textinput-effects";
@@ -15,15 +16,42 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import routesEnum from "~/constants/routesEnum";
 import VectorImage from "react-native-vector-image";
+import { login } from "~/reduces/AuthReducer";
+import requestStatusEnum from "~/utils/requestStatusEnum";
+import { useDispatch } from "react-redux";
+import userApi from "~/api/user/userApi";
+import EncryptedStorage from "react-native-encrypted-storage";
+import storageKeys from "~/utils/storageKeys";
 const CustomerLoginScreen = ({ navigation }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-
+  const [status, setStatus] = useState(requestStatusEnum.IDLE);
   const handleSignup = () => navigation.navigate(routesEnum.CUSTOMER_SIGNUP);
 
-  const handleLogin = () => {};
   const canLogin = userName && password;
-
+  const dispatch = useDispatch();
+  const handleLogin = async () => {
+    if (canLogin) {
+      try {
+        setStatus(requestStatusEnum.LOADING);
+        navigation.navigate(routesEnum.LOADING);
+        const re = await userApi.login({ userName, password });
+        await EncryptedStorage.setItem(storageKeys.ACCESS_TOKEN, re.Data.token);
+        await EncryptedStorage.setItem(
+          storageKeys.REFRESH_TOKEN,
+          re.Data.refreshToken
+        );
+        const profile = await userApi.getProfile();
+        navigation.goBack();
+        dispatch(login(profile.Data));
+      } catch (e) {
+        navigation.goBack();
+        console.log(e);
+      } finally {
+        setStatus(requestStatusEnum.IDLE);
+      }
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <KeyboardAvoidingView behavior="position">
@@ -32,7 +60,7 @@ const CustomerLoginScreen = ({ navigation }) => {
           style={styles.icon}
         />
         <Text style={styles.userType}>Customer</Text>
-        <Text style={styles.title}>Sign in</Text>
+        <Text style={styles.title}>Log in</Text>
         <Fumi
           label={"Username"}
           iconClass={Entypo}
@@ -46,6 +74,7 @@ const CustomerLoginScreen = ({ navigation }) => {
           style={styles.input}
         />
         <Fumi
+          inputStyle={{ color: "#000" }}
           label={"Password"}
           iconClass={FontAwesomeIcon}
           iconName={"lock"}

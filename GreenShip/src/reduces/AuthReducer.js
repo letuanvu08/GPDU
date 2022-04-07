@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
   name: "auth",
@@ -7,10 +7,6 @@ export const authSlice = createSlice({
     profile: null,
   },
   reducers: {
-    login: (state, action) => {
-      state.isAuth = true;
-      state.profile = action.payload;
-    },
     logout: (state) => {
       state.isAuth = false;
       state.profile = null;
@@ -18,9 +14,13 @@ export const authSlice = createSlice({
     updateProfile: (state, action) => {
       state.profile = action.payload;
     },
+    login: (state, action) => {
+      state.profile = action.payload;
+      state.isAuth = true;
+    },
   },
 });
 
-export const { login, logout, updateProfile } = authSlice.actions;
+export const { logout, updateProfile, login } = authSlice.actions;
 
 export default authSlice.reducer;

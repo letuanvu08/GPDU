@@ -1,8 +1,8 @@
 const APIPathEnum = {
-  'LOGIN': '/user/login',
-  'REFRESH_TOKEN': '/user/refresh-token',
-   'REGISTER': 'user/register',
-   'PROFILE': 'user/profile',
+  'LOGIN': '/users/login',
+  'REFRESH_TOKEN': '/users/refresh-token',
+   'REGISTER': 'users/register',
+   'PROFILE': 'users/user',
    
 }
 

@@ -1,4 +1,5 @@
 export default userTypes = {
-  ADMIN: 'admin',
-  DRIVER: 'driver'
+  ADMIN: "ADMIN",
+  DRIVER: "DRIVER",
+  CUSTOMER: "CUSTOMER",
 };

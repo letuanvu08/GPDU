@@ -1,5 +1,5 @@
+import APIPathEnum from '~/constants/APIPathEnum';
 import httpClient from '../httpClient';
-import APIPathEnum from '../../constants/ApiPathEnum'
 ;
 export default userApi = {
   login: ({userName, password}) => httpClient.post(APIPathEnum.LOGIN, {userName, password}),
