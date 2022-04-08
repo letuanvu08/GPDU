@@ -9,7 +9,7 @@ export default colors = {
   },
   bg: {
     primary: 'white',
-    card: "#EFEFEF",
+    card: "#F4F4F4",
     drawer: "#F2E6E6",
     input: "#ECEFF1"
   },

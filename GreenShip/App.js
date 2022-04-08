@@ -12,9 +12,8 @@ export default function App() {
   const dispatch = store.dispatch;
   const checkLogin = async () => {
     try {
-      await EncryptedStorage.setItem(storageKeys.ACCESS_TOKEN, "");
       const re = await userApi.getProfile();
-      dispatch(login(re));
+      dispatch(login(re.Data));
     } catch (e) {
     }
   }

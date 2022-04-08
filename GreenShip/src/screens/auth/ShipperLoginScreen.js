@@ -41,7 +41,7 @@ const ShipperLoginScreen = ({ navigation }) => {
         const profile = await userApi.getProfile();
         navigation.goBack();
         dispatch(login(profile.Data));
-      } catch (e) {
+      } catch (e) { 
         navigation.goBack();
         console.log(e);
       } finally {

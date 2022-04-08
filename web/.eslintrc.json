@@ -11,12 +11,12 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["react" ],
+  "plugins": ["react"],
   "rules": {
     "no-unused-vars": "warn",
     "default-param-last": "off",
-    "failOnError": false,
-        "emitWarning": true,
+    "failOnError": 0,
+    "emitWarning": true,
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/jsx-props-no-spreading": [

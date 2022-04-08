@@ -19,5 +19,5 @@ export const fontSizes = {
   h3: 24,
   h2: 34,
   h1: 50,
-  title: 30,
+  title: 26,
 };

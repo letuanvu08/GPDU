@@ -17,6 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "~/reduces/AuthReducer";
 import userTypes from "~/utils/user/userTypes";
 import OrderListScreen from "~/screens/order/OrderListScreen";
+import CustomerNavigation from "./CustomerNavigation";
+import MapScreen from "~/screens/order/MapScreen";
+import colors from "~/theme/colors";
 export default function Navigation() {
   const Stack = createStackNavigator();
   const MyTheme = {
@@ -24,6 +27,8 @@ export default function Navigation() {
     colors: {
       ...DefaultTheme.colors,
       background: "#fff",
+      card: colors.brand.primary,
+      text: "#fff",
     },
   };
   const isAuth = useSelector((state) => state.auth.isAuth);
@@ -79,12 +84,11 @@ export default function Navigation() {
         )}
         {/* Order */}
         {isAuth && userType == userTypes.CUSTOMER && (
-          <>
-            <Stack.Screen
-              name={routesEnum.ORDER_LIST}
-              component={OrderListScreen}
-            />
-          </>
+          <Stack.Screen
+            name={routesEnum.CUSTOMER_NAVIGATION}
+            component={CustomerNavigation}
+            options={{ headerShown: false }}
+          />
         )}
         {/* Modal */}
         <Stack.Group
@@ -95,6 +99,8 @@ export default function Navigation() {
         >
           <Stack.Screen name={routesEnum.LOADING} component={LoadingModal} />
         </Stack.Group>
+        {/* Map */}
+        <Stack.Screen name={routesEnum.MAP} component={MapScreen} options={{title: "Map"}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
