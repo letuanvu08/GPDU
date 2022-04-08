@@ -43,4 +43,6 @@ export default orderApi = {
         weight: packageWeight,
       },
     }),
+  fetchOrders: ({ offset, limit }) =>
+    httpClient.get("/orders", { params: { offset, limit: 5} }),
 };

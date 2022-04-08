@@ -94,8 +94,7 @@ const CreateOrderScreen = ({ navigation, route }) => {
     receiverPhone &&
     packageCategory &&
     packageDescription &&
-    packageWeight &&
-    note;
+    packageWeight;
   const handleCreateOrder = () => {
     if (canCreate) {
       dispatch(
@@ -141,6 +140,7 @@ const CreateOrderScreen = ({ navigation, route }) => {
               placeholder: "Phone",
               value: senderPhone,
               onChangeText: setSenderPhone,
+              keyboardType: "numeric",
             }}
             icon={{ name: "phone", type: "ant-design" }}
           />
@@ -207,6 +207,7 @@ const CreateOrderScreen = ({ navigation, route }) => {
               placeholder: "Phone",
               value: receiverPhone,
               onChangeText: setReceiverPhone,
+              keyboardType: "numeric",
             }}
             icon={{ name: "phone", type: "ant-design" }}
           />
@@ -281,7 +282,7 @@ const CreateOrderScreen = ({ navigation, route }) => {
             input={{
               placeholder: "Weight",
               value: packageWeight,
-              onChangeText: setPackageWeight,
+              onChangeText: (t) => setPackageWeight(Number(t)),
               keyboardType: "numeric",
             }}
             icon={{ name: "weight-hanging", type: "font-awesome-5" }}

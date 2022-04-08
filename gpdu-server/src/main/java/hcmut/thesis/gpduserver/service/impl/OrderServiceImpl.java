@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
       }
       int offset = orderListRequest.getOffset();
       int limit = orderListRequest.getLimit();
-      Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document(), offset,
+      Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document("createdTime", -1), offset,
           limit);
       log.info("getOrdersUser by request: {}, offset: {}, limit: {}, result: {}",
           GsonUtils.toJsonString(request), offset, limit,
