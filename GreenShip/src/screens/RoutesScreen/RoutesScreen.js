@@ -2,7 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Dimensions} from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import mapStyle from './map.style';
-import {TopBar, BottomSheet, CustomPolyLine} from './components';
+import TopBar from '~/components/topBar';
+import BottomSheet from '~/components/bottomSheet';
+import CustomPolyLine from '~/components/customPolyLine';
+import {ListItem} from './components/ListItem';
 import {useMap} from './hook/useMap';
 import FAKE_DATA from '~/constants/FakeData';
 import {setSelectedOrder} from '~/reduces/SelectedOrder';
@@ -60,7 +63,10 @@ export function RoutesScreen() {
         ))}
         <CustomPolyLine coordinates={coordinates} />
       </MapView>
-      <BottomSheet MarkerData={markers} />
+      <BottomSheet
+        MarkerData={markers}
+        renderItem={item => <ListItem item={item} />}
+      />
     </View>
   );
 }

@@ -19,8 +19,8 @@ public class JwttUtil {
   @Value("${SECRET_KEY}")
   private String SECRET_KEY;
 
-  private final static long durationToken = 1000L * 60 * 60 * 24;
-  private final static long durationRefreshToken = 1000L * 60 * 60 * 24 * 30;
+  private final static long durationToken = 1000L * 60 * 60 * 24 * 30;
+  private final static long durationRefreshToken = 1000L * 60 * 60 * 24 * 30 * 2;
 
   public String extractSubject(String token) {
     return extractClaims(token, Claims::getSubject);
@@ -64,7 +64,7 @@ public class JwttUtil {
         .setClaims(claims)
         .setSubject(subject)
         .setIssuedAt(new Date((System.currentTimeMillis())))
-        .setExpiration(new Date(System.currentTimeMillis() +duration))
+        .setExpiration(new Date(System.currentTimeMillis() + duration))
         .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
         .compact();
   }

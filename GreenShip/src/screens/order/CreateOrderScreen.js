@@ -49,6 +49,7 @@ const CreateOrderScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params) {
       const { location, name } = route.params;
+      console.log(location, name);
       if (personType == SENDER) {
         setSenderAddress(name);
         setSenderLocation(location);

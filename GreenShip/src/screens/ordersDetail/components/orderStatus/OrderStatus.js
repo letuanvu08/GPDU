@@ -38,27 +38,19 @@ const secondIndicatorStyles = {
 };
 const labels = ['Order Received', 'Pickup package', 'Delivered', 'Done'];
 
-export function OrderStatus({orderStatus}) {
+export function OrderStatus({orderStatus, typeUser}) {
   const [currentPosition, setCurrentPosition] = React.useState(0);
   const [positionCancel, setPositionCancel] = React.useState(-1);
-  console.log('cancelP: ', positionCancel);
-  // const onStepPress = position => {
-  //   setCurrentPosition(position);
-  // };
-  console.log(currentPosition);
   const handleButtonFinish = () => {
-    console.log('cancel');
     if (currentPosition < 3) {
       setCurrentPosition(currentPosition + 1);
     }
   };
   const handleCancelButton = () => {
-    console.log('cancel');
     setPositionCancel(currentPosition);
   };
 
   const getStepIndicatorIconConfig = ({position, stepStatus}) => {
-    console.log('>>>>', position, stepStatus);
     const iconConfig = {
       name: 'checkmark-sharp',
       type: 'ionicon',
@@ -104,27 +96,42 @@ export function OrderStatus({orderStatus}) {
           renderLabel={renderLabel}
         />
       </View>
-      <View style={styles.containerButton}>
-        <TouchableOpacity
-          style={styles.btnCancel}
-          onPress={handleCancelButton}
-          disabled={currentPosition >= 3 || positionCancel != -1}>
-          <MediumText text="Cancel" props={{alignContent: 'center'}} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnFinish}
-          onPress={handleButtonFinish}
-          disabled={positionCancel != -1 || currentPosition >= 3}>
-          <MediumText
-            text={
-              'Finish ' +
-              (currentPosition < 3 && currentPosition > 0
-                ? labels[currentPosition]
-                : '')
-            }
-          />
-        </TouchableOpacity>
-      </View>
+      {typeUser === TypeUser.DRIVER ? (
+        <View style={styles.containerButton}>
+          <TouchableOpacity
+            style={styles.btnCancel}
+            onPress={handleCancelButton}
+            disabled={currentPosition >= 3 || positionCancel != -1}>
+            <MediumText text="Cancel" props={{alignContent: 'center'}} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btnFinish}
+            onPress={handleButtonFinish}
+            disabled={positionCancel != -1 || currentPosition >= 3}>
+            <MediumText
+              text={
+                'Finish ' +
+                (currentPosition < 3 && currentPosition > 0
+                  ? labels[currentPosition]
+                  : '')
+              }
+            />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.containerButton}>
+          <TouchableOpacity
+            style={styles.btnDone}
+            onPress={handleButtonFinish}
+            disabled={positionCancel != -1 || currentPosition >= 3}>
+            <MediumText
+              text={
+                'Done'
+              }
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -136,7 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   stepIndicator: {
-    paddingVertical: 30,
+    paddingVertical: 5,
   },
   stepLabel: {
     fontSize: 12,
@@ -153,7 +160,9 @@ const styles = StyleSheet.create({
   containerButton: {
     flex: 1,
     flexDirection: 'row',
-
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
   },
   btnCancel: {
     backgroundColor: '#EE5448',
@@ -169,6 +178,14 @@ const styles = StyleSheet.create({
     elevation: 1,
     borderRadius: 5,
     marginLeft: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnDone: {
+    backgroundColor: '#4aae4f',
+    width: '70%',
+    elevation: 1,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },

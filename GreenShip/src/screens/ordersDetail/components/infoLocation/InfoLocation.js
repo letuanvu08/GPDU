@@ -16,9 +16,9 @@ export function InfoLocation({order}) {
         <View style={styles.item}>
           <Item
             type="Sender"
-            name={order.sender.name}
-            phone={order.sender.phone}
-            address={order.sender.address}
+            name={order.pickup.customerName}
+            phone={order.pickup.phone}
+            address={order.pickup.address}
           />
         </View>
         <View style={styles.distance}>
@@ -27,9 +27,9 @@ export function InfoLocation({order}) {
         <View style={styles.item}>
           <Item
             type="Recipient"
-            name={order.recipient.name}
-            phone={order.recipient.phone}
-            address={order.recipient.address}
+            name={order.delivery.name}
+            phone={order.delivery.phone}
+            address={order.delivery.address}
           />
         </View>
       </View>

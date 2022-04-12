@@ -10,21 +10,29 @@ import {
   OrderStatus,
 } from './components';
 import {useSelector} from 'react-redux';
-import FakeData from '~/constants/FakeData';
-export function OrderDetailScreen({}) {
+import TypeUser from '~/constants/TypeUser';
+export function OrderDetailScreen() {
+  const order = useSelector(state => state.selectedOrder);
+  const user = useSelector(state => state.auth.profile);
+  console.log(user);
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <HeaderOrder orderId={FakeData.order.id} />
-      </View>
+    <ScrollView style={styles.container} nestedScrollEnabled={true}>
+      {user?.typeUser === TypeUser.DRIVER && (
+        <View style={styles.header}>
+          <HeaderOrder orderId={order.id} />
+        </View>
+      )}
       <View style={styles.content}>
-        <InfoLocation order={FakeData.order} />
+        <InfoLocation order={order} />
       </View>
       <View style={styles.package}>
-        <PackageInfo packageInfo={FakeData.order.package} />
+        <PackageInfo packageInfo={order.packageInfo} />
       </View>
       <View style={styles.status}>
-        <OrderStatus packageInfo={FakeData.order.package} />
+        <OrderStatus
+          packageInfo={order.historyStatus}
+          typeUser={user?.typeUser}
+        />
       </View>
     </ScrollView>
   );
@@ -33,20 +41,21 @@ export function OrderDetailScreen({}) {
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    minHeight: 750,
+    zIndex: 1,
     flexDirection: 'column',
-    padding: theme.paddings.card,
+    padding: theme.paddings.container,
     backgroundColor: theme.colors.bg.primary,
     borderWidth: 0,
   },
   header: {
-    height: 50,
+    height: 40,
   },
   content: {
     height: 250,
   },
   package: {
-    height: 150,
+    height: 120,
   },
-  status: {height: 190,
-  },
+  status: {height: 150},
 });

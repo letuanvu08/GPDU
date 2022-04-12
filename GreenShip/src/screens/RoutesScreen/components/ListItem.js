@@ -7,17 +7,13 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import TypeMarker from '~/constants/TypeMarker';
-import {default as Sender} from '~/assets/icons/Sender.png';
-import {default as Recipient} from '~/assets/icons/Recipient.png';
-import {default as ArrowRight} from '~/assets/icons/arrowRight.png';
 import {Icon} from 'react-native-elements';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {useDispatch} from 'react-redux';
 import {setSelectedOrder} from '~/reduces/SelectedOrder';
 import {useNavigation} from '@react-navigation/native';
 import routesEnum from '~/constants/routesEnum';
-import {paddings} from '~/theme/paddings';
+
 export function ListItem({item}) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -28,6 +24,7 @@ export function ListItem({item}) {
 
   const handleClickDetail = () => {
     dispatch(setSelectedOrder({...item}));
+    
     navigation.navigate(routesEnum.ORDERS_DETAIL);
   };
   return (

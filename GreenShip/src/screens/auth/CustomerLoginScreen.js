@@ -22,6 +22,8 @@ import { useDispatch } from "react-redux";
 import userApi from "~/api/user/userApi";
 import EncryptedStorage from "react-native-encrypted-storage";
 import storageKeys from "~/utils/storageKeys";
+import {default as UserGreenIcon} from '~/assets/icons/user-green.png';
+
 const CustomerLoginScreen = ({ navigation }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +36,10 @@ const CustomerLoginScreen = ({ navigation }) => {
     if (canLogin) {
       try {
         setStatus(requestStatusEnum.LOADING);
+        
         navigation.navigate(routesEnum.LOADING);
         const re = await userApi.login({ userName, password });
+        console.log(">>>> re", re)
         await EncryptedStorage.setItem(storageKeys.ACCESS_TOKEN, re.Data.token);
         await EncryptedStorage.setItem(
           storageKeys.REFRESH_TOKEN,
@@ -45,6 +49,7 @@ const CustomerLoginScreen = ({ navigation }) => {
         navigation.goBack();
         dispatch(login(profile.Data));
       } catch (e) {
+        
         navigation.goBack();
         console.log(e);
       } finally {
@@ -55,10 +60,7 @@ const CustomerLoginScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <KeyboardAvoidingView behavior="position">
-        <VectorImage
-          source={require("../../assets/icons/user-green.svg")}
-          style={styles.icon}
-        />
+      <Image source={UserGreenIcon} style={styles.icon} />
         <Text style={styles.userType}>Customer</Text>
         <Text style={styles.title}>Log in</Text>
         <Fumi

@@ -1,22 +1,28 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import colors from "~/theme/colors";
-import { fontSizes } from "~/theme/fonts";
-import { paddings } from "~/theme/paddings";
-import OrderLocations from "./OrderLocations";
+import React from 'react';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import colors from '~/theme/colors';
+import {fontSizes} from '~/theme/fonts';
+import {paddings} from '~/theme/paddings';
+import OrderLocations from './OrderLocations';
 
-const OrderItem = ({ item }) => {
+const OrderItem = ({item, onSelected}) => {
+  const handleSelectOrder = () => {
+    onSelected(item);
+  };
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={handleSelectOrder}>
       <View style={styles.left}>
         <Text>WEIGHT</Text>
         <Text style={styles.weight}>{item.packageInfo?.weight}kg</Text>
       </View>
       <View style={styles.line} />
       <View style={styles.right}>
-        <OrderLocations from={item.pickup?.address} to={item.delivery?.address} />
+        <OrderLocations
+          from={item.pickup?.address}
+          to={item.delivery?.address}
+        />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -25,9 +31,9 @@ const styles = StyleSheet.create({
     padding: paddings.card,
     backgroundColor: colors.bg.card,
     marginVertical: 10,
-    flexDirection: "row",
+    flexDirection: 'row',
     flex: 1,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 6,
@@ -39,25 +45,25 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.brand.primary,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: fontSizes.body,
   },
   line: {
     width: 1,
-    backgroundColor: "#a1a1a1",
+    backgroundColor: '#a1a1a1',
   },
   left: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   right: {
     flex: 3,
   },
   weight: {
-    color: "#000",
+    color: '#000',
     fontSize: fontSizes.h3,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 export default OrderItem;

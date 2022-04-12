@@ -15,6 +15,8 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import routesEnum from "~/constants/routesEnum";
 import VectorImage from "react-native-vector-image";
+import {default as UserGreenIcon} from '~/assets/icons/user-green.png';
+
 const CustomerSignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,10 +29,7 @@ const CustomerSignupScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <KeyboardAvoidingView behavior="position">
-        <VectorImage
-          source={require("../../assets/icons/user-green.svg")}
-          style={styles.icon}
-        />
+      <Image source={UserGreenIcon} style={styles.icon} />
         <Text style={styles.userType}>Customer</Text>
         <Text style={styles.title}>Sign up</Text>
         <Fumi

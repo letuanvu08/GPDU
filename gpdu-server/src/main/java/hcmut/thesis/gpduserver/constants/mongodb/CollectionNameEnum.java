@@ -5,6 +5,7 @@ public class CollectionNameEnum {
     public static String VEHICLE = "vehicles";
     public static String ORDERS = "orders";
     public static String ROUTINGS = "routings";
+    public static String DISTRICT_AREA = "districtArea";
 
 
 }

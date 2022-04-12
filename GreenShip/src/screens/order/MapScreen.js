@@ -18,9 +18,13 @@ import routesEnum from "~/constants/routesEnum";
 const MapScreen = ({ navigation }) => {
   const [granted, setGranted] = useState(null);
   const [location, setLocation] = useState({
-    latitude: 10.8036,
-    longitude: 106.5928,
+    latitude: 10.7758439,
+    longitude: 106.7017555,
   });
+  const initLocation = {
+    latitude: 10.7758439,
+    longitude: 106.7017555,
+  }
   const [name, setName] = useState("");
   const requestPermission = async () => {
     try {
@@ -83,9 +87,9 @@ const MapScreen = ({ navigation }) => {
     <View style={styles.container}>
       <MapView
         initialRegion={{
-          ...location,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          ...initLocation,
+          latitudeDelta: 0.122,
+          longitudeDelta: 0.121,
         }}
         style={styles.map}
         onRegionChange={handleRegionChange}

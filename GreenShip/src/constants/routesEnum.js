@@ -12,6 +12,7 @@ export default routesEnum = {
   //Order
   ORDER_LIST: "order_list",
   CREATE_ORDER: "create_order",
+  ORDERS_DETAIL_CUSTOMER: "orders_detail_customer",
   //Profile
   CUSTOMER_PROFILE: "customer_profile",
   //Navigation

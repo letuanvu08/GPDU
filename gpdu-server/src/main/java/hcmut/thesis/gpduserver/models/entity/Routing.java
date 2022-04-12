@@ -24,6 +24,5 @@ public class Routing extends PO {
   private ObjectId id;
   private String vehicleId;
   private Boolean active;
-  private List<List<Float>> polyline;
   private List<Node> nodes;
 }

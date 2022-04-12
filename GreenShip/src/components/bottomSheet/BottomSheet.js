@@ -3,14 +3,13 @@ import 'react-native-reanimated'
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import { ListItem } from './ListItem';
 import { paddings } from '~/theme/paddings';
 const windowHeight = Dimensions.get('window').height;
 
-export function BottomSheet({ MarkerData }) {
+export function BottomSheet({ items, renderItem }) {
   return (
     <ScrollBottomSheet
-      componentType="FlatList"
+      componentType='FlatList'
       snapPoints={[100, '50%', windowHeight - 200]}
       initialSnapIndex={1}
       renderHandle={() => (
@@ -18,11 +17,9 @@ export function BottomSheet({ MarkerData }) {
           <View style={styles.panelHandle} />
         </View>
       )}
-      data={MarkerData}
+      data={items}
       keyExtractor={(i) => i.id}
-      renderItem={({ item }) => (
-        <ListItem item={item} />
-      )}
+      renderItem={renderItem}
       contentContainerStyle={styles.contentContainerStyle}
     />
   );
@@ -30,14 +27,14 @@ export function BottomSheet({ MarkerData }) {
 
 const styles = StyleSheet.create({
   contentContainerStyle: {
-    flex: 1,
+    flex: 100,
     backgroundColor: 'white',
-    padding: paddings.container
+    padding: paddings.container,
   },
   header: {
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingVertical: 20,
+    paddingVertical: 10,
     borderTopEndRadius:30,
     borderTopStartRadius:30
   },

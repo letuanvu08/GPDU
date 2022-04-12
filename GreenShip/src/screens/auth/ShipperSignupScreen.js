@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -6,19 +6,20 @@ import {
   View,
   ScrollView,
   Image,
-} from "react-native";
-import { Button } from "react-native-elements";
-import { Fumi } from "react-native-textinput-effects";
-import colors from "~/theme/colors";
-import { fontSizes } from "~/theme/fonts";
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
-import Entypo from "react-native-vector-icons/Entypo";
-import routesEnum from "~/constants/routesEnum";
-import VectorImage from "react-native-vector-image";
+} from 'react-native';
+import {Button} from 'react-native-elements';
+import {Fumi} from 'react-native-textinput-effects';
+import colors from '~/theme/colors';
+import {fontSizes} from '~/theme/fonts';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Entypo from 'react-native-vector-icons/Entypo';
+import routesEnum from '~/constants/routesEnum';
+import VectorImage from 'react-native-vector-image';
+import {default as ShipperGreenIcon} from '~/assets/icons/shipper-green.png';
 const ShipperSignupScreen = ({navigation}) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('');
   const handleSignup = () => {};
 
   const handleLogin = () => navigation.navigate(routesEnum.SHIPPER_LOGIN);
@@ -27,40 +28,37 @@ const ShipperSignupScreen = ({navigation}) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <KeyboardAvoidingView behavior="position">
-        <VectorImage
-          source={require("../../assets/icons/shipper-green.svg")}
-          style={styles.icon}
-        />
+        <Image source={ShipperGreenIcon} style={styles.icon} />
         <Text style={styles.userType}>Shipper</Text>
         <Text style={styles.title}>Sign up</Text>
         <Fumi
-          label={"Username"}
+          label={'Username'}
           iconClass={Entypo}
-          iconName={"user"}
+          iconName={'user'}
           iconColor={colors.brand.primary}
           iconSize={25}
           iconWidth={40}
           inputPadding={16}
           onChangeText={setUserName}
-          inputStyle={{ color: "#000" }}
+          inputStyle={{color: '#000'}}
           style={styles.input}
         />
         <Fumi
-          label={"Email Adress"}
+          label={'Email Adress'}
           iconClass={Entypo}
-          iconName={"mail"}
+          iconName={'mail'}
           iconColor={colors.brand.primary}
           iconSize={25}
           iconWidth={40}
           inputPadding={16}
           onChangeText={setEmail}
-          inputStyle={{ color: "#000" }}
+          inputStyle={{color: '#000'}}
           style={styles.input}
         />
         <Fumi
-          label={"Password"}
+          label={'Password'}
           iconClass={FontAwesomeIcon}
-          iconName={"lock"}
+          iconName={'lock'}
           iconColor={colors.brand.primary}
           iconSize={25}
           iconWidth={40}
@@ -71,11 +69,8 @@ const ShipperSignupScreen = ({navigation}) => {
         />
         <Button
           title="Sign up"
-          buttonStyle={[
-            styles.button,
-            { backgroundColor: colors.brand.primary },
-          ]}
-          containerStyle={[styles.buttonContainer, { marginTop: 20 }]}
+          buttonStyle={[styles.button, {backgroundColor: colors.brand.primary}]}
+          containerStyle={[styles.buttonContainer, {marginTop: 20}]}
           onPress={handleSignup}
           disabled={!canSignup}
           titleStyle={styles.buttonTitle}
@@ -85,12 +80,12 @@ const ShipperSignupScreen = ({navigation}) => {
           title="Log in"
           buttonStyle={[
             styles.button,
-            { borderColor: colors.brand.primary, borderWidth: 2 },
+            {borderColor: colors.brand.primary, borderWidth: 2},
           ]}
           containerStyle={styles.buttonContainer}
           type="outline"
           onPress={handleLogin}
-          titleStyle={[styles.buttonTitle, { color: colors.brand.primary }]}
+          titleStyle={[styles.buttonTitle, {color: colors.brand.primary}]}
         />
       </KeyboardAvoidingView>
     </ScrollView>
@@ -105,13 +100,13 @@ const styles = StyleSheet.create({
   userType: {
     color: colors.brand.primary,
     fontSize: fontSizes.h3,
-    fontWeight: "bold",
-    alignSelf: "center",
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
   title: {
     fontSize: fontSizes.title,
-    color: "#000",
-    fontWeight: "bold",
+    color: '#000',
+    fontWeight: 'bold',
     marginTop: 50,
   },
   input: {
@@ -125,22 +120,22 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: 300,
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   buttonTitle: {
     fontSize: fontSizes.largeButton,
   },
   line: {
-    borderBottomColor: "#a9a9a9",
+    borderBottomColor: '#a9a9a9',
     borderBottomWidth: 1,
     marginVertical: 20,
-    width: "80%",
-    alignSelf: "center",
+    width: '80%',
+    alignSelf: 'center',
   },
   icon: {
     height: 150,
     width: 150,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: 10,
   },
 });

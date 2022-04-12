@@ -9,7 +9,7 @@ export function Distance({distance}) {
     <View style={styles.container}>
       <View style={styles.line}></View>
       <View style={styles.distance}>
-        <SmallText text={distance + ' Km'} />
+        {/* <SmallText text={distance + ' Km'} /> */}
       </View>
     </View>
   );
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
     borderBottomWidth: 2,
     borderStyle: 'solid',
-    width: '80%',
+    width: '100%',
     height: 1,
     opacity: 0.2,
     paddingTop: 12,

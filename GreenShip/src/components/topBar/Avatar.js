@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Image } from 'react-native';
-import { default as UserImage } from '../../../../assets/icons/user.png';
+import { default as UserImage } from '~/assets/icons/user.png';
 import { Icon } from 'react-native-elements';
 export function Avatar() {
   return (

@@ -43,15 +43,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(
             "/api/users/login",
             "/api/users/register",
-            "/ping").permitAll()
+            "/ping",
+            "/api/routing/mapbox").permitAll()
         .antMatchers(
             "api/orders/**",
             "api/users/**",
             "api/vehicles/**").hasAnyRole(TypeUser.ADMIN.name(),
             TypeUser.DRIVER.name(),
             TypeUser.CUSTOMER.name())
-        .antMatchers("/api/admin/**").hasAnyRole(TypeUser.ADMIN.name())
-        .antMatchers("/api/rouging/**").hasAnyRole(TypeUser.DRIVER.name(), TypeUser.ADMIN.name())
+        .antMatchers("/api/admin/**","api/district/**").hasAnyRole(TypeUser.ADMIN.name())
+        .antMatchers("/api/routing/**").hasAnyRole(TypeUser.DRIVER.name(), TypeUser.ADMIN.name())
         .anyRequest()
         .authenticated()
         .and()

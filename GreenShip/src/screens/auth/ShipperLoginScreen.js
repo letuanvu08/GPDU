@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -7,25 +7,26 @@ import {
   ScrollView,
   Image,
   Alert,
-} from "react-native";
-import { Button } from "react-native-elements";
-import { Fumi } from "react-native-textinput-effects";
-import colors from "~/theme/colors";
-import { fontSizes } from "~/theme/fonts";
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
-import Entypo from "react-native-vector-icons/Entypo";
-import routesEnum from "~/constants/routesEnum";
-import VectorImage from "react-native-vector-image";
-import { login } from "~/reduces/AuthReducer";
-import requestStatusEnum from "~/utils/requestStatusEnum";
-import { useDispatch } from "react-redux";
-import userApi from "~/api/user/userApi";
-import EncryptedStorage from "react-native-encrypted-storage";
-import storageKeys from "~/utils/storageKeys";
+} from 'react-native';
+import {Button} from 'react-native-elements';
+import {Fumi} from 'react-native-textinput-effects';
+import colors from '~/theme/colors';
+import {fontSizes} from '~/theme/fonts';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Entypo from 'react-native-vector-icons/Entypo';
+import routesEnum from '~/constants/routesEnum';
+import VectorImage from 'react-native-vector-image';
+import {login} from '~/reduces/AuthReducer';
+import requestStatusEnum from '~/utils/requestStatusEnum';
+import {useDispatch} from 'react-redux';
+import userApi from '~/api/user/userApi';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import storageKeys from '~/utils/storageKeys';
+import {default as ShipperGreenIcon} from '~/assets/icons/shipper-green.png';
 
-const ShipperLoginScreen = ({ navigation }) => {
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+const ShipperLoginScreen = ({navigation}) => {
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const [status, setStatus] = useState(requestStatusEnum.IDLE);
   const handleSignup = () => navigation.navigate(routesEnum.SHIPPER_SIGNUP);
   const canLogin = userName && password;
@@ -35,13 +36,16 @@ const ShipperLoginScreen = ({ navigation }) => {
       try {
         setStatus(requestStatusEnum.LOADING);
         navigation.navigate(routesEnum.LOADING);
-        const re = await userApi.login({ userName, password });
+        const re = await userApi.login({userName, password});
         await EncryptedStorage.setItem(storageKeys.ACCESS_TOKEN, re.Data.token);
-        await EncryptedStorage.setItem(storageKeys.REFRESH_TOKEN, re.Data.refreshToken);
+        await EncryptedStorage.setItem(
+          storageKeys.REFRESH_TOKEN,
+          re.Data.refreshToken,
+        );
         const profile = await userApi.getProfile();
         navigation.goBack();
         dispatch(login(profile.Data));
-      } catch (e) { 
+      } catch (e) {
         navigation.goBack();
         console.log(e);
       } finally {
@@ -53,44 +57,38 @@ const ShipperLoginScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <KeyboardAvoidingView behavior="position">
-        <VectorImage
-          source={require("../../assets/icons/shipper-green.svg")}
-          style={styles.icon}
-        />
+        <Image source={ShipperGreenIcon} style={styles.icon} />
         <Text style={styles.userType}>Shipper</Text>
         <Text style={styles.title}>Log in</Text>
         <Fumi
-          label={"Username"}
+          label={'Username'}
           iconClass={Entypo}
-          iconName={"user"}
+          iconName={'user'}
           iconColor={colors.brand.primary}
           iconSize={25}
           iconWidth={40}
           inputPadding={16}
           onChangeText={setUserName}
-          inputStyle={{ color: "#000" }}
+          inputStyle={{color: '#000'}}
           style={styles.input}
         />
         <Fumi
-          label={"Password"}
+          label={'Password'}
           iconClass={FontAwesomeIcon}
-          iconName={"lock"}
+          iconName={'lock'}
           iconColor={colors.brand.primary}
           iconSize={25}
           iconWidth={40}
           inputPadding={16}
           onChangeText={setPassword}
           secureTextEntry={true}
-          inputStyle={{ color: "#000" }}
+          inputStyle={{color: '#000'}}
           style={styles.input}
         />
         <Button
           title="Log in"
-          buttonStyle={[
-            styles.button,
-            { backgroundColor: colors.brand.primary },
-          ]}
-          containerStyle={[styles.buttonContainer, { marginTop: 20 }]}
+          buttonStyle={[styles.button, {backgroundColor: colors.brand.primary}]}
+          containerStyle={[styles.buttonContainer, {marginTop: 20}]}
           onPress={handleLogin}
           disabled={!canLogin}
           titleStyle={styles.buttonTitle}
@@ -100,12 +98,12 @@ const ShipperLoginScreen = ({ navigation }) => {
           title="Sign up"
           buttonStyle={[
             styles.button,
-            { borderColor: colors.brand.primary, borderWidth: 2 },
+            {borderColor: colors.brand.primary, borderWidth: 2},
           ]}
           containerStyle={styles.buttonContainer}
           type="outline"
           onPress={handleSignup}
-          titleStyle={[styles.buttonTitle, { color: colors.brand.primary }]}
+          titleStyle={[styles.buttonTitle, {color: colors.brand.primary}]}
         />
       </KeyboardAvoidingView>
     </ScrollView>
@@ -120,19 +118,19 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 150,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginTop: 20,
   },
   userType: {
     color: colors.brand.primary,
     fontSize: fontSizes.h3,
-    fontWeight: "bold",
-    alignSelf: "center",
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
   title: {
     fontSize: fontSizes.title,
-    color: "#000",
-    fontWeight: "bold",
+    color: '#000',
+    fontWeight: 'bold',
     marginTop: 50,
   },
   input: {
@@ -146,22 +144,22 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: 300,
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   buttonTitle: {
     fontSize: fontSizes.largeButton,
   },
   line: {
-    borderBottomColor: "#a9a9a9",
+    borderBottomColor: '#a9a9a9',
     borderBottomWidth: 1,
     marginVertical: 20,
-    width: "80%",
-    alignSelf: "center",
+    width: '80%',
+    alignSelf: 'center',
   },
   icon: {
     height: 150,
     width: 150,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: 10,
   },
 });

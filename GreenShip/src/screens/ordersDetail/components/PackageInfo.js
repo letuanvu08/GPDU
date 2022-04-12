@@ -4,16 +4,13 @@ import {StyleSheet} from 'react-native';
 import theme from '~/theme';
 import {SmallText, MediumText} from '~/components/Text';
 export function PackageInfo({packageInfo}) {
-  console.log('>>>>>', packageInfo);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.title}>
-          <SmallText text="Package" />
+        <View style={{paddingRight: 5}}>
+          <SmallText text="Package: " />
         </View>
-        <View>
-          <MediumText text={packageInfo.name} />
-        </View>
+        <MediumText text={packageInfo.name} />
       </View>
       <View style={styles.content}>
         <View style={[styles.column, {width: '40%'}]}>
@@ -37,7 +34,7 @@ export function PackageInfo({packageInfo}) {
             <SmallText text="Vehicle" />
           </View>
           <View style={styles.text}>
-            <SmallText text="Truck" />
+            <SmallText text={packageInfo.vehicle} />
           </View>
         </View>
       </View>
@@ -49,21 +46,25 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    paddingHorizontal: 5,
+    padding: theme.paddings.container,
   },
-  header: {},
+  header: {
+    flex: 1,
+    height: 1,
+    flexDirection: 'row',
+    backgroundColor: theme.colors.bg.primary,
+  },
   content: {
     flex: 1,
     flexDirection: 'row',
     width: '100%',
     alignContent: 'center',
-    paddingVertical: 20,
+    paddingBottom: 20,
   },
   column: {
     alignContent: 'center',
   },
-
   title: {
-    paddingBottom: 5,
+    paddingBottom: 10,
   },
 });

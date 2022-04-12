@@ -46,7 +46,6 @@ public class Order extends PO {
     private String category;
     private String name;
     private Long weight;
-    private Long volume;
   }
 
   @Embedded

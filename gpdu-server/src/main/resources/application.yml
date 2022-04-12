@@ -1,2 +1,12 @@
 server:
   port: 8080
+
+districtName: Q1
+
+api:
+  mapbox:
+    token: pk.eyJ1IjoibGV0dWFudnUiLCJhIjoiY2wwZXRhZ2Y0MGwwZDNrbGNxZmF3OXlhbiJ9.EhStD2wRsGq65yD_bGhk9Q
+    domain:  api.mapbox.com
+    pathOptimized: /optimized-trips/v1/mapbox/
+    pathDirections: /directions/v5/mapbox/driving-traffic/
+    scheme: https
