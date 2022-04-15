@@ -142,8 +142,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: 5,
   },
+  title:{
+      paddingBottom:5,
+  },
   stepIndicator: {
-    paddingVertical: 5,
+    paddingVertical: 10,
   },
   stepLabel: {
     fontSize: 12,

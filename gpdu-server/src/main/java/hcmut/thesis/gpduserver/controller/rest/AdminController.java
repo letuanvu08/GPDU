@@ -1,11 +1,15 @@
 package hcmut.thesis.gpduserver.controller.rest;
 
+import hcmut.thesis.gpduserver.models.entity.Routing;
 import hcmut.thesis.gpduserver.models.entity.Vehicle;
 import hcmut.thesis.gpduserver.models.reponse.ApiResponse;
+import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 import hcmut.thesis.gpduserver.models.request.vehicle.FormAddVehicle;
 import hcmut.thesis.gpduserver.service.OrderService;
+import hcmut.thesis.gpduserver.service.RoutingService;
 import hcmut.thesis.gpduserver.service.UserService;
 import hcmut.thesis.gpduserver.service.VehicleService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,10 +30,21 @@ public class AdminController {
   @Autowired
   private OrderService orderService;
 
+  @Autowired
+  private RoutingService routingService;
+
   @PostMapping("/vehicles")
   public ApiResponse<Vehicle> addVehicle(@RequestBody FormAddVehicle formAddVehicle) {
     Vehicle vehicle = vehicleService.addVehicle(formAddVehicle);
     return new ApiResponse<Vehicle>().success(vehicle);
+  }
+
+  //   cái này dùng để test trong khi chưa có AI
+  @PostMapping("/routing")
+  public ApiResponse<List<Routing>> createListRouting(
+      @RequestBody List<RequestCreateRouting> requests) {
+    List<Routing> listRouting = routingService.createListRouting(requests);
+    return new ApiResponse<List<Routing>>().success(listRouting);
   }
 
 }

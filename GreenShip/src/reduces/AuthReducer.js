@@ -12,9 +12,11 @@ export const authSlice = createSlice({
       state.profile = null;
     },
     updateProfile: (state, action) => {
+      console.log("User profile: ",action.payload);
       state.profile = action.payload;
     },
     login: (state, action) => {
+      console.log("User profile: ",action.payload);
       state.profile = action.payload;
       state.isAuth = true;
     },

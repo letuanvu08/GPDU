@@ -11,6 +11,7 @@ public class UserDto {
   private String userName;
   private String email;
   private String typeUser;
+  private String vehicleId;
 
   public static UserDto convertUserDto(User user){
     return UserDto.builder()
@@ -18,6 +19,7 @@ public class UserDto {
         .id(user.getId().toString())
         .typeUser(user.getTypeUser())
         .userName(user.getUserName())
+        .vehicleId(user.getVehicleId())
         .build();
   }
 }

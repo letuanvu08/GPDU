@@ -30,9 +30,16 @@ public class RoutingController {
 
   @Autowired
   private MapBoxService mapBoxService;
-  @GetMapping("/vehicle/{vehicleId}")
+
+  @GetMapping("/vehicles/{vehicleId}")
   public ApiResponse<Routing> getRoutingActiveByVehicelid(@PathVariable String vehicleId) {
     Routing routing = routingService.getRoutingActiveByVehicleId(vehicleId);
+    return new ApiResponse<Routing>().success(routing);
+  }
+
+  @GetMapping("/orders/{orderId}")
+  public ApiResponse<Routing> getRoutingActiveByOrderId(@PathVariable String orderId) {
+    Routing routing = routingService.getRoutingActiveByOrderId(orderId);
     return new ApiResponse<Routing>().success(routing);
   }
 
@@ -48,10 +55,11 @@ public class RoutingController {
     return new ApiResponse<List<Routing>>().success(routingList);
   }
 
+
   @GetMapping("/mapbox")
-  public ApiResponse<List<Routes>> getDirection(@RequestBody MapboxDirectionRequest request){
+  public ApiResponse<List<Routes>> getDirection(@RequestBody MapboxDirectionRequest request) {
     List<Routes> routes = mapBoxService.getDirection(request);
-    return  new ApiResponse<List<Routes>>().success(routes);
+    return new ApiResponse<List<Routes>>().success(routes);
   }
 
 }

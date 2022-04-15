@@ -22,7 +22,7 @@ public class UserSecure implements UserDetails {
     username = user.getUserName();
     password = user.getPassword();
     id = user.getId().toString();
-    authorities = List.of(new SimpleGrantedAuthority(user.getTypeUser()));
+    authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getTypeUser()));
   }
 
   public String getId() {

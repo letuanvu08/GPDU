@@ -23,6 +23,7 @@ public class QueryFactory {
         }
         Document query = new Document();
         queryItem.remove("_id");
+        queryItem.remove("id");
         query.put("$set", queryItem);
         return query;
     }

@@ -14,19 +14,19 @@ import {setSelectedOrder} from '~/reduces/SelectedOrder';
 import {useNavigation} from '@react-navigation/native';
 import routesEnum from '~/constants/routesEnum';
 
-export function ListItem({item}) {
+export function ListItem({item, onSelected}) {
+  console.log("item: ", item);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
-  const handleClickItem = () => {
-    dispatch(setSelectedOrder({...item}));
-  };
 
   const handleClickDetail = () => {
     dispatch(setSelectedOrder({...item}));
     
     navigation.navigate(routesEnum.ORDERS_DETAIL);
   };
+  const handleSelected = ()=>{
+    onSelected(item);
+  }
   return (
     <Pressable
       style={({pressed}) => [
@@ -35,13 +35,13 @@ export function ListItem({item}) {
         },
         styles.item,
       ]}
-      onPress={handleClickItem}>
+      onPress={handleSelected}>
       <View style={styles.logo}>
       <Icon name="location-sharp" type='ionicon'></Icon>
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.direction}>{item.direction}</Text>
+        <Text style={styles.title}>{item.customerName}</Text>
+        <Text style={styles.direction}>{item.address}</Text>
       </View>
       <TouchableOpacity onPress={handleClickDetail}>
         <Icon name="chevron-forward-outline" type="ionicon" />

@@ -15,7 +15,7 @@ public interface OrderService {
   List<Order> getOrdersByVehicleId(String vehicleId, String status, int offset, int limit);
   Boolean assignOrderForVehicle(String orderId, String vehicleId);
   Boolean updateOrderStatus(String orderId, Status status);
-
+  Boolean updateOrderRouting(String orderId, String currentRoutingId);
   Boolean updateOrder(Order order);
 
 }

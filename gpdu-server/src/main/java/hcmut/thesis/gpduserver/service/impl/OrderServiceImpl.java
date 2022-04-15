@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
   public Order getOrderById(String id) {
     try {
       Optional<Order> orderOptional = this.orderRepository.getById(id);
-      log.error(" getOrderById: {}, resultL: {}", id,
+      log.info(" getOrderById: {}, resultL: {}", id,
           GsonUtils.toJsonString(orderOptional.orElse(null)));
       return orderOptional.orElse(null);
     } catch (Exception e) {
@@ -86,7 +86,8 @@ public class OrderServiceImpl implements OrderService {
       }
       int offset = orderListRequest.getOffset();
       int limit = orderListRequest.getLimit();
-      Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document("createdTime", -1), offset,
+      Optional<List<Order>> orders = this.orderRepository.getMany(request,
+          new Document("createdTime", -1), offset,
           limit);
       log.info("getOrdersUser by request: {}, offset: {}, limit: {}, result: {}",
           GsonUtils.toJsonString(request), offset, limit,
@@ -130,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
       }
       Order order = orderOptional.get();
       order.setVehicleId(vehicleId);
-     return updateOrder(order);
+      return updateOrder(order);
     } catch (Exception e) {
       log.error("Error when assignOrderForVehicle: {}", e.getMessage());
       return false;
@@ -153,9 +154,26 @@ public class OrderServiceImpl implements OrderService {
       }
       order.setCurrentStatus(status.getStatus());
       order.setCurrentStep(status);
-     return updateOrder(order);
+      return updateOrder(order);
     } catch (Exception e) {
       log.error("Error when updateOrderStatus: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public Boolean updateOrderRouting(String orderId, String currentRoutingId) {
+    try {
+      Optional<Order> orderOptional = this.orderRepository.getById(orderId);
+      if (orderOptional.isEmpty()) {
+        log.info("assignOrderForVehicle orderId: {} not found", orderOptional);
+        return false;
+      }
+      Order order = orderOptional.get();
+      order.setCurrentRoutingId(currentRoutingId);
+      return updateOrder(order);
+    } catch (Exception e) {
+      log.error("Error when assignOrderForVehicle: {}", e.getMessage());
       return false;
     }
   }

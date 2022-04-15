@@ -6,7 +6,10 @@ const DEVIATION = 0.0002;
 
 export function useMap() {
   const mapRef = useRef(null);
-  const selectedMarker = useSelector(states => states.selectedOrder);
+  const [selectedMarker, setSelectedMarker] = useState({
+    latitude: 10.7758439,
+    longitude: 106.7017555,
+  });
   const dispatch = useDispatch();
   useEffect(() => {
     if (mapRef) {
@@ -41,5 +44,6 @@ export function useMap() {
     mapRef,
     selectedMarker,
     handelResetInitialPosition,
+    setSelectedMarker,
   };
 }

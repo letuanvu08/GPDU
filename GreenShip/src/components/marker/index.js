@@ -4,21 +4,27 @@ import Animated from 'react-native-reanimated';
 import {StyleSheet, View, Image} from 'react-native';
 import {default as Sender} from '~/assets/icons/Sender.png';
 import {default as Recipient} from '~/assets/icons/Recipient.png';
+import {default as Location} from '~/assets/icons/location_blue.png';
 import TypeMarker from '~/constants/TypeMarker';
-export default function CustomMarker({id, marker, onSelect, type}) {
+import {Icon} from 'react-native-elements';
+export default function CustomMarker({node, onSelect}) {
   return (
     <Marker
-      identifier={id}
-      onPress={() => onSelect(marker)}
+      onPress={() => onSelect(node)}
       coordinate={{
-        latitude: marker.latitude,
-        longitude: marker.longitude,
+        latitude: node.location.latitude,
+        longitude: node.location.longitude,
       }}>
-      <Image
-        source={type === TypeMarker.SEND ? Sender : Recipient}
-        style={{width: 30, height: 30}}
+      {node.typeNode === TypeMarker.PACKAGE && (
+        <Icon name="package" type="feather" size={24} />
+      )}
+      {node.typeNode=== TypeMarker.LOCATION && (
+        <Image
+        source={location}
+        style={{width: 24, height: 24}}
         resizeMode="contain"
       />
+      )}
     </Marker>
   );
 }

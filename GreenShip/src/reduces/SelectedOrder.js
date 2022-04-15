@@ -1,13 +1,7 @@
 import {createSlice, current} from '@reduxjs/toolkit';
 
 const init = {
-  orderID: '1',
-  latitude: 10.775948327861144,
-  longitude: 106.69959749384073,
-  color: '#2F3136',
-  name: 'Museum of Ho Chi Minh City',
-  direction: 'Ly Tu Trong Street',
-  type: 'send',
+  orderId: "",
 };
 
 export const SelectedOrder = createSlice({
@@ -15,7 +9,7 @@ export const SelectedOrder = createSlice({
   initialState: init,
   reducers: {
     setSelectedOrder: (state, action) => {
-      return {...action.payload};
+      return {orderId: action.payload.orderId};
     },
     unSetSelectedOrder: state => {
       return {...init};
