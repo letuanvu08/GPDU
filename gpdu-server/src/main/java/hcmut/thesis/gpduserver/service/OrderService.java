@@ -18,4 +18,5 @@ public interface OrderService {
 
   Boolean updateOrder(Order order);
 
+  List<Order> getTodayOrders();
 }
