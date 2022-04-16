@@ -1,9 +1,17 @@
 package hcmut.thesis.gpduserver.ai.models;
 
 import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RoutingMatrix {
     private List<List<Float>> value;
     private Integer vehicleNumber;

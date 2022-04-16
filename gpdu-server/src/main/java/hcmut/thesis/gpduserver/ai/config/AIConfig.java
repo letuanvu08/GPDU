@@ -19,4 +19,5 @@ public class AIConfig {
     private float crossover;
     private float mutation;
     private Integer maxGeneration;
+
 }

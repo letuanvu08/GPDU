@@ -1,17 +1,24 @@
 package hcmut.thesis.gpduserver.service.impl;
 
+import hcmut.thesis.gpduserver.ai.AIRouter;
+import hcmut.thesis.gpduserver.ai.config.AIConfig;
+import hcmut.thesis.gpduserver.ai.models.*;
+import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
+import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
 import hcmut.thesis.gpduserver.constants.mongodb.QueryOperators;
-import hcmut.thesis.gpduserver.models.entity.Order;
-import hcmut.thesis.gpduserver.models.entity.Routing;
+import hcmut.thesis.gpduserver.mapbox.MapboxClient;
+import hcmut.thesis.gpduserver.models.entity.*;
 import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 import hcmut.thesis.gpduserver.repository.RoutingRepository;
 import hcmut.thesis.gpduserver.service.OrderService;
 import hcmut.thesis.gpduserver.service.RoutingService;
+import hcmut.thesis.gpduserver.service.VehicleService;
 import hcmut.thesis.gpduserver.utils.GsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -26,6 +33,10 @@ public class RoutingServiceImpl implements RoutingService {
     private RoutingRepository routingRepository;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private VehicleService vehicleService;
+    @Autowired
+    private MapboxClient mapboxClient;
 
     @Override
     public List<Routing> createListRouting(List<RequestCreateRouting> requests) {
@@ -47,7 +58,6 @@ public class RoutingServiceImpl implements RoutingService {
             Routing routingRequest = Routing.builder()
                     .active(true)
                     .nodes(request.getNodes())
-                    .listOrderId(request.getListOrderId())
                     .vehicleId(request.getVehicleId())
                     .build();
             Optional<Routing> routing = routingRepository.insert(routingRequest);
@@ -152,6 +162,87 @@ public class RoutingServiceImpl implements RoutingService {
     @Override
     public void routing() {
         List<Order> orders = orderService.getTodayOrders();
-        
+        List<String> orderIds = orders.stream()
+                .map(o -> o.getId().toHexString()).collect(Collectors.toList());
+        List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
+        List<String> vehicleIds = vehicles.stream()
+                .map(v -> v.getId().toHexString()).collect(Collectors.toList());
+        List<RoutingOrder> routingOrders = new ArrayList<>();
+        List<Location> locations = new ArrayList<>();
+        List<RoutingVehicle> routingVehicles = new ArrayList<>();
+        for (int i = 0; i < vehicles.size(); i++) {
+            Optional<Routing> routing = routingRepository.getByQuery(new Document()
+                    .append("active", true)
+                    .append("vehicleId", vehicles.get(i).getId().toHexString()));
+            RoutingVehicle routingVehicle = RoutingVehicle.builder()
+                    .id(i)
+                    .location(vehicles.get(i).getCurrentLocation())
+                    .build();
+            routing.ifPresent(value -> routingVehicle.setNextNode(RoutingKey.builder()
+                    .orderId(orderIds.indexOf(value.getNextNode().getOrderId()))
+                    .type(value.getNextNode().getTypeNode())
+                    .build()));
+            routingVehicles.add(routingVehicle);
+            locations.add(vehicles.get(i).getCurrentLocation());
+        }
+        for (int i = 0; i < orders.size(); i++) {
+            RoutingOrder routingOrder = RoutingOrder.builder()
+                    .id(i)
+                    .delivery(RoutingOrder.RoutingNode.builder()
+                            .earliestTime(orders.get(i).getDelivery().getEarliestTime())
+                            .latestTime(orders.get(i).getDelivery().getLatestTime())
+                            .location(orders.get(i).getDelivery().getLocation())
+                            .build())
+                    .pickup(RoutingOrder.RoutingNode.builder()
+                            .earliestTime(orders.get(i).getPickup().getEarliestTime())
+                            .latestTime(orders.get(i).getPickup().getLatestTime())
+                            .build())
+                    .vehicleId(vehicleIds.indexOf(orders.get(i).getVehicleId()))
+                    .vehicleConstant(!orders.get(i).getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.name()))
+                    .build();
+            routingOrders.add(routingOrder);
+            locations.add(orders.get(i).getPickup().getLocation());
+            locations.add(orders.get(i).getDelivery().getLocation());
+        }
+        AIConfig config = AIConfig.builder()
+                .elitismRate(0.05f)
+                .lateCost(20)
+                .waitingCost(10)
+                .travelCost(100)
+                .populationSize(50)
+                .tournamentSize(5)
+                .build();
+        RoutingMatrix routingMatrix = RoutingMatrix.builder()
+                .orderNumber(orders.size())
+                .vehicleNumber(vehicles.size())
+                .value(mapboxClient.retrieveDurationMatrix(locations).orElseThrow())
+                .build();
+        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix);
+        RoutingResponse res = router.routing();
+        routingRepository.updateMany(new Document("active", true), new Document("active", false));
+        for (RoutingResponse.Route route : res.getRoutes()) {
+            List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();
+            for (RoutingKey routingKey : route.getRoutingKeys()) {
+                Order order = orders.get(routingKey.getOrderId());
+                Node node = routingKey.getType().equals(TypeNode.PICKUP) ? order.getPickup() : order.getDelivery();
+                Routing.NodeRouting nodeRouting = Routing.NodeRouting.builder()
+                        .address(node.getAddress())
+                        .customerName(node.getCustomerName())
+                        .earliestTime(node.getEarliestTime())
+                        .latestTime(node.getLatestTime())
+                        .location(node.getLocation())
+                        .phone(node.getPhone())
+                        .typeNode(routingKey.getType())
+                        .orderId(order.getId().toHexString())
+                        .build();
+                nodeRoutings.add(nodeRouting);
+            }
+            Routing routing = Routing.builder()
+                    .vehicleId(vehicleIds.get(route.getVehicleId()))
+                    .nodes(nodeRoutings)
+                    .nextNode(nodeRoutings.get(0))
+                    .build();
+            routingRepository.insert(routing);
+        }
     }
 }

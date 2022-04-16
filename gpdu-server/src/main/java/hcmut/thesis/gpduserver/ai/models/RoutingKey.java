@@ -1,17 +1,16 @@
 package hcmut.thesis.gpduserver.ai.models;
 
-import hcmut.thesis.gpduserver.models.entity.Location;
+import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class RoutingVehicle {
-    private Integer id;
-    private Location location;
-    private RoutingKey nextNode;
+@Data
+public class RoutingKey {
+    private TypeNode type;
+    private Integer orderId;
 }

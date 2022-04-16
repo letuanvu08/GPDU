@@ -1,5 +1,7 @@
 package hcmut.thesis.gpduserver.ai;
 
+import hcmut.thesis.gpduserver.ai.models.RoutingResponse;
+
 public interface IAIRouter {
-    void routing();
+    RoutingResponse routing();
 }
