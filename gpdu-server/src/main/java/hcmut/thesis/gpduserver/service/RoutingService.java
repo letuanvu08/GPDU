@@ -20,4 +20,6 @@ public interface RoutingService {
 
   Boolean updateRouting(Routing routing);
 
+  void routing();
+
 }

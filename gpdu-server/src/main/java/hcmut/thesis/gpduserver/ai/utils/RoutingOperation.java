@@ -14,21 +14,16 @@ import java.util.List;
 
 public class RoutingOperation {
 
-    private static float calRouteDuration(List<Location> route, IMapboxClient mapboxClient) {
+    private static float calRouteDuration(List<Location> route, List<List<Float>> durationMatrix) {
         float duration = 0;
         long timestamp = System.currentTimeMillis() / 1000 + 60 * 30;
         for (int i = 0; i < route.size() - 1; i++) {
-            GetDurationCommand command = GetDurationCommand.builder()
-                .fromLocation(route.get(i))
-                .toLocation(route.get(i + 1))
-                .departAt(TimeUtils.convertTimestampToUTC(timestamp))
-                .build();
-            duration += mapboxClient.getDuration(command);
+
         }
         return duration;
     }
 
-    public static float calTotalDuration(List<Key<IntegerRouting>> keys, List<Order> orders, IMapboxClient mapboxClient) {
+    public static float calTotalDuration(List<Key<IntegerRouting>> keys, List<Order> orders, List<List<Float>> durationMatrix) {
         List<Location> locations = new ArrayList<>();
         List<List<Location>> routes = new ArrayList<>();
         int vehicle = 0;
@@ -45,7 +40,7 @@ public class RoutingOperation {
         }
         float duration = 0;
         for (List<Location> route : routes) {
-            duration += calRouteDuration(route, mapboxClient);
+            duration += calRouteDuration(route, durationMatrix);
         }
         return duration;
     }

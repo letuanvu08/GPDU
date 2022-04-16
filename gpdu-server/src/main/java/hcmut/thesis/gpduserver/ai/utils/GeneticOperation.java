@@ -9,12 +9,14 @@ import hcmut.thesis.gpduserver.ai.models.IntegerRouting;
 import hcmut.thesis.gpduserver.ai.models.Key;
 import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
 import hcmut.thesis.gpduserver.models.entity.Order;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.modelmapper.internal.Pair;
 
 public class GeneticOperation {
@@ -26,23 +28,23 @@ public class GeneticOperation {
     private static final int TOURNAMENT_SIZE = 20;
 
 
-    public static float calFitness(List<Gen> genes, List<Order> orders,
-        IMapboxClient mapboxClient) {
+    public static float calFitness(List<Gen> gens, List<Order> orders,
+                                   List<List<Float>> durationMatrix) {
         List<Key<IntegerRouting>> keys = new ArrayList<>();
-        for (int i = 0; i < genes.size(); i++) {
+        for (int i = 0; i < gens.size(); i++) {
             keys.add(Key.<IntegerRouting>builder()
-                .value(genes.get(i).getPickup())
-                .orderIndex(i)
-                .type(PICKUP.name())
-                .build());
+                    .value(gens.get(i).getPickup())
+                    .orderIndex(i)
+                    .type(PICKUP.name())
+                    .build());
             keys.add(Key.<IntegerRouting>builder()
-                .value(genes.get(i).getDelivery())
-                .orderIndex(i)
-                .type(DELIVERY.name())
-                .build());
+                    .value(gens.get(i).getDelivery())
+                    .orderIndex(i)
+                    .type(DELIVERY.name())
+                    .build());
         }
         keys.sort(Comparator.comparing(Key::getValue));
-        float duration = RoutingOperation.calTotalDuration(keys, orders, mapboxClient);
+        float duration = RoutingOperation.calTotalDuration(keys, orders, durationMatrix);
         return duration * TRAVEL_COST;
     }
 
@@ -75,8 +77,8 @@ public class GeneticOperation {
         int size = c1.getGens().size();
         List<Gen> genC1 = c1.getGens();
         List<Gen> genC2 = c2.getGens();
-        int index1 = RandomKey.random(1, size-3);
-        int index2 = RandomKey.random(index1,size-2);
+        int index1 = RandomKey.random(1, size - 3);
+        int index2 = RandomKey.random(index1, size - 2);
         Chromosome child1 = new Chromosome();
         Chromosome child2 = new Chromosome();
         List<Gen> gensChild1 = concatGen(genC1.subList(0, index1),genC2.subList(index1,index2),genC1.subList(index2, size));
@@ -84,6 +86,7 @@ public class GeneticOperation {
         child1.setGens(gensChild1);
         child2.setGens(gensChild2);
         return Pair.of(child1,child2);
+
     }
 
     @SafeVarargs

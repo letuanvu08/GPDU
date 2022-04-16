@@ -15,6 +15,7 @@ import hcmut.thesis.gpduserver.models.entity.Node;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,19 +24,15 @@ public class AIRouter implements IAIRouter {
 
     private List<Order> orders;
     private List<Vehicle> vehicles;
-    @Autowired
-    private IMapboxClient mapboxClient;
-
-
     private final int POPULATION_SIZE = 50;
     private final Integer BOUND_RANDOM_KEY = 1000;
     private final Integer INIT_RANDOM = 1000;
+    private final List<List<Float>> durationMatrix = new ArrayList<>();
 
     public AIRouter(List<Order> orders,
         List<Vehicle> vehicles, IMapboxClient mapboxClient) {
         this.orders = orders;
         this.vehicles = vehicles;
-        this.mapboxClient = mapboxClient;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class AIRouter implements IAIRouter {
             List<Gen> sample = this.getSample(vehicleIds, keys, orders);
             Chromosome chromosome = Chromosome.builder()
                 .gens(sample)
-                .fitness(GeneticOperation.calFitness(sample, orders,mapboxClient))
+                .fitness(GeneticOperation.calFitness(sample, orders,durationMatrix))
                 .build();
             result.add(chromosome);
         }
