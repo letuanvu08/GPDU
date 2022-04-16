@@ -7,7 +7,7 @@ import org.bson.Document;
 
 public interface RoutingService {
 
-  List<Routing> createListRouting(List<RequestCreateRouting> request);
+  List<Routing> createListRouting(List<Routing> request);
   Routing getRoutingActiveByVehicleId(String vehicleId);
 
   Routing getRoutingActiveByOrderId(String orderId);

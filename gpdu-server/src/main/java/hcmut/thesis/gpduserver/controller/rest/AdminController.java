@@ -43,8 +43,8 @@ public class AdminController {
   @PostMapping("/routing")
   public ApiResponse<List<Routing>> createListRouting(
       @RequestBody List<RequestCreateRouting> requests) {
-    List<Routing> listRouting = routingService.createListRouting(requests);
-    return new ApiResponse<List<Routing>>().success(listRouting);
+    routingService.routing();
+    return new ApiResponse<List<Routing>>().success(null);
   }
 
 }

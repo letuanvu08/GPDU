@@ -39,7 +39,7 @@ public class RoutingServiceImpl implements RoutingService {
     private MapboxClient mapboxClient;
 
     @Override
-    public List<Routing> createListRouting(List<RequestCreateRouting> requests) {
+    public List<Routing> createListRouting(List<Routing> requests) {
         List<Routing> routings = new ArrayList<>();
         try {
             closeAllActiveRouting();
@@ -53,16 +53,11 @@ public class RoutingServiceImpl implements RoutingService {
         return routings;
     }
 
-    private Routing createRouting(RequestCreateRouting request) {
+    private Routing createRouting(Routing request) {
         try {
-            Routing routingRequest = Routing.builder()
-                    .active(true)
-                    .nodes(request.getNodes())
-                    .vehicleId(request.getVehicleId())
-                    .build();
-            Optional<Routing> routing = routingRepository.insert(routingRequest);
-            routing.ifPresent(value -> request.getListOrderId().forEach(orderId ->
-                    orderService.updateOrderRouting(orderId, value.getId().toString())));
+            Optional<Routing> routing = routingRepository.insert(request);
+            routing.ifPresent(value -> request.getNodes().forEach(nodeRouting ->
+                    orderService.updateOrderRouting(nodeRouting.getOrderId(), value.getId().toString())));
             log.info("createRouting, request: {}. result: {}", GsonUtils.toJsonString(request),
                     GsonUtils.toJsonString(routing.orElse(null)));
             return routing.orElse(null);
@@ -220,6 +215,7 @@ public class RoutingServiceImpl implements RoutingService {
         AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix);
         RoutingResponse res = router.routing();
         routingRepository.updateMany(new Document("active", true), new Document("active", false));
+        List<Routing> listRouting = new ArrayList<>();
         for (RoutingResponse.Route route : res.getRoutes()) {
             List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();
             for (RoutingKey routingKey : route.getRoutingKeys()) {
@@ -242,7 +238,9 @@ public class RoutingServiceImpl implements RoutingService {
                     .nodes(nodeRoutings)
                     .nextNode(nodeRoutings.get(0))
                     .build();
-            routingRepository.insert(routing);
+            listRouting.add(routing);
+
         }
+        createListRouting(listRouting);
     }
 }
