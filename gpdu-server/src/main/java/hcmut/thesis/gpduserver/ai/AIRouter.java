@@ -60,9 +60,6 @@ public class AIRouter implements IAIRouter {
                 .build();
             result.add(chromosome);
         }
-        for (Chromosome chromosome : result) {
-            chromosome.setFitness(GeneticOperation.calFitness(chromosome.getGens(),orders, mapboxClient));
-        }
         result.sort(((c1, c2) -> (int) Math.ceil(c1.getFitness() - c2.getFitness()) + 1));
         return result;
     }
@@ -73,16 +70,15 @@ public class AIRouter implements IAIRouter {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             Integer vehicleId = RandomKey.generateInSize(vehicleIds.size());
-            Integer vehicleConstant = -1;
+            Boolean vehicleConstant = false;
             if (!StepOrderEnum.ORDER_RECEIVED.name().equals(order.getCurrentStep().getStatus())) {
                 vehicleId = vehicleIds.indexOf(order.getVehicleId());
-                vehicleConstant = vehicleId;
+                vehicleConstant = true;
             }
             int finalI = i;
             Gen gene = Gen.builder()
                 .pickup(IntegerRouting.builder()
                     .vehicle(vehicleId)
-                    .vehicleConstant(vehicleConstant)
                     .randomKey(sampleRandom.get(
                         keys.indexOf(keys.stream().filter(
                                 key -> key.getOrderIndex() == finalI && key.getType().equals(PICKUP.name()))
@@ -90,12 +86,12 @@ public class AIRouter implements IAIRouter {
                     .build())
                 .delivery(IntegerRouting.builder()
                     .vehicle(vehicleId)
-                    .vehicleConstant(vehicleConstant)
                     .randomKey(sampleRandom.get(
                         keys.indexOf(keys.stream().filter(
                                 key -> key.getOrderIndex() == finalI && key.getType().equals(DELIVERY.name()))
                             .findFirst().orElse(null))))
                     .build())
+                .vehicleConstant(vehicleConstant)
                 .build();
             sample.add(gene);
         }

@@ -9,7 +9,6 @@ public class IntegerRouting implements Comparable<IntegerRouting> {
 
     private int vehicle;
     private int randomKey;
-    private int vehicleConstant;
 
     @Override
     public int compareTo(IntegerRouting other) {

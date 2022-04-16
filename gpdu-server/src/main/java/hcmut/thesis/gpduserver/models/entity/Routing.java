@@ -25,7 +25,7 @@ public class Routing extends PO {
   private ObjectId id;
   private String vehicleId;
   private Boolean active;
-  private List<String> listOrderId;
+  private NodeRouting nextNode;
   private List<NodeRouting> nodes;
 
   @Embedded
@@ -34,7 +34,6 @@ public class Routing extends PO {
   @AllArgsConstructor
   public static class NodeRouting extends Node{
     private String orderId;
-    private String vehicleId;
     private String typeNode;
   }
 }

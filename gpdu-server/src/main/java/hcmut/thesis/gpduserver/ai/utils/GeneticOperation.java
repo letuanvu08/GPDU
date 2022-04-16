@@ -10,6 +10,7 @@ import hcmut.thesis.gpduserver.ai.models.Key;
 import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class GeneticOperation {
         return Pair.of(parent1, parent2);
     }
 
-    private static Chromosome tournamentSelection(List<Chromosome> population) {
+    private static Chromosome tournamentSelection(List<Chromosome> population, ) {
         int size = population.size();
         int random = RandomKey.generateInSize(size);
         Chromosome best = population.get(random);
@@ -70,7 +71,7 @@ public class GeneticOperation {
         return best;
     }
 
-    public static Chromosome mate(Chromosome c1, Chromosome c2) {
+    public static Pair<Chromosome, Chromosome> mate(Chromosome c1, Chromosome c2) {
         int size = c1.getGens().size();
         List<Gen> genC1 = c1.getGens();
         List<Gen> genC2 = c2.getGens();
@@ -78,11 +79,26 @@ public class GeneticOperation {
         int index2 = RandomKey.random(index1,size-2);
         Chromosome child1 = new Chromosome();
         Chromosome child2 = new Chromosome();
-        List<Gen> gens = Stream.concat(genC1.subList(0, index1).stream(),genC2.subList(index1,index2).stream()).collect(
-            Collectors.toList());
+        List<Gen> gensChild1 = concatGen(genC1.subList(0, index1),genC2.subList(index1,index2),genC1.subList(index2, size));
+        List<Gen> gensChild2 = concatGen(genC2.subList(0, index1),genC1.subList(index1,index2),genC2.subList(index2, size));
+        child1.setGens(gensChild1);
+        child2.setGens(gensChild2);
+        return Pair.of(child1,child2);
     }
 
-    public static Chromosome mutate() {
-        return null;
+    @SafeVarargs
+    private static List<Gen> concatGen(List<Gen>... listGens){
+        return Stream.of(listGens).flatMap(Collection::stream).collect(Collectors.toList());
     }
+
+    public static Chromosome mutate(Chromosome chromosome, int numberOfVehicle) {
+        int indexGen = RandomKey.random(0, chromosome.getGens().size());
+        while (chromosome.getGens().get(indexGen).getVehicleConstant()){
+            indexGen = RandomKey.random(0, chromosome.getGens().size());
+        }
+        int vehicleId = RandomKey.generateInSize(numberOfVehicle);
+        chromosome.getGens().get(indexGen).setVehicle(vehicleId);
+        return chromosome;
+    }
+
 }

@@ -22,8 +22,10 @@ public class Chromosome {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Gen {
-        private IntegerRouting pickup;
-        private IntegerRouting delivery;
+        private Integer pickup;
+        private Integer delivery;
+        private Integer vehicle;
+        private Boolean vehicleConstant;
     }
 
 }
