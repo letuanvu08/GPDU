@@ -6,8 +6,8 @@ import org.bson.types.ObjectId;
 
 @Data
 @Builder
-public class Key {
-    private Integer value;
+public class Key<T> {
+    private T value;
     private String type; // pickup, delivery
     private Integer orderIndex;
 }

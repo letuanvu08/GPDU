@@ -1,10 +1,11 @@
 package hcmut.thesis.gpduserver.ai.models;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
+
 
 import java.util.List;
 
@@ -18,11 +19,12 @@ public class Chromosome {
 
     @Data
     @Builder
+    @AllArgsConstructor
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Gene {
-        private Integer pickup;
-        private Integer delivery;
+        private IntegerRouting pickup;
+        private IntegerRouting delivery;
     }
 
 }
