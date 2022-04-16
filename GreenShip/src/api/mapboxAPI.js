@@ -20,7 +20,7 @@ const mapboxApi = {
     const strLoc = locations
       .map(location => location.longitude + ',' + location.latitude)
       .join(';');
-      console.log("strc location: ", strLoc);
+      console.log("str location: ", strLoc);
     return httpClient.get(`/directions/v5/mapbox/driving-traffic/${strLoc}`,{
       params: {
         geometries:'geojson',

@@ -18,7 +18,7 @@ const OrderListScreen = () => {
 
   const handleSelectedOrder = order => {
     console.log(order);
-    dispatch(setSelectedOrder({...order}));
+    dispatch(setSelectedOrder({orderId: order.id}));
     navigation.navigate(routesEnum.ORDERS_DETAIL_CUSTOMER);
   };
   const renderItem = ({item}) => (

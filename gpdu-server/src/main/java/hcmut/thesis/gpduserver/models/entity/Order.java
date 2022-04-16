@@ -37,6 +37,7 @@ public class Order extends PO {
   private Status currentStep;
   private String currentStatus;
   private List<Status> historyStatus;
+  private String currentRoutingId;
 
 
   @Embedded

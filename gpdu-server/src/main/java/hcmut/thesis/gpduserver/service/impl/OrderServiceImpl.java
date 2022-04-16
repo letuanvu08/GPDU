@@ -66,11 +66,12 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+
     @Override
     public Order getOrderById(String id) {
         try {
             Optional<Order> orderOptional = this.orderRepository.getById(id);
-            log.error(" getOrderById: {}, resultL: {}", id,
+            log.info(" getOrderById: {}, resultL: {}", id,
                     GsonUtils.toJsonString(orderOptional.orElse(null)));
             return orderOptional.orElse(null);
         } catch (Exception e) {
@@ -97,7 +98,8 @@ public class OrderServiceImpl implements OrderService {
             }
             int offset = orderListRequest.getOffset();
             int limit = orderListRequest.getLimit();
-            Optional<List<Order>> orders = this.orderRepository.getMany(request, new Document("createdTime", -1), offset,
+            Optional<List<Order>> orders = this.orderRepository.getMany(request,
+                    new Document("createdTime", -1), offset,
                     limit);
             log.info("getOrdersUser by request: {}, offset: {}, limit: {}, result: {}",
                     GsonUtils.toJsonString(request), offset, limit,
@@ -131,6 +133,7 @@ public class OrderServiceImpl implements OrderService {
         return getOrderListByRequest(request);
     }
 
+
     @Override
     public Boolean assignOrderForVehicle(String orderId, String vehicleId) {
         try {
@@ -147,6 +150,7 @@ public class OrderServiceImpl implements OrderService {
             return false;
         }
     }
+
 
     @Override
     public Boolean updateOrderStatus(String orderId, Status status) {
@@ -172,18 +176,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Boolean updateOrder(Order order) {
-        try {
-            Optional<Boolean> result = orderRepository.update(order.getId().toString(), order);
-            log.info("updateOrder, order: {}, result: {}", order, result.orElse(false));
-            return result.orElse(false);
-        } catch (Exception e) {
-            log.error("Error when updateOrder: {}, exception: {}", order, e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
     public List<Order> getTodayOrders() {
         Document query = new Document()
                 .append("currentStatus", StatusOrderEnum.UNFINISHED.toString())
@@ -197,5 +189,34 @@ public class OrderServiceImpl implements OrderService {
                                 new Document("delivery.earliestTime", new Document("$lte", TimeUtils.atEndOfDay()))
                         ))));
         return orderRepository.getMany(query, new Document(), 0, 0).orElse(new ArrayList<>());
+    }
+
+    @Override
+    public Boolean updateOrderRouting(String orderId, String currentRoutingId) {
+        try {
+            Optional<Order> orderOptional = this.orderRepository.getById(orderId);
+            if (orderOptional.isEmpty()) {
+                log.info("assignOrderForVehicle orderId: {} not found", orderOptional);
+                return false;
+            }
+            Order order = orderOptional.get();
+            order.setCurrentRoutingId(currentRoutingId);
+            return updateOrder(order);
+        } catch (Exception e) {
+            log.error("Error when assignOrderForVehicle: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean updateOrder(Order order) {
+        try {
+            Optional<Boolean> result = orderRepository.update(order.getId().toString(), order);
+            log.info("updateOrder, order: {}, result: {}", order, result.orElse(false));
+            return result.orElse(false);
+        } catch (Exception e) {
+            log.error("Error when updateOrder: {}, exception: {}", order, e.getMessage());
+            return false;
+        }
     }
 }

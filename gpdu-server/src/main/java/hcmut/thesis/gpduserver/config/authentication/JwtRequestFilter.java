@@ -25,7 +25,7 @@ import org.thymeleaf.expression.Lists;
 
 @Component
 @Slf4j
-public class JwtRequestFilter extends OncePerRequestFilter {
+public class  JwtRequestFilter extends OncePerRequestFilter {
 
   @Autowired
   private UserDetailsService userService;

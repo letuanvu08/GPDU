@@ -13,8 +13,11 @@ export default function App() {
   const checkLogin = async () => {
     try {
       const re = await userApi.getProfile();
+      if(!!re.Data){
       dispatch(login(re.Data));
+      }
     } catch (e) {
+      console.log("error when login: ", e);
     }
   }
   useEffect(() => {

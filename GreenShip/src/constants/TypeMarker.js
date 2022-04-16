@@ -1,4 +1,6 @@
 export default TypeMarker = {
-  RECEIVE: 'receive',
-  SEND: 'send',
+  PICKUP: 'PICKUP',
+  DELIVERY: 'send',
+  LOCATION: 'LOCATION',
+  PACKAGE: 'PACKAGE'
 };

@@ -1,4 +1,4 @@
-import httpClient from "./httpClient";
+import httpClient from './httpClient';
 
 export default orderApi = {
   createOrder: ({
@@ -19,7 +19,7 @@ export default orderApi = {
     packageWeight,
     note,
   }) =>
-    httpClient.post("/orders", {
+    httpClient.post('/orders', {
       pickup: {
         customerName: senderName,
         phone: senderPhone,
@@ -43,6 +43,8 @@ export default orderApi = {
         weight: packageWeight,
       },
     }),
-  fetchOrders: ({ offset, limit }) =>
-    httpClient.get("/orders", { params: { offset, limit: 5} }),
+  fetchOrders: ({offset, limit}) =>
+    httpClient.get('/orders', {params: {offset, limit: 5}}),
+
+  getOrderById: ({orderId}) => httpClient.get(`/orders/${orderId}`),
 };

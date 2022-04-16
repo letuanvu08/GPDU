@@ -2,6 +2,7 @@ package hcmut.thesis.gpduserver.models.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import eu.dozd.mongo.annotation.Embedded;
 import eu.dozd.mongo.annotation.Entity;
 import eu.dozd.mongo.annotation.Id;
 import hcmut.thesis.gpduserver.mongodb.generic.PO;
@@ -24,5 +25,16 @@ public class Routing extends PO {
   private ObjectId id;
   private String vehicleId;
   private Boolean active;
-  private List<Node> nodes;
+  private List<String> listOrderId;
+  private List<NodeRouting> nodes;
+
+  @Embedded
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class NodeRouting extends Node{
+    private String orderId;
+    private String vehicleId;
+    private String typeNode;
+  }
 }

@@ -19,6 +19,7 @@ public class Node {
   private Location location;
   private Long earliestTime;
   private Long latestTime;
-  private String vehicleId;
+
+
 }
 

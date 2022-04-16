@@ -7,6 +7,9 @@ import { paddings } from '~/theme/paddings';
 const windowHeight = Dimensions.get('window').height;
 
 export function BottomSheet({ items, renderItem }) {
+  const handleRenderItem = ({index, item})=>{
+      return renderItem(item);
+  }
   return (
     <ScrollBottomSheet
       componentType='FlatList'
@@ -18,8 +21,8 @@ export function BottomSheet({ items, renderItem }) {
         </View>
       )}
       data={items}
-      keyExtractor={(i) => i.id}
-      renderItem={renderItem}
+      keyExtractor={(item, index) => index}
+      renderItem={handleRenderItem}
       contentContainerStyle={styles.contentContainerStyle}
     />
   );

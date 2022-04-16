@@ -22,13 +22,13 @@ public class VehicleController {
   @Autowired
   private VehicleService vehicleService;
 
-  @GetMapping("/{vehicle}")
+  @GetMapping("/{vehicleId}")
   public ApiResponse<Vehicle> getVehicleById(@PathVariable String vehicleId) {
     Vehicle vehicle = vehicleService.getVehicleById(vehicleId);
     return new ApiResponse<Vehicle>().success(vehicle);
   }
 
-  @GetMapping("/user/{ownerId}")
+  @GetMapping("/users/{ownerId}")
   public ApiResponse<Vehicle> getVehicleByOwnerId(@PathVariable String ownerId) {
     Vehicle vehicle = vehicleService.getVehicleByOwnerId(ownerId);
     return new ApiResponse<Vehicle>().success(vehicle);

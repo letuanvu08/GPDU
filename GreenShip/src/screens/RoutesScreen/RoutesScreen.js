@@ -6,14 +6,20 @@ import TopBar from '~/components/topBar';
 import BottomSheet from '~/components/bottomSheet';
 import CustomPolyLine from '~/components/customPolyLine';
 import {ListItem} from './components/ListItem';
-import {useMap} from './hook/useMap';
+import {useMap} from '~/hooks/useMap';
 import FAKE_DATA from '~/constants/FakeData';
 import {setSelectedOrder} from '~/reduces/SelectedOrder';
 import CustomMarker from '~/components/marker';
 import {useDispatch} from 'react-redux';
+import routingApi from '~/api/routingApi';
+import {useSelector} from 'react-redux';
+import mapboxApi from '~/api/mapboxAPI';
 export function RoutesScreen() {
-  const [markers, setMarkers] = useState([]);
-  const [coordinates, setCoordinates] = useState([]);
+  const user = useSelector(state => state.auth.profile);
+  const [routing, setRouting] = useState(null);
+  const [polyline, setPolyline] = useState([]);
+  const [nodes, setNotes] = useState([]);
+  const {mapRef, handelResetInitialPosition, setSelectedMarker} = useMap();
   const dispatch = useDispatch();
   const [initialRegion, setInitialRegion] = useState({
     latitude: 10.7758439,
@@ -21,24 +27,58 @@ export function RoutesScreen() {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
-  useEffect(() => {
-    setMarkers(FAKE_DATA.MarkerData);
-    setCoordinates(FAKE_DATA.coordinatesLine);
-  }, []);
 
   useEffect(() => {
-    if (markers.length > 0) {
+    if (!!user) {
+      getRouting(user);
+    }
+  }, [user]);
+  useEffect(() => {
+    if (!!routing) {
+      console.log('routing: ', routing);
+      const locations = routing.nodes.map(node => node.location);
+      setNotes(routing.nodes);
+      getPolyline(locations);
+    }
+  }, [routing]);
+
+  const getRouting = user => {
+    routingApi
+      .getRoutingByVehicleId({vehicleId: user.vehicleId})
+      .then(res => {
+        if (!!res.Data) {
+          setRouting(res.Data);
+        }
+      })
+      .catch(e => console.log(e));
+  };
+
+  useEffect(() => {
+    if (nodes.length > 0) {
       setInitialRegion({
         ...initialRegion,
-        latitude: markers[0].latitude,
-        longitude: markers[0].longitude,
+        latitude: nodes[0].location.latitude,
+        longitude: nodes[0].location.longitude,
       });
     }
-  }, [markers]);
-  const {mapRef, handelResetInitialPosition} = useMap();
+  }, [nodes]);
 
-  const handleClickMark = marker => {
-    dispatch(setSelectedOrder({...marker}));
+  const getPolyline = locations => {
+    mapboxApi
+      .direction(locations)
+      .then(res => {
+        const coordinates = res.data.routes[0]?.geometry.coordinates || [];
+        const mapPolyline = coordinates.map(coordinate => ({
+          longitude: coordinate[0],
+          latitude: coordinate[1],
+        }));
+        console.log('mapPolyline', res.data);
+        setPolyline(mapPolyline);
+      })
+      .catch(e => console.log(e));
+  };
+  const handleSelectedMarker = node => {
+    setSelectedMarker(node.location);
   };
 
   return (
@@ -52,20 +92,22 @@ export function RoutesScreen() {
         initialRegion={initialRegion}
         on
         mapType="standard">
-        {markers.map(marker => (
+        {nodes.map((node, index) => (
           <CustomMarker
-            key={marker.id}
-            id={marker.id}
-            onSelect={handleClickMark}
-            marker={marker}
-            type={marker.type}
+            key={index}
+            onSelect={node => {
+              console.log('select marker: ', node);
+            }}
+            node={node}
           />
         ))}
-        <CustomPolyLine coordinates={coordinates} />
+        {polyline.length > 0 && <CustomPolyLine coordinates={polyline} />}
       </MapView>
       <BottomSheet
-        MarkerData={markers}
-        renderItem={item => <ListItem item={item} />}
+        items={nodes}
+        renderItem={item => (
+          <ListItem item={item} onSelected={handleSelectedMarker} />
+        )}
       />
     </View>
   );
