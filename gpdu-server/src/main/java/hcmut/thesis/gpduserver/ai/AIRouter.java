@@ -9,7 +9,9 @@ import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.utils.GeneticOperation;
 import hcmut.thesis.gpduserver.ai.utils.RandomKey;
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AIRouter implements IAIRouter {
 
     private final List<RoutingOrder> orders;
@@ -34,7 +36,13 @@ public class AIRouter implements IAIRouter {
     public void routing() {
         List<Key<RoutingOrder.RoutingNode>> keys = getListKeySortNodeByEarliestTime(orders);
         List<Chromosome> population = this.initPopulation(keys);
-
+        int generation = 0;
+        while (generation < config.getMaxGeneration()){
+            log.info("Generation: {}", generation);
+            population = geneticOperation.evolve(population,vehicles.size(),routingMatrix);
+            log.info("Best individual in generation: {} has fitness: {}", generation, population.get(population.size()-1).getFitness());
+            generation+=1;
+        }
     }
 
     private List<Chromosome> initPopulation(List<Key<RoutingOrder.RoutingNode>> keys) {
@@ -48,7 +56,7 @@ public class AIRouter implements IAIRouter {
                 .build();
             result.add(chromosome);
         }
-        result.sort(((c1, c2) -> (int) Math.ceil(c1.getFitness() - c2.getFitness()) + 1));
+        result.sort(Chromosome::compareTo);
         return result;
     }
 
@@ -95,9 +103,7 @@ public class AIRouter implements IAIRouter {
     }
 
 
-    private Chromosome execute(List<Chromosome> population) {
-        return null;
-    }
+
 
     private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(
         List<RoutingOrder> orders) {

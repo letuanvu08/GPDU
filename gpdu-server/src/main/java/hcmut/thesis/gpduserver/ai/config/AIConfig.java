@@ -15,5 +15,8 @@ public class AIConfig {
     private Integer waitingCost;
     private Integer lateCost;
     private Integer tournamentSize;
-    private Integer elitismRate;
+    private float elitismRate;
+    private float crossover;
+    private float mutation;
+    private Integer maxGeneration;
 }

@@ -6,12 +6,12 @@ import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.models.IntegerRouting;
 import hcmut.thesis.gpduserver.ai.models.Key;
 import hcmut.thesis.gpduserver.ai.models.RoutingMatrix;
-import hcmut.thesis.gpduserver.ai.models.RoutingOrder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,10 +23,40 @@ import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.PICKUP;
 public class GeneticOperation {
 
 
-    private AIConfig config;
+    private final AIConfig config;
 
     public GeneticOperation(AIConfig config) {
         this.config = config;
+    }
+
+    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle, RoutingMatrix routingMatrix) {
+        int size = population.size();
+        int index = (int) ((float) size * config.getElitismRate());
+        List<Chromosome> buf = population.subList(index, size);
+        while (index < size) {
+            if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
+                Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
+                List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(),routingMatrix);
+                children = children.stream().map(child -> {
+                    if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
+                        return mutate(child, numberVehicle, routingMatrix);
+                    }
+                    return child;
+                }).collect(Collectors.toList());
+                buf.addAll(children);
+                index += 2;
+            } else {
+                Chromosome luckyMan = population.get(RandomKey.generateBaseMin(0, index));
+                if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
+
+                    luckyMan = mutate(luckyMan, numberVehicle, routingMatrix);
+                    luckyMan.setFitness(calFitness(luckyMan.getGens(),routingMatrix));
+                }
+                buf.add(luckyMan);
+            }
+        }
+        buf.sort(Chromosome::compareTo);
+        return buf;
     }
 
     public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix) {
@@ -80,21 +110,26 @@ public class GeneticOperation {
         return best;
     }
 
-    public Pair<Chromosome, Chromosome> mate(Chromosome c1, Chromosome c2) {
+    public List<Chromosome> mate(Chromosome c1, Chromosome c2, RoutingMatrix routingMatrix) {
         int size = c1.getGens().size();
         List<Gen> genC1 = c1.getGens();
         List<Gen> genC2 = c2.getGens();
         int index1 = RandomKey.random(1, size - 3);
         int index2 = RandomKey.random(index1, size - 2);
-        Chromosome child1 = new Chromosome();
-        Chromosome child2 = new Chromosome();
+
         List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2),
             genC1.subList(index2, size));
         List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
             genC2.subList(index2, size));
-        child1.setGens(gensChild1);
-        child2.setGens(gensChild2);
-        return Pair.of(child1, child2);
+        Chromosome child1 = Chromosome.builder()
+            .gens(gensChild1)
+            .fitness(calFitness(gensChild1, routingMatrix))
+            .build();
+        Chromosome child2 = Chromosome.builder()
+            .gens(gensChild2)
+            .fitness(calFitness(gensChild2, routingMatrix))
+            .build();
+        return List.of(child1, child2);
 
     }
 
@@ -103,14 +138,16 @@ public class GeneticOperation {
         return Stream.of(listGens).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    public Chromosome mutate(Chromosome chromosome, int numberOfVehicle) {
+    public Chromosome mutate(Chromosome chromosome, int numberOfVehicle, RoutingMatrix routingMatrix) {
         int indexGen = RandomKey.random(0, chromosome.getGens().size());
         while (chromosome.getGens().get(indexGen).getVehicleConstant()) {
             indexGen = RandomKey.random(0, chromosome.getGens().size());
         }
         int vehicleId = RandomKey.generateInSize(numberOfVehicle);
         chromosome.getGens().get(indexGen).setVehicle(vehicleId);
+        chromosome.setFitness(calFitness(chromosome.getGens(),routingMatrix));
         return chromosome;
     }
+
 
 }
