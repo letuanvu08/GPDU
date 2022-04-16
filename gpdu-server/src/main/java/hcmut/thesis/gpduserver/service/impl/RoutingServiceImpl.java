@@ -206,6 +206,9 @@ public class RoutingServiceImpl implements RoutingService {
                 .travelCost(100)
                 .populationSize(50)
                 .tournamentSize(5)
+                .maxGeneration(100)
+                .crossover(0.8f)
+                .mutation(0.2f)
                 .build();
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
                 .orderNumber(orders.size())
