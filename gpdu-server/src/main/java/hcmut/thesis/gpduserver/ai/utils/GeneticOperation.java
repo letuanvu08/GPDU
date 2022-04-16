@@ -5,9 +5,8 @@ import hcmut.thesis.gpduserver.ai.models.Chromosome;
 import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.models.IntegerRouting;
 import hcmut.thesis.gpduserver.ai.models.Key;
+import hcmut.thesis.gpduserver.ai.models.RoutingMatrix;
 import hcmut.thesis.gpduserver.ai.models.RoutingOrder;
-import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
-import hcmut.thesis.gpduserver.models.entity.RoutingOrder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,11 +22,6 @@ import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.PICKUP;
 
 public class GeneticOperation {
 
-    private final int GENERATION_MAX = 50;
-    private final int TRAVEL_COST = 200;
-    private final int WAITING_COST = 10;
-    private final int LATE_COST = 20;
-    private final int TOURNAMENT_SIZE = 20;
 
     private AIConfig config;
 
@@ -35,24 +29,30 @@ public class GeneticOperation {
         this.config = config;
     }
 
-    public float calFitness(List<Gen> gens, List<RoutingOrder> orders,
-                            List<List<Float>> durationMatrix) {
+    public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix) {
         List<Key<IntegerRouting>> keys = new ArrayList<>();
         for (int i = 0; i < gens.size(); i++) {
+            Gen gen = gens.get(i);
             keys.add(Key.<IntegerRouting>builder()
-                    .value(gens.get(i).getPickup())
-                    .orderIndex(i)
-                    .type(PICKUP.name())
-                    .build());
+                .value(IntegerRouting.builder()
+                    .randomKey(gen.getPickup())
+                    .vehicle(gen.getVehicle())
+                    .build())
+                .orderIndex(i)
+                .type(PICKUP)
+                .build());
             keys.add(Key.<IntegerRouting>builder()
-                    .value(gens.get(i).getDelivery())
-                    .orderIndex(i)
-                    .type(DELIVERY.name())
-                    .build());
+                .value(IntegerRouting.builder()
+                    .randomKey(gen.getDelivery())
+                    .vehicle(gen.getVehicle())
+                    .build())
+                .orderIndex(i)
+                .type(DELIVERY)
+                .build());
         }
         keys.sort(Comparator.comparing(Key::getValue));
-        float duration = RoutingOperation.calTotalDuration(keys, orders, durationMatrix);
-        return duration * TRAVEL_COST;
+        float duration = RoutingOperation.calTotalDuration(keys, routingMatrix);
+        return duration * config.getTravelCost();
     }
 
     public Pair<Chromosome, Chromosome> choosePairParent(List<Chromosome> population) {
@@ -64,12 +64,12 @@ public class GeneticOperation {
         return Pair.of(parent1, parent2);
     }
 
-    private Chromosome tournamentSelection(List<Chromosome> population,) {
+    private Chromosome tournamentSelection(List<Chromosome> population) {
         int size = population.size();
         int random = RandomKey.generateInSize(size);
         Chromosome best = population.get(random);
         int tournament = 0;
-        while (tournament < TOURNAMENT_SIZE) {
+        while (tournament < config.getTournamentSize()) {
             random = RandomKey.generateInSize(size);
             Chromosome current = population.get(random);
             if (best.getFitness() < current.getFitness()) {
@@ -88,8 +88,10 @@ public class GeneticOperation {
         int index2 = RandomKey.random(index1, size - 2);
         Chromosome child1 = new Chromosome();
         Chromosome child2 = new Chromosome();
-        List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2), genC1.subList(index2, size));
-        List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2), genC2.subList(index2, size));
+        List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2),
+            genC1.subList(index2, size));
+        List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
+            genC2.subList(index2, size));
         child1.setGens(gensChild1);
         child2.setGens(gensChild2);
         return Pair.of(child1, child2);

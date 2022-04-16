@@ -8,35 +8,26 @@ import hcmut.thesis.gpduserver.ai.models.*;
 import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.utils.GeneticOperation;
 import hcmut.thesis.gpduserver.ai.utils.RandomKey;
-import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
-import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
-import hcmut.thesis.gpduserver.models.entity.Node;
-import hcmut.thesis.gpduserver.models.entity.Order;
-import hcmut.thesis.gpduserver.models.entity.Routing;
-import hcmut.thesis.gpduserver.models.entity.Vehicle;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AIRouter implements IAIRouter {
 
-    private List<RoutingOrder> orders;
-    private List<RoutingVehicle> vehicles;
-    private final Integer BOUND_RANDOM_KEY = 1000;
-    private final Integer INIT_RANDOM = 1000;
-    private final List<List<Float>> durationMatrix = new ArrayList<>();
-    private AIConfig config;
-    private RoutingMatrix routingMatrix;
-    private GeneticOperation geneticOperation;
+    private final List<RoutingOrder> orders;
+    private final List<RoutingVehicle> vehicles;
+    private static final Integer BOUND_RANDOM_KEY = 1000;
+    private static final Integer INIT_RANDOM = 1000;
+    private final AIConfig config;
+    private final RoutingMatrix routingMatrix;
+    private final GeneticOperation geneticOperation;
 
     public AIRouter(List<RoutingOrder> orders,
-                    List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix) {
+        List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
+        GeneticOperation geneticOperation) {
         this.orders = orders;
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
+        this.geneticOperation = geneticOperation;
     }
 
     @Override
@@ -52,44 +43,41 @@ public class AIRouter implements IAIRouter {
         for (int i = 0; i < config.getPopulationSize(); i++) {
             List<Gen> sample = this.getSample(keys, orders);
             Chromosome chromosome = Chromosome.builder()
-                    .gens(sample)
-                    .fitness(geneticOperation.calFitness(sample, orders, durationMatrix))
-                    .build();
+                .gens(sample)
+                .fitness(geneticOperation.calFitness(sample, routingMatrix))
+                .build();
             result.add(chromosome);
         }
         result.sort(((c1, c2) -> (int) Math.ceil(c1.getFitness() - c2.getFitness()) + 1));
         return result;
     }
 
-    private List<Gen> getSample(List<Key<RoutingOrder.RoutingNode>> keys, List<RoutingOrder> orders) {
+    private List<Gen> getSample(List<Key<RoutingOrder.RoutingNode>> keys,
+        List<RoutingOrder> orders) {
         List<Gen> sample = new ArrayList<>();
         List<Integer> sampleRandom = getSampleKeyRandom(keys.size());
         for (int i = 0; i < orders.size(); i++) {
             RoutingOrder order = orders.get(i);
             Integer vehicleId = RandomKey.generateInSize(vehicles.size());
-            Boolean vehicleConstant = false;
+            boolean vehicleConstant = false;
             if (order.getVehicleConstant()) {
                 vehicleId = order.getVehicleId();
                 vehicleConstant = true;
             }
             int finalI = i;
             Gen gene = Gen.builder()
-                    .pickup(IntegerRouting.builder()
-                            .vehicle(vehicleId)
-                            .randomKey(sampleRandom.get(
-                                    keys.indexOf(keys.stream().filter(
-                                                    key -> key.getOrderIndex() == finalI && key.getType().equals(PICKUP.name()))
-                                            .findFirst().orElse(null))))
-                            .build())
-                    .delivery(IntegerRouting.builder()
-                            .vehicle(vehicleId)
-                            .randomKey(sampleRandom.get(
-                                    keys.indexOf(keys.stream().filter(
-                                                    key -> key.getOrderIndex() == finalI && key.getType().equals(DELIVERY.name()))
-                                            .findFirst().orElse(null))))
-                            .build())
-                    .vehicleConstant(vehicleConstant)
-                    .build();
+                .pickup(sampleRandom.get(
+                    keys.indexOf(keys.stream().filter(
+                            key -> key.getOrderIndex() == finalI && key.getType().equals(PICKUP))
+                        .findFirst().orElse(null))))
+                .delivery(sampleRandom.get(
+                    keys.indexOf(keys.stream().filter(
+                            key -> key.getOrderIndex() == finalI && key.getType()
+                                .equals(DELIVERY))
+                        .findFirst().orElse(null))))
+                .vehicle(vehicleId)
+                .vehicleConstant(vehicleConstant)
+                .build();
             sample.add(gene);
         }
         return sample;
@@ -97,7 +85,7 @@ public class AIRouter implements IAIRouter {
 
     private List<Integer> getSampleKeyRandom(int size) {
         List<Integer> sampleRandom = new ArrayList<>();
-        Integer prevRandom = INIT_RANDOM;
+        int prevRandom = INIT_RANDOM;
         while (sampleRandom.size() < size) {
             Integer currentRandom = RandomKey.generateBaseMin(prevRandom, BOUND_RANDOM_KEY);
             sampleRandom.add(currentRandom);
@@ -111,20 +99,21 @@ public class AIRouter implements IAIRouter {
         return null;
     }
 
-    private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(List<RoutingOrder> orders) {
+    private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(
+        List<RoutingOrder> orders) {
         List<Key<RoutingOrder.RoutingNode>> keys = new ArrayList<>();
         for (int i = 0; i < orders.size(); i++) {
             RoutingOrder order = orders.get(i);
             keys.add(Key.<RoutingOrder.RoutingNode>builder()
-                    .orderIndex(i)
-                    .type(PICKUP.name())
-                    .value(order.getPickup())
-                    .build());
+                .orderIndex(i)
+                .type(PICKUP)
+                .value(order.getPickup())
+                .build());
             keys.add(Key.<RoutingOrder.RoutingNode>builder()
-                    .orderIndex(i)
-                    .type(DELIVERY.name())
-                    .value(order.getPickup())
-                    .build());
+                .orderIndex(i)
+                .type(DELIVERY)
+                .value(order.getPickup())
+                .build());
         }
         keys.sort(Comparator.comparing(Key::getValue));
         return keys;
