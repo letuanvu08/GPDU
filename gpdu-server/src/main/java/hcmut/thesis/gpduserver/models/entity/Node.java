@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Node {
+public class Node implements Comparable<Node>{
 
   private String customerName;
   private String phone;
@@ -21,5 +21,9 @@ public class Node {
   private Long latestTime;
 
 
+  @Override
+  public int compareTo(Node other) {
+    return (int) (earliestTime-other.getEarliestTime());
+  }
 }
 
