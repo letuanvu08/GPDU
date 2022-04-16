@@ -127,7 +127,7 @@ public class AIRouter implements IAIRouter {
             List<Chromosome.Gene> genes = sample.stream().map(item -> {
                 if (item == null) {
                     int pickup = RandomKey.generateVehicleRandom(vehicleIds.size());
-                    int delivery = RandomKey.generate(vehicleIds.size(), pickup);
+                    int delivery = RandomKey.generateVehicleRandom(vehicleIds.size(), pickup);
                     return Chromosome.Gene.builder()
                             .pickup(pickup)
                             .delivery(delivery)

@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Chromosome {
     private List<Gene> genes;
     private Float fitness = 0f;
@@ -18,6 +19,7 @@ public class Chromosome {
     @Data
     @Builder
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class Gene {
         private Integer pickup;
         private Integer delivery;

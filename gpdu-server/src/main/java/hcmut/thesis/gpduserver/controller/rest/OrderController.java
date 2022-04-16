@@ -3,6 +3,7 @@ package hcmut.thesis.gpduserver.controller.rest;
 import hcmut.thesis.gpduserver.constants.enumations.BaseCodeEnum;
 import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
 import hcmut.thesis.gpduserver.mapbox.commands.GetDurationCommand;
+import hcmut.thesis.gpduserver.models.entity.Location;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.entity.UserSecure;
@@ -10,8 +11,10 @@ import hcmut.thesis.gpduserver.models.reponse.ApiResponse;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
 import hcmut.thesis.gpduserver.service.OrderService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +38,17 @@ public class OrderController {
     private IMapboxClient mapboxClient;
 
     @GetMapping("/test")
-    public Float test() {
-        GetDurationCommand command = GetDurationCommand.builder()
-                .fromLatitude(10.969345)
-                .fromLongitude(106.853721)
-                .toLatitude(10.972371)
-                .toLongitude(106.877595).build();
+    public List<List<Float>> test() {
+        List<Location> locations = new ArrayList<>();
+        for (int i = 0; i < 48; i++) {
+            Location location = new Location();
+            location.setLatitude((float) ThreadLocalRandom.current().nextDouble(10.653092, 10.957113));
+            location.setLongitude((float) ThreadLocalRandom.current().nextDouble(106.471501, 106.702647));
+            locations.add(location);
+        }
 
-        return mapboxClient.getDuration(command);
+
+        return mapboxClient.retrieveDurationMatrix(locations).orElse(new ArrayList<>());
     }
 
     @PostMapping("")
