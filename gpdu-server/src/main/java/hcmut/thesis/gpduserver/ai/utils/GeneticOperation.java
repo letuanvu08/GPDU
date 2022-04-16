@@ -4,7 +4,7 @@ import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.DELIVERY;
 import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.PICKUP;
 
 import hcmut.thesis.gpduserver.ai.models.Chromosome;
-import hcmut.thesis.gpduserver.ai.models.Chromosome.Gene;
+import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.models.IntegerRouting;
 import hcmut.thesis.gpduserver.ai.models.Key;
 import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
@@ -12,6 +12,8 @@ import hcmut.thesis.gpduserver.models.entity.Order;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.modelmapper.internal.Pair;
 
 public class GeneticOperation {
@@ -23,7 +25,7 @@ public class GeneticOperation {
     private static final int TOURNAMENT_SIZE = 20;
 
 
-    public static float calFitness(List<Gene> genes, List<Order> orders,
+    public static float calFitness(List<Gen> genes, List<Order> orders,
         IMapboxClient mapboxClient) {
         List<Key<IntegerRouting>> keys = new ArrayList<>();
         for (int i = 0; i < genes.size(); i++) {
@@ -69,7 +71,15 @@ public class GeneticOperation {
     }
 
     public static Chromosome mate(Chromosome c1, Chromosome c2) {
-        return null;
+        int size = c1.getGens().size();
+        List<Gen> genC1 = c1.getGens();
+        List<Gen> genC2 = c2.getGens();
+        int index1 = RandomKey.random(1, size-3);
+        int index2 = RandomKey.random(index1,size-2);
+        Chromosome child1 = new Chromosome();
+        Chromosome child2 = new Chromosome();
+        List<Gen> gens = Stream.concat(genC1.subList(0, index1).stream(),genC2.subList(index1,index2).stream()).collect(
+            Collectors.toList());
     }
 
     public static Chromosome mutate() {

@@ -4,6 +4,7 @@ import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.DELIVERY;
 import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.PICKUP;
 
 import hcmut.thesis.gpduserver.ai.models.Chromosome;
+import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.models.IntegerRouting;
 import hcmut.thesis.gpduserver.ai.models.Key;
 import hcmut.thesis.gpduserver.ai.utils.GeneticOperation;
@@ -52,22 +53,22 @@ public class AIRouter implements IAIRouter {
 
         List<Chromosome> result = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            List<Chromosome.Gene> sample = this.getSample(vehicleIds, keys, orders);
+            List<Gen> sample = this.getSample(vehicleIds, keys, orders);
             Chromosome chromosome = Chromosome.builder()
-                .genes(sample)
+                .gens(sample)
                 .fitness(GeneticOperation.calFitness(sample, orders,mapboxClient))
                 .build();
             result.add(chromosome);
         }
         for (Chromosome chromosome : result) {
-            chromosome.setFitness(GeneticOperation.calFitness(chromosome.getGenes(),orders, mapboxClient));
+            chromosome.setFitness(GeneticOperation.calFitness(chromosome.getGens(),orders, mapboxClient));
         }
         result.sort(((c1, c2) -> (int) Math.ceil(c1.getFitness() - c2.getFitness()) + 1));
         return result;
     }
 
-    private List<Chromosome.Gene> getSample(List<String> vehicleIds, List<Key<Node>> keys , List<Order> orders) {
-        List<Chromosome.Gene> sample = new ArrayList<>();
+    private List<Gen> getSample(List<String> vehicleIds, List<Key<Node>> keys , List<Order> orders) {
+        List<Gen> sample = new ArrayList<>();
         List<Integer> sampleRandom = getSampleKeyRandom(keys.size());
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
@@ -78,7 +79,7 @@ public class AIRouter implements IAIRouter {
                 vehicleConstant = vehicleId;
             }
             int finalI = i;
-            Chromosome.Gene gene = Chromosome.Gene.builder()
+            Gen gene = Gen.builder()
                 .pickup(IntegerRouting.builder()
                     .vehicle(vehicleId)
                     .vehicleConstant(vehicleConstant)

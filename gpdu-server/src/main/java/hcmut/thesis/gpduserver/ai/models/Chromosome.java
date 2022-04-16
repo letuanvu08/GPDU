@@ -14,15 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Chromosome {
-    private List<Gene> genes;
+    private List<Gen> gens;
     private Float fitness = 0f;
 
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Gene {
+    public static class Gen {
         private IntegerRouting pickup;
         private IntegerRouting delivery;
     }

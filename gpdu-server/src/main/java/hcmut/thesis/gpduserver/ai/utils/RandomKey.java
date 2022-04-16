@@ -7,6 +7,10 @@ public class RandomKey {
         return ThreadLocalRandom.current().nextInt(0, size);
     }
 
+    public static int random(int origin, int size) {
+        return ThreadLocalRandom.current().nextInt(origin, size);
+    }
+
 
     public static int generateBaseMin(int min, int bound) {
         return ThreadLocalRandom.current().nextInt(min, 1000);
