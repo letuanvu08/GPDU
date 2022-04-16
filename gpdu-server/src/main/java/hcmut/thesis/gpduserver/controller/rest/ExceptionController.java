@@ -17,7 +17,7 @@ public class ExceptionController {
   public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(
       ValidationException ex) {
     ApiResponse<Object> failResp = new ApiResponse<>();
-    log.info("Validation Ïfailed output {}",ex.getBaseCodeEnum().getMessage());
+    log.info("Validation failed output {}",ex.getBaseCodeEnum().getMessage());
     failResp.fail(ex.getBaseCodeEnum());
     return new ResponseEntity<>(failResp, HttpStatus.OK);
   }
@@ -26,7 +26,7 @@ public class ExceptionController {
   public ResponseEntity<ApiResponse<Object>> handleOthersExceptions(
       Exception ex) {
     ApiResponse<Object> failResp = new ApiResponse<>();
-    log.info("Server does not trust request output {}", ex.getMessage());
+    log.error("Internal error: {}", ex);
     failResp.fail(BaseCodeEnum.SYSTEM_ERROR);
     failResp.setData(ex.getMessage());
     return new ResponseEntity<>(failResp, HttpStatus.OK);

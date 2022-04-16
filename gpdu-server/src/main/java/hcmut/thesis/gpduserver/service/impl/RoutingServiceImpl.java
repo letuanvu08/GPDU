@@ -71,8 +71,8 @@ public class RoutingServiceImpl implements RoutingService {
 
     private void closeAllActiveRouting() {
         try {
-            Document request = new Document().append("active", true);
-            Document update = new Document().append("active", false);
+            Document request = new Document().append("active", Boolean.TRUE);
+            Document update = new Document().append("active", Boolean.FALSE);
             routingRepository.updateMany(request, update);
         } catch (Exception e) {
             log.info("Error when closeAllActiveRouting, exception: {}", e.getMessage());
@@ -218,7 +218,6 @@ public class RoutingServiceImpl implements RoutingService {
                 .build();
         AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix);
         RoutingResponse res = router.routing();
-        routingRepository.updateMany(new Document("active", true), new Document("active", false));
         List<Routing> listRouting = new ArrayList<>();
         for (RoutingResponse.Route route : res.getRoutes()) {
             List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();

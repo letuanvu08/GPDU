@@ -46,17 +46,19 @@ public class GeneticOperation {
                 buf.addAll(children);
                 index += 2;
             } else {
-                Chromosome luckyMan = population.get(RandomKey.generateBaseMin(index, size));
+                Chromosome luckyMan = population.get(RandomKey.random(index,size));
                 if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
 
                     luckyMan = mutate(luckyMan, numberVehicle, routingMatrix);
                     luckyMan.setFitness(calFitness(luckyMan.getGens(), routingMatrix));
                 }
+                index+=1;
                 buf.add(luckyMan);
             }
         }
         buf.sort(Chromosome::compareTo);
-        return buf;
+
+        return buf.subList(0,config.getPopulationSize());
     }
 
     public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix) {
