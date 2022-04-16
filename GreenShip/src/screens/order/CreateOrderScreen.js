@@ -118,10 +118,11 @@ const CreateOrderScreen = ({ navigation, route }) => {
           note,
         })
       );
+      navigation.navigate(routesEnum.ORDER_LIST);
     }
   };
   return (
-    <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={-180}>
+    <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={-250}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Create a new order</Text>
         <View style={styles.card}>

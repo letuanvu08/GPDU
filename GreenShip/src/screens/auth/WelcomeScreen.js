@@ -48,7 +48,6 @@ const WelcomeScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: paddings.container,
     alignItems: 'center',
   },
