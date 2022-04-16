@@ -13,6 +13,6 @@ public class RandomKey {
 
 
     public static int generateBaseMin(int min, int bound) {
-        return ThreadLocalRandom.current().nextInt(min, 1000);
+        return ThreadLocalRandom.current().nextInt(min, min + bound);
     }
 }

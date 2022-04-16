@@ -8,6 +8,7 @@ import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
 import hcmut.thesis.gpduserver.constants.mongodb.QueryOperators;
 import hcmut.thesis.gpduserver.mapbox.MapboxClient;
 import hcmut.thesis.gpduserver.models.entity.*;
+import hcmut.thesis.gpduserver.models.request.order.OrderListRequest;
 import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 import hcmut.thesis.gpduserver.repository.RoutingRepository;
 import hcmut.thesis.gpduserver.service.OrderService;
@@ -156,7 +157,7 @@ public class RoutingServiceImpl implements RoutingService {
 
     @Override
     public void routing() {
-        List<Order> orders = orderService.getTodayOrders();
+        List<Order> orders = orderService.getOrderListByRequest(OrderListRequest.builder().build());
         List<String> orderIds = orders.stream()
                 .map(o -> o.getId().toHexString()).collect(Collectors.toList());
         List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
@@ -193,7 +194,7 @@ public class RoutingServiceImpl implements RoutingService {
                             .latestTime(orders.get(i).getPickup().getLatestTime())
                             .build())
                     .vehicleId(vehicleIds.indexOf(orders.get(i).getVehicleId()))
-                    .vehicleConstant(!orders.get(i).getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.name()))
+                    .vehicleConstant(!orders.get(i).getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.getLabel()))
                     .build();
             routingOrders.add(routingOrder);
             locations.add(orders.get(i).getPickup().getLocation());

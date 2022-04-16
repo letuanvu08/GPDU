@@ -20,7 +20,7 @@ public class RoutingOperation {
         float duration = 0;
         for (int i = 0; i < keys.size() - 1; i++) {
             Key<IntegerRouting> currentKey = keys.get(i);
-            Key<IntegerRouting> nextKey = keys.get(i);
+            Key<IntegerRouting> nextKey = keys.get(i + 1);
             int currentVehicle = currentKey.getValue().getVehicle();
             if (prevVehicle != currentVehicle) {
                 duration += routingMatrix.getDurationVehicle(currentVehicle,

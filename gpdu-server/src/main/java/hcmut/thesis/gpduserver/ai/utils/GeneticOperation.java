@@ -94,8 +94,8 @@ public class GeneticOperation {
         int size = c1.getGens().size();
         List<Gen> genC1 = c1.getGens();
         List<Gen> genC2 = c2.getGens();
-        int index1 = RandomKey.random(1, size - 3);
-        int index2 = RandomKey.random(index1, size - 2);
+        int index1 = RandomKey.random(1, size - 2);
+        int index2 = RandomKey.random(index1, size - 1);
 
         List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2),
                 genC1.subList(index2, size));
