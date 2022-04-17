@@ -153,8 +153,8 @@ public abstract class GenericRepository<T extends PO> implements IGenericReposit
     @Override
     public Optional<Boolean> updateMany(@NonNull Document query, @NonNull Document data) {
         try {
-            data.append("updatedDate", System.currentTimeMillis());
-            return Optional.of(getMongoDBOperator().updateMany(query, data));
+            data.append("updatedTime", System.currentTimeMillis());
+            return Optional.of(getMongoDBOperator().updateMany(query, new Document("$set", data)));
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();

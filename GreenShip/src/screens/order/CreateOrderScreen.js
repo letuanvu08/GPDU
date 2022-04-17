@@ -21,7 +21,7 @@ import { addNewOrder } from "~/reduces/OrdersReducer";
 const SENDER = "sender";
 const RECERIVER = "receiver";
 const EARLIEST = "earliest";
-const LASTEST = "lastest";
+const LATEST = "latest";
 
 const CreateOrderScreen = ({ navigation, route }) => {
   const [senderName, setSenderName] = useState("");
@@ -29,13 +29,13 @@ const CreateOrderScreen = ({ navigation, route }) => {
   const [senderAddress, setSenderAddress] = useState("");
   const [senderLocation, setSenderLocation] = useState({});
   const [senderEarliestTime, setSenderEarliestTime] = useState(0);
-  const [senderLastestTime, setSenderLastestTime] = useState(0);
+  const [senderLatestTime, setSenderLatestTime] = useState(0);
   const [receiverName, setReceiverName] = useState("");
   const [receiverPhone, setReceiverPhone] = useState("");
   const [receiverAddress, setReceiverAddress] = useState("");
   const [receiverLocation, setReceiverLocation] = useState({});
   const [receiverEarliestTime, setReceiverEarliestTime] = useState(0);
-  const [receiverLastestTime, setReceiverLastestTime] = useState(0);
+  const [receiverLatestTime, setReceiverLatestTime] = useState(0);
   const [packageCategory, setPackageCategory] = useState("");
   const [packageDescription, setPackageDescription] = useState("");
   const [packageWeight, setPackageWeight] = useState(0);
@@ -74,22 +74,22 @@ const CreateOrderScreen = ({ navigation, route }) => {
     setDate(date);
     if (personType == SENDER) {
       if (dateType == EARLIEST) setSenderEarliestTime(date);
-      else setSenderLastestTime(date);
+      else setSenderLatestTime(date);
     } else {
       if (dateType == EARLIEST) setReceiverEarliestTime(date);
-      else setReceiverLastestTime(date);
+      else setReceiverLatestTime(date);
     }
   };
   const canCreate =
     senderAddress &&
     senderEarliestTime != 0 &&
-    senderLastestTime != 0 &&
+    senderLatestTime != 0 &&
     senderLocation &&
     senderName &&
     senderPhone &&
     receiverAddress &&
     receiverEarliestTime != 0 &&
-    receiverLastestTime != 0 &&
+    receiverLatestTime != 0 &&
     receiverLocation &&
     receiverName &&
     receiverPhone &&
@@ -102,13 +102,13 @@ const CreateOrderScreen = ({ navigation, route }) => {
         addNewOrder({
           senderAddress,
           senderEarliestTime: Date.parse(senderEarliestTime) / 1000,
-          senderLastestTime: Date.parse(senderLastestTime) / 1000,
+          senderLatestTime: Date.parse(senderLatestTime) / 1000,
           senderLocation,
           senderName,
           senderPhone,
           receiverAddress,
           receiverEarliestTime: Date.parse(receiverEarliestTime) / 1000,
-          receiverLastestTime: Date.parse(receiverLastestTime) / 1000,
+          receiverLatestTime: Date.parse(receiverLatestTime) / 1000,
           receiverLocation,
           receiverName,
           receiverPhone,
@@ -181,12 +181,12 @@ const CreateOrderScreen = ({ navigation, route }) => {
           <IconInput
             style={styles.input}
             input={{
-              placeholder: "Lastest time",
-              value: senderLastestTime.toString(),
-              onChangeText: setSenderLastestTime,
+              placeholder: "Latest time",
+              value: senderLatestTime.toString(),
+              onChangeText: setSenderLatestTime,
               onPress: handleOpenPicker({
                 personType: SENDER,
-                dateType: LASTEST,
+                dateType: LATEST,
               }),
             }}
             icon={{ name: "time", type: "ionicon" }}
@@ -248,12 +248,12 @@ const CreateOrderScreen = ({ navigation, route }) => {
           <IconInput
             style={styles.input}
             input={{
-              placeholder: "Lastest time",
-              value: receiverLastestTime.toString(),
-              onChangeText: setReceiverLastestTime,
+              placeholder: "Latest time",
+              value: receiverLatestTime.toString(),
+              onChangeText: setReceiverLatestTime,
               onPress: handleOpenPicker({
                 personType: RECERIVER,
-                dateType: LASTEST,
+                dateType: LATEST,
               }),
             }}
             icon={{ name: "time", type: "ionicon" }}

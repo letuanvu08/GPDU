@@ -1,5 +1,4 @@
 export default routesEnum = {
-  ROUTES: "routes",
   ORDERS_DETAIL: "orders_detail",
   //Auth
   WELCOME: "welcome",
@@ -18,5 +17,8 @@ export default routesEnum = {
   //Navigation
   CUSTOMER_NAVIGATION: "customer_navigation",
   //Map
-  MAP: "map"
+  MAP: "map",
+  //driver
+  ROUTES: "routes",
+  DRIVER_PROFILE: "driver_profile"
 };

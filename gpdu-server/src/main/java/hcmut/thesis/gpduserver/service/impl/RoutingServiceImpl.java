@@ -26,6 +26,8 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.print.Doc;
+
 @Service
 @Slf4j
 public class RoutingServiceImpl implements RoutingService {
@@ -202,9 +204,9 @@ public class RoutingServiceImpl implements RoutingService {
         }
         AIConfig config = AIConfig.builder()
                 .elitismRate(0.05f)
-                .lateCost(20)
-                .waitingCost(10)
-                .travelCost(100)
+                .lateCost(2)
+                .waitingCost(1)
+                .travelCost(10)
                 .populationSize(50)
                 .tournamentSize(5)
                 .maxGeneration(100)

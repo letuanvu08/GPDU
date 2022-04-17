@@ -32,7 +32,7 @@ public class AIRouter implements IAIRouter {
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
-        this.geneticOperation = new GeneticOperation(config);
+        this.geneticOperation = new GeneticOperation(config, orders);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {
@@ -40,12 +40,12 @@ public class AIRouter implements IAIRouter {
         List<RoutingResponse.Route> routes = new ArrayList<>();
         List<RoutingKey> routingKeys = new ArrayList<>();
         Integer vehicle = keys.get(0).getValue().getVehicle();
-        for (Key<IntegerRouting> key : keys) {
+        for (int i = 0; i < keys.size() - 1; i++) {
             RoutingKey temp = RoutingKey.builder()
-                    .orderId(key.getOrderIndex())
-                    .type(key.getType())
+                    .orderId(keys.get(i).getOrderIndex())
+                    .type(keys.get(i).getType())
                     .build();
-            if (key.getValue().getVehicle() != vehicle) {
+            if (keys.get(i).getValue().getVehicle() != vehicle) {
                 RoutingResponse.Route route = RoutingResponse.Route.builder()
                         .vehicleId(vehicle)
                         .routingKeys(routingKeys)
@@ -53,10 +53,21 @@ public class AIRouter implements IAIRouter {
                 routes.add(route);
                 routingKeys = new ArrayList<>();
                 routingKeys.add(temp);
+                vehicle = keys.get(i).getValue().getVehicle();
             } else {
                 routingKeys.add(temp);
             }
         }
+        RoutingKey temp = RoutingKey.builder()
+                .orderId(keys.get(keys.size() - 1).getOrderIndex())
+                .type(keys.get(keys.size() - 1).getType())
+                .build();
+        routingKeys.add(temp);
+        RoutingResponse.Route route = RoutingResponse.Route.builder()
+                .vehicleId(vehicle)
+                .routingKeys(routingKeys)
+                .build();
+        routes.add(route);
         return RoutingResponse.builder()
                 .routes(routes)
                 .build();
@@ -70,6 +81,7 @@ public class AIRouter implements IAIRouter {
         while (generation < config.getMaxGeneration()) {
             log.info("Generation: {}", generation);
             population = geneticOperation.evolve(population, vehicles.size(), routingMatrix);
+            log.info("Generation: {}", generation);
             log.info("Best individual in generation: {} has fitness: {}", generation, population.get(0).getFitness());
             generation += 1;
         }
@@ -84,7 +96,7 @@ public class AIRouter implements IAIRouter {
             List<Gen> sample = this.getSample(keys, orders);
             Chromosome chromosome = Chromosome.builder()
                     .gens(sample)
-                    .fitness(geneticOperation.calFitness(sample, routingMatrix))
+                    .fitness(geneticOperation.calFitness(sample, routingMatrix, orders))
                     .build();
             result.add(chromosome);
         }

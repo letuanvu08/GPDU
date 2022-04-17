@@ -21,6 +21,7 @@ import CustomerNavigation from './CustomerNavigation';
 import MapScreen from '~/screens/order/MapScreen';
 import colors from '~/theme/colors';
 import OrderDetailCustomerScreen from '~/screens/ordersDetaiCustomer';
+import CustomerProfile from '~/screens/profile/CustomerProfile';
 export default function Navigation() {
   const Stack = createStackNavigator();
   const MyTheme = {
@@ -58,6 +59,10 @@ export default function Navigation() {
               }}
               name={routesEnum.ORDERS_DETAIL}
               component={OrderDetailScreen}
+            />
+            <Stack.Screen
+              name={routesEnum.DRIVER_PROFILE}
+              component={CustomerProfile}
             />
           </>
         )}

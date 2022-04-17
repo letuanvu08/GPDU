@@ -1,17 +1,23 @@
 //TopBar.js
-import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Avatar } from './Avatar';
-import { RefreshButton } from './RefreshButton';
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useDispatch } from "react-redux";
+import routesEnum from "~/constants/routesEnum";
+import { Avatar } from "./Avatar";
+import { RefreshButton } from "./RefreshButton";
 
 export function TopBar({ onPressElement }) {
-  const handleViewProfile = ()=>{
-    console.log(">>> view profile need implement")
-  }
+  const navigation = useNavigation();
+
+  const handleViewProfile = () => {
+    console.log(">>> view profile need implement");
+    navigation.navigate(routesEnum.DRIVER_PROFILE);
+  };
   return (
     <View style={styles.container}>
-      <Pressable onPress={handleViewProfile}> 
-      <Avatar/>
+      <Pressable onPress={handleViewProfile}>
+        <Avatar />
       </Pressable>
       <RefreshButton onPressElement={onPressElement} />
     </View>
@@ -19,13 +25,13 @@ export function TopBar({ onPressElement }) {
 }
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 40,
-    width: '100%',
+    width: "100%",
     zIndex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 10,
   },
 });

@@ -2,24 +2,27 @@ package hcmut.thesis.gpduserver.service;
 
 import hcmut.thesis.gpduserver.models.entity.Routing;
 import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
+
 import java.util.List;
+
 import org.bson.Document;
 
 public interface RoutingService {
 
-  List<Routing> createListRouting(List<Routing> request);
-  Routing getRoutingActiveByVehicleId(String vehicleId);
+    List<Routing> createListRouting(List<Routing> request);
 
-  Routing getRoutingActiveByOrderId(String orderId);
+    Routing getRoutingActiveByVehicleId(String vehicleId);
 
-  Routing getRoutingByRequest(Document request);
+    Routing getRoutingActiveByOrderId(String orderId);
 
-  List<Routing> getListRoutingByVehicle(String vehicleId, int offset, int limit);
+    Routing getRoutingByRequest(Document request);
 
-  Boolean updateActiveRouting(String routingId, Boolean active);
+    List<Routing> getListRoutingByVehicle(String vehicleId, int offset, int limit);
 
-  Boolean updateRouting(Routing routing);
+    Boolean updateActiveRouting(String routingId, Boolean active);
 
-  void routing();
+    Boolean updateRouting(Routing routing);
+
+    void routing();
 
 }
