@@ -7,7 +7,7 @@ import EncryptedStorage from "react-native-encrypted-storage";
 import storageKeys from "~/utils/storageKeys";
 import userApi from "~/api/user/userApi";
 import { login, logout } from "~/reduces/AuthReducer";
-
+import { requestPermissionLocation } from "~/reduces/PermissionReducer";
 export default function App() {
   const dispatch = store.dispatch;
   const checkLogin = async () => {
@@ -22,6 +22,7 @@ export default function App() {
   }
   useEffect(() => {
     checkLogin();
+    // dispatch(requestPermissionLocation());
   }, []);
   return (
     <Provider store={store}>

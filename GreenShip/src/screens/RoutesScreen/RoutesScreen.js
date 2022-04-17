@@ -14,19 +14,64 @@ import {useDispatch} from 'react-redux';
 import routingApi from '~/api/routingApi';
 import {useSelector} from 'react-redux';
 import mapboxApi from '~/api/mapboxAPI';
+import Geolocation from 'react-native-geolocation-service';
+import {default as LocationImage} from '~/assets/icons/location_blue.png';
+import vehicleApi from '~/api/vehicleApi';
 export function RoutesScreen() {
   const user = useSelector(state => state.auth.profile);
   const [routing, setRouting] = useState(null);
   const [polyline, setPolyline] = useState([]);
   const [nodes, setNotes] = useState([]);
-  const {mapRef, handelResetInitialPosition, setSelectedMarker} = useMap();
+  const {mapRef, handelResetInitialToLocation, setSelectedMarker} = useMap();
   const dispatch = useDispatch();
-  const [initialRegion, setInitialRegion] = useState({
+    const [location, setLocation] = useState({
     latitude: 10.7758439,
     longitude: 106.7017555,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
   });
+  const [initialRegion, setInitialRegion] = useState({
+    latitude: location.latitude,
+    longitude: location.longitude,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  });
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchLocation();
+    }, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const updateLocationVehicle = ({location}) => {
+    vehicleApi
+      .updateLocationVehicle({vehicleId: user.vehicleId, location: location})
+      .then(re =>
+        console.log(
+          'Update location vehicleId: %s, response: %s ',
+          user.vehicleId,
+          re.ReturnMessage,
+        ),
+      );
+  };
+  const fetchLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        console.log('position', position);
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        updateLocationVehicle({
+          location: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          },
+        });
+      },
+      e => console.log(e),
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
 
   useEffect(() => {
     if (!!user) {
@@ -83,22 +128,18 @@ export function RoutesScreen() {
 
   return (
     <View style={styles.container}>
-      <TopBar onPressElement={handelResetInitialPosition} />
+      <TopBar onPressElement={()=> handelResetInitialToLocation(location)} />
       <MapView
         ref={mapRef}
         customMapStyle={mapStyle}
         provider={PROVIDER_GOOGLE}
         style={styles.mapStyle}
         initialRegion={initialRegion}
-        on
         mapType="standard">
+          <CustomMarker coordinate={location} image={LocationImage}/>
         {nodes.map((node, index) => (
           <CustomMarker
-            key={index}
-            onSelect={node => {
-              console.log('select marker: ', node);
-            }}
-            node={node}
+            coordinate={node.location}
           />
         ))}
         {polyline.length > 0 && <CustomPolyLine coordinates={polyline} />}

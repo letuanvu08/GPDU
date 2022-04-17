@@ -16,7 +16,6 @@ import {fontSizes} from '~/theme/fonts';
 import routesEnum from '~/constants/routesEnum';
 
 const MapScreen = ({navigation}) => {
-  const [granted, setGranted] = useState(null);
   const [location, setLocation] = useState({
     latitude: 10.7758439,
     longitude: 106.7017555,
@@ -25,45 +24,26 @@ const MapScreen = ({navigation}) => {
     latitude: location.latitude,
     longitude: location.longitude,
     latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    longitudeDelta: 0.0,
   });
   const [name, setName] = useState('');
   const requestPermission = async () => {
-    try {
-      const re = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Permission',
-          message: 'GPDU needs access to your location ',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (re === PermissionsAndroid.RESULTS.GRANTED) {
-        Geolocation.getCurrentPosition(
-          position => {
-            console.log('position', position);
-            setLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-            setInitLocation({
-              ...initLocation,
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-            setGranted(true);
-          },
-          e => console.log(e),
-          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-        );
-      } else {
-        setGranted(false);
-      }
-    } catch (err) {
-      console.warn(err);
-    }
+    Geolocation.getCurrentPosition(
+      position => {
+        console.log('position', position);
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setInitLocation({
+          ...initLocation,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      e => console.log(e),
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
   };
   useEffect(() => {
     requestPermission();

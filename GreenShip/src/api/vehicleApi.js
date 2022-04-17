@@ -7,4 +7,7 @@ export default vehicleApi = {
   getVehicleInfoByOwnerId: ({ownerId}) => {
     return httpClient.get(`/vehicles/users/${ownerId}`);
   },
+  updateLocationVehicle: ({vehicleId, location})=>{
+   return httpClient.post(`/vehicles/${vehicleId}/location`, location)
+  }
 };

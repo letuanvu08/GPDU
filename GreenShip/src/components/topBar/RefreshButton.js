@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Image, Pressable } from 'react-native';
 import { default as Refresh } from '~/assets/icons/refresh.png';
-
+import {Icon} from 'react-native-elements';
 export function RefreshButton({ onPressElement }) {
   return (
     <Pressable
@@ -13,7 +13,7 @@ export function RefreshButton({ onPressElement }) {
       ]}
       onPress={onPressElement}
     >
-      <Image source={Refresh} style={styles.image} />
+        <Icon name="location-sharp" type='ionicon'></Icon>
     </Pressable>
   );
 }
