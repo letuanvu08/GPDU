@@ -25,12 +25,12 @@ export function useMap() {
     }
   }, [mapRef, selectedMarker]);
 
-  const handelResetInitialPosition = useCallback(() => {
+  const handelResetInitialToLocation = useCallback((location) => {
     if (mapRef) {
       mapRef.current.animateToRegion(
         {
-          latitude: 10.7758439,
-          longitude: 106.7017555,
+          latitude: location.latitude,
+          longitude: location.longitude,
           latitudeDelta: 0.003,
           longitudeDelta: 0.003,
         },
@@ -43,7 +43,7 @@ export function useMap() {
   return {
     mapRef,
     selectedMarker,
-    handelResetInitialPosition,
+    handelResetInitialToLocation,
     setSelectedMarker,
   };
 }
