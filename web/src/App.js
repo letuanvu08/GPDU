@@ -100,7 +100,7 @@ export default function App() {
       )}
       <Routes>
         {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/routes" />} />1
+        <Route path="*" element={<Navigate to="/orders" />} />1
       </Routes>
     </ThemeProvider>
   );

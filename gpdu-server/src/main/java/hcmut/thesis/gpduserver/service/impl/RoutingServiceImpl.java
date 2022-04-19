@@ -90,7 +90,7 @@ public class RoutingServiceImpl implements RoutingService {
     @Override
     public Routing getRoutingActiveByOrderId(String orderId) {
         Document request = new Document()
-                .append("listOrderId", new Document().append(QueryOperators.ALL, List.of(orderId)))
+                .append("nodes.orderId", orderId)
                 .append("active", true);
         return getRoutingByRequest(request);
     }
