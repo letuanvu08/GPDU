@@ -1,4 +1,4 @@
-const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
+import {createAsyncThunk ,createSlice } from "@reduxjs/toolkit";
 import orderApi from "api/orderApi";
 const initialState = {
   items: [],
@@ -10,9 +10,10 @@ const initialState = {
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders", 
-async (_, { getState }) => {
+async ({offset, limit}, { getState }) => {
   const res = await orderApi.fetchListOrders({
-    offset: getState.orders.offset,
+    offset:offset,
+    limit: limit
   });
   console.log(res.Data);
   return res.Data;

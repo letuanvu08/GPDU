@@ -81,4 +81,13 @@ public class AdminController {
         routingService.routing();
         return new ApiResponse<List<Routing>>().success(null);
     }
+
+    @GetMapping("/vehicles")
+    public ApiResponse<List<Vehicle>> getVehicleList(
+        @RequestParam(required = false, defaultValue = "0") int offset,
+        @RequestParam(required = false, defaultValue = "100") int limit) {
+        List<Vehicle> vehicles = vehicleService.getVehicleList(offset, limit);
+        return new ApiResponse<List<Vehicle>>().success(vehicles);
+    }
+    
 }

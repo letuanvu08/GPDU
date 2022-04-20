@@ -1,68 +1,76 @@
-import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import MDBox from "components/MDBox";
-import TimelineItem from "components/Timeline/TimelineItem";
-import Check from "icons/check";
-import Cancel from "icons/cancel";
-import StatusShipmentEnum from "constants/StatusShipmentEnum";
-import UnfinishedIcon from "icons/UnfinishedIcon";
-import moment from "moment";
+import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
-const otherSteps = [
-  {
-    step: "Order Received",
-  },
-  {
-    step: "Assign to Driver",
-  },
-  {
-    step: "Pickup package",
-  },
-  {
-    step: "Delivered",
-  },
-  {
-    step: "Done",
-  },
-];
-
-function OrdersOverview({ statusList }) {
-  console.log("status", statusList);
+function OrderInformation({ item }) {
   return (
-    <Card sx={{ height: "100%", width: "100%" }}>
-      <MDBox pl={4} pr={2} py={2}>
-        {!!statusList &&
-          statusList.map((status) => (
-            <TimelineItem
-              color={status.status === StatusShipmentEnum.CANCEL ? "error" : "success"}
-              icon={
-                status.status === StatusShipmentEnum.FINISHED ? (
-                  <Check />
-                ) : status.status === StatusShipmentEnum.CANCEL ? (
-                  <Cancel />
-                ) : (
-                  ""
-                )
-              }
-              title={status.step}
-              dateTime={
-                status.timestamp && moment(status.timestamp).format("MMMM Do YYYY, h:mm:ss a")
-              }
-            />
-          ))}
-        {otherSteps.slice(statusList?.length || 0, otherSteps.length).map((status) => (
-          <TimelineItem
-            color={status.status === StatusShipmentEnum.CANCEL ? "error" : "success"}
-            icon={<UnfinishedIcon/>}
-            title={status.step}
-            dateTime={
-              status.timestamp && moment(status.timestamp).format("MMMM Do YYYY, h:mm:ss a")
-            }
-          />
-        ))}
+    <MDBox
+      component="li"
+      display="flex"
+      justifyContent="space-between"
+      alignItems="flex-start"
+      bgColor={"grey-100"}
+      borderRadius="lg"
+      p={3}
+      mb={1}
+      mt={2}
+    >
+      <MDBox width="100%" display="flex" flexDirection="column">
+        <MDBox
+          display="flex"
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          flexDirection={{ xs: "column", sm: "row" }}
+          mb={2}
+        >
+          <MDTypography variant="button" fontWeight="medium" textTransform="capitalize">
+            {item?.id}
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={1}>
+          <MDTypography variant="caption" color="text">
+            Customer Name:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium" textTransform="capitalize">
+              {item.userName}
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={1}>
+          <MDTypography variant="caption" color="text">
+            Name package:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {item.packageInfo?.name}
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={1}>
+          <MDTypography variant="caption" color="text">
+            Category package:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {item.packageInfo?.category}
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={1}>
+          <MDTypography variant="caption" color="text">
+            Weight package:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {item.packageInfo?.weight} Kg
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={1}>
+          <MDTypography variant="caption" color="text">
+            Note:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {item.note}
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
       </MDBox>
-    </Card>
+    </MDBox>
   );
 }
 
-export default OrdersOverview;
+export default OrderInformation;

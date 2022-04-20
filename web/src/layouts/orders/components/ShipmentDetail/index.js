@@ -9,11 +9,12 @@ import breakpoints from "assets/theme/base/breakpoints";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import { Order as OrderIcon } from "icons/order";
 import ShipmentStatus from "./ShipmentStatus";
+import OrderInformation from "./OrderInformation";
 const TapValues = {
   SHIPMENT_STATUS: 0,
   ORDER_INFORMATION: 1,
 };
-function ShipmentDetail({item}) {
+function ShipmentDetail({ item }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(TapValues.SHIPMENT_STATUS);
 
@@ -41,8 +42,8 @@ function ShipmentDetail({item}) {
   };
 
   return (
-    <Card >
-      <Grid container spacing={3} justifyContent="center">
+    <Card>
+      <Grid container justifyContent="center">
         <Grid item sx={{ width: "100%" }}>
           <AppBar position="static">
             <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
@@ -57,9 +58,9 @@ function ShipmentDetail({item}) {
         </Grid>
         <Grid item sx={{ width: "100%" }}>
           {tabValue === TapValues.SHIPMENT_STATUS ? (
-            <ShipmentStatus statusList={item.historyStatus}/>
+            <ShipmentStatus statusList={item.historyStatus} />
           ) : tabValue === TapValues.ORDER_INFORMATION ? (
-            <Grid>order infor</Grid>
+            <OrderInformation item={item} />
           ) : (
             <Grid>order infor</Grid>
           )}

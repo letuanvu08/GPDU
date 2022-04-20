@@ -1,7 +1,7 @@
 import httpClient from "./httpClient";
 
 export function fetchListOrders({ offset, limit }) {
-  return httpClient.get("/orders", { params: { offset, limit: 4 } });
+  return httpClient.get("/orders", { params: { offset, limit: limit } });
 }
 
 export function getOrderById({ orderId }) {
