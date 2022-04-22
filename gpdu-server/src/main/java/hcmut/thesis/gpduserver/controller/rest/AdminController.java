@@ -89,5 +89,5 @@ public class AdminController {
         List<Vehicle> vehicles = vehicleService.getVehicleList(offset, limit);
         return new ApiResponse<List<Vehicle>>().success(vehicles);
     }
-    
+
 }

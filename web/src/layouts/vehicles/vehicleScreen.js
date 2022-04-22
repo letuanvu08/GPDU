@@ -10,11 +10,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchVehicles } from "../../reduces/vehiclesReducer";
 import { setSelectedVehicle } from "../../reduces/vehiclesReducer";
 import { useEffect } from "react";
+import { ModalRoute } from "./components/modal/ModalRoute";
+import useModal from "./hook/useModal";
 
 function VehicleScreen() {
   const dispatch = useDispatch();
   const { vehicles, offset, limit, vehicleSelected } = useSelector(state => state.vehicles);
   const { columns, rows } = VehicleTableData({ vehicles: vehicles });
+  const [open, setOpen] = useModal(false);
   useEffect(() => {
     dispatch(fetchVehicles({ offset: offset, limit: limit }));
   }, []);
@@ -27,6 +30,7 @@ function VehicleScreen() {
 
   const handleSelectVehicle = (item)=>{
     dispatch(setSelectedVehicle(item))
+    setOpen(true);
   }
   return (
     <DashboardLayout>
@@ -66,6 +70,7 @@ function VehicleScreen() {
           </Grid>
         </Grid>
       </MDBox>
+      <ModalRoute item={vehicleSelected} open={open} setOpen={setOpen}/>
     </DashboardLayout>
   );
 }
