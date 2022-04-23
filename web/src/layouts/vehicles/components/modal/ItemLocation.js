@@ -86,7 +86,7 @@ function ItemLocation({
           <MDTypography variant="caption" color="text">
             Duration:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <MDTypography variant="caption" fontWeight="medium">
-              {moment(earliestTime).format("hh:mm")} - {" "}
+              {moment(earliestTime,).format("hh:mm")} - {" "}
               {moment(latestTime).format("hh:mm")}
             </MDTypography>
           </MDTypography>

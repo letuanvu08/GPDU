@@ -11,6 +11,8 @@ import mapboxApi from "api/mapboxAPI";
 import { setOrderSelected, addListOrder } from "reduces/ordersReducer";
 import { useEffect, useState } from "react";
 import orderApi from "api/orderApi";
+import { setLocationSelected } from "../../../../reduces/routingReducer";
+
 function Shipments() {
   const { items, hasNext, offset, limit } = useSelector((state) => state.orders);
   const [page, setPage] = useState(1);
@@ -21,7 +23,7 @@ function Shipments() {
 
   const handleChangePage = (_, v) => {
     if (v > page && hasNext) {
-      fetchOrders({offset: offset, limit: limit});
+      fetchOrders({ offset: offset, limit: limit });
     }
     setPage(v);
     console.log("page: ", v);
@@ -35,10 +37,10 @@ function Shipments() {
       })
       .catch((e) => console.log(e));
   };
-  const handleOnViewDetail = (item)=>{
-    console.log("sdfdsfdsgdgdgdsgds:", item);
-    dispatch(setOrderSelected({item:item}));
-  }
+  const handleOnViewDetail = (item) => {
+    dispatch(setOrderSelected({ item: item }));
+    dispatch(setLocationSelected(item.pickup?.location))
+  };
   return (
     <Card id="shipments">
       <MDBox pt={2} px={3}>
@@ -56,7 +58,7 @@ function Shipments() {
       >
         <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
           <MDBox mr={2}>
-            <MDButton variant="outlined" color="info" size="small" >
+            <MDButton variant="outlined" color="info" size="small">
               view all
             </MDButton>
           </MDBox>
@@ -76,7 +78,7 @@ function Shipments() {
           flexDirection="row"
           justifyContent="center"
         >
-          {items.slice((page-1) * limit, page * limit).map((item) => (
+          {items.slice((page - 1) * limit, page * limit).map((item) => (
             <Grid item xs={12} md={6} xl={6} sx={{}}>
               <Shipment item={item} onViewDetail={handleOnViewDetail} />
             </Grid>
@@ -84,7 +86,7 @@ function Shipments() {
         </Grid>
       </MDBox>
       <Grid sx={{}} display="flex" justifyContent="center">
-        <Pagination count={5} page={page} shape="rounded" onChange={handleChangePage} />
+        <Pagination count={1000} page={page} shape="rounded" onChange={handleChangePage} />
       </Grid>
     </Card>
   );

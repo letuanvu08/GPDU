@@ -35,6 +35,7 @@ export const getPolyline = createAsyncThunk(
   async ({ routing }, { getState }) => {
     const locations = routing.nodes.map((node) => node.location);
     const res = await mapboxApi.direction(locations);
+    console.log("getPolyline response: ", res)
     return res;
   },
 );

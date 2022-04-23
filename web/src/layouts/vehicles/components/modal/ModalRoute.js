@@ -1,23 +1,17 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo } from "react";
 import { getPolyline, getRoutingByVehicleId, setLocationSelected } from "reduces/routingReducer";
 import MDBox from "components/MDBox";
 import Grid from "@mui/material/Grid";
-import Shipments from "../../../orders/components/Shipments";
-import ShipmentDetail from "../../../orders/components/ShipmentDetail";
-import ShipmentRouting from "../../../orders/components/shipmentRouting.js";
 import LocationInfos from "./LocationInfos";
 import useWindowDimensions from "../../../../hooks/useWindowDimensions";
 import RoutesVehicleMap from "./RoutesVehicleMap";
 
 
 export function ModalRoute({ item, open, setOpen }) {
-  const { routing, polyline } = useSelector(state => state.routing);
+  const { routing } = useSelector(state => state.routing);
   const windowDimensions = useWindowDimensions();
   const style = useMemo(() => ({
     position: "absolute",

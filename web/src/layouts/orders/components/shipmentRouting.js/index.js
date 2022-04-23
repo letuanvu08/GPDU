@@ -5,55 +5,41 @@ import MDBox from "components/MDBox";
 import Card from "@mui/material/Card";
 import PolylineOverlay from "components/PolylineOverlay";
 import MarkerMap from "components/Marker";
-import Location from "icons/location.png";
-import Pickup from "icons/arrow-increase.svg";
-import Delivery from "icons/arrow-decrease.svg";
-import mapboxApi from "api/mapboxAPI";
-import routingApi from "api/routingApi";
+import Location from "icons/location_blue.png";
+
+import useMap from "../../../../hooks/useMap";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getPolyline,
+  getRoutingByOrderId,
+  getRoutingByVehicleId,
+  setLocationSelected,
+} from "../../../../reduces/routingReducer";
+import { MarkNumber } from "../../../../components/Marker/MarkNumber";
+
 export default function ShipmentRouting({ item }) {
-  const [viewport, setViewport] = React.useState({
-    latitude: 10.7758439,
-    longitude: 106.70175527777778,
-    zoom: 15,
-  });
-  const [polyline, setPolyline] = useState([]);
+  const { viewport, setViewport } = useMap();
+  const { polyline, locationSelected } = useSelector(state => state.routing);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    setViewport({
+      ...viewport,
+      latitude: locationSelected.latitude,
+      longitude: locationSelected.longitude,
+    });
+  }, [locationSelected]);
+
   useEffect(() => {
     if (!!item) {
-      getRouting(item.id);
-      setViewport({
-        ...viewport,
-        latitude: item.currentLocation?.latitude || 10.7758439,
-        longitude: item.currentLocation?.longitude || 106.70175527777778,
-      });
-      console.log("latitu", item.pickup?.location);
+      dispatch(getRoutingByOrderId({ orderId: item.id }))
+        .then(res => {
+          if (res.payload) {
+            dispatch(getPolyline({ routing: res.payload }));
+            dispatch(setLocationSelected(res.payload.nodes?.[0].location));
+          }
+        });
     }
   }, [item]);
-  const getRouting = (orderId) => {
-    routingApi
-      .getRoutingByOrderId({ orderId: orderId })
-      .then((res) => {
-        if (!!res.Data) {
-          const routing = res.Data;
-          console.log("routing: ", routing);
-          if (routing) {
-            const locations = routing.nodes.map((node) => node.location);
-            getPolyline(locations);
-          }
-        }
-      })
-      .catch((e) => console.log(e));
-  };
-  const getPolyline = (locations) => {
-    mapboxApi
-      .direction(locations)
-      .then((res) => {
-        const coordinates = res.data.routes[0]?.geometry.coordinates || [];
-        const mapPolyline = coordinates.map((coordinate) => [coordinate[0], coordinate[1]]);
-        console.log("mapPolyline", mapPolyline);
-        setPolyline(mapPolyline);
-      })
-      .catch((e) => console.log(e));
-  };
   return (
     <Card sx={{ height: "100%", width: "100%" }}>
       <MDBox>
@@ -70,22 +56,25 @@ export default function ShipmentRouting({ item }) {
             <MarkerMap
               latitude={item.currentLocation.latitude}
               longitude={item.currentLocation.longitude}
-              image={Location}
-            />
+            >
+              <img src={Location} style={{ width: 20, height: 20 }} />
+            </MarkerMap>
           )}
           {item.pickup && (
             <MarkerMap
               latitude={item.pickup.location.latitude}
               longitude={item.pickup.location?.longitude}
-              image={Location}
-            />
+            >
+              <MarkNumber number={1} />
+            </MarkerMap>
           )}
           {item.delivery && (
             <MarkerMap
               latitude={item.delivery.location.latitude}
               longitude={item.delivery.location.longitude}
-              image={Location}
-            />
+            >
+              <MarkNumber number={2} />
+            </MarkerMap>
           )}
         </ReactMapGL>
       </MDBox>
