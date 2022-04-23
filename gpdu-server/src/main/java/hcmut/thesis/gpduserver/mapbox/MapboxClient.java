@@ -2,6 +2,7 @@ package hcmut.thesis.gpduserver.mapbox;
 
 import com.alibaba.fastjson.JSON;
 import hcmut.thesis.gpduserver.config.MapboxConfig;
+import hcmut.thesis.gpduserver.mapbox.commands.CallMatrixAPICommand;
 import hcmut.thesis.gpduserver.mapbox.commands.GetDurationCommand;
 import hcmut.thesis.gpduserver.mapbox.responses.DirectionResponse;
 import hcmut.thesis.gpduserver.mapbox.responses.GeocodingResponse;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class MapboxClient implements IMapboxClient {
@@ -29,10 +31,17 @@ public class MapboxClient implements IMapboxClient {
     private OkHttpClient client;
 
 
-    private Optional<List<List<Float>>> callMatrixAPI(String coordinates) {
+    private Optional<List<List<Float>>> callMatrixAPI(CallMatrixAPICommand command) {
+        String coordinates = command.getLocations().stream()
+                .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
         final String MATRIX_URL = "https://api.mapbox.com/directions-matrix/v1/mapbox/driving/";
         HttpUrl.Builder urlBuilder = HttpUrl.parse(MATRIX_URL + coordinates).newBuilder();
         urlBuilder.addQueryParameter("access_token", mapboxConfig.getToken());
+        if (command.getSources() != null) {
+            urlBuilder.addQueryParameter("sources", StringUtils.join(command.getSources(), ";"));
+        }
+        if (command.getDestinations() != null)
+            urlBuilder.addQueryParameter("destinations", StringUtils.join(command.getDestinations(), ";"));
         String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
                 .url(url)
@@ -80,24 +89,36 @@ public class MapboxClient implements IMapboxClient {
     public Optional<List<List<Float>>> retrieveDurationMatrix(List<Location> locations) {
         if (locations.size() > 48) return Optional.empty();
         if (locations.size() > 25) {
-            String coordinates = locations.subList(0, 24).stream()
-                    .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
-            Optional<List<List<Float>>> matrixResponse = this.callMatrixAPI(String.format(coordinates + ";%f,%f",
-                    locations.get(24).getLongitude(), locations.get(24).getLatitude()));
+            List<Location> subLocations = locations.subList(0, 25);
+            CallMatrixAPICommand command = CallMatrixAPICommand.builder()
+                    .locations(subLocations)
+                    .build();
+            Optional<List<List<Float>>> matrixResponse = this.callMatrixAPI(command);
             if (matrixResponse.isEmpty()) return Optional.empty();
             List<List<Float>> result = matrixResponse.get();
             for (int i = 25; i < locations.size(); i++) {
-                Optional<List<List<Float>>> res = this.callMatrixAPI(String.format(coordinates + ";%f,%f",
-                        locations.get(i).getLongitude(), locations.get(i).getLatitude()));
+                subLocations.set(command.getLocations().size() - 1, locations.get(i));
+                command = CallMatrixAPICommand.builder()
+                        .locations(subLocations)
+                        .sources(List.of(command.getLocations().size() - 1))
+                        .build();
+                Optional<List<List<Float>>> res = this.callMatrixAPI(command);
+                if (res.isEmpty()) return Optional.empty();
+                result.add((res.get().get(0)));
+                command = CallMatrixAPICommand.builder()
+                        .locations(subLocations)
+                        .destinations(List.of(command.getLocations().size() - 1))
+                        .build();
+                res = this.callMatrixAPI(command);
                 if (res.isEmpty()) return Optional.empty();
                 for (int j = 0; j < 24; j++) {
-                    result.get(j).add(res.get().get(j).get(24));
+                    result.get(j).add(res.get().get(j).get(0));
                 }
-                result.add(res.get().get(24));
             }
-            coordinates = locations.subList(24, locations.size()).stream()
-                    .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
-            Optional<List<List<Float>>> res = this.callMatrixAPI(coordinates);
+            command = CallMatrixAPICommand.builder()
+                    .locations(locations.subList(24, locations.size()))
+                    .build();
+            Optional<List<List<Float>>> res = this.callMatrixAPI(command);
             if (res.isEmpty()) return Optional.empty();
             for (int i = 24; i < locations.size(); i++) {
                 result.get(i).remove(24);
@@ -105,9 +126,10 @@ public class MapboxClient implements IMapboxClient {
             }
             return Optional.of(result);
         }
-        String coordinates = locations.subList(0, locations.size()).stream()
-                .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
-        return this.callMatrixAPI(coordinates);
+        CallMatrixAPICommand command = CallMatrixAPICommand.builder()
+                .locations(locations.subList(0, locations.size()))
+                .build();
+        return this.callMatrixAPI(command);
     }
 
     @Override

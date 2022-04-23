@@ -5,7 +5,7 @@ districtName: Q1
 
 api:
   mapbox:
-    token: pk.eyJ1IjoibGV0dWFudnUiLCJhIjoiY2wwZXRhZ2Y0MGwwZDNrbGNxZmF3OXlhbiJ9.EhStD2wRsGq65yD_bGhk9Q
+    token: pk.eyJ1IjoidHVkYW9ia3UiLCJhIjoiY2tvZmQ2dnNtMDZlNjJwcG53bmw2YXRhYSJ9.quj8ggmNSoE2iKuzCOtU-g
     domain:  api.mapbox.com
     pathOptimized: /optimized-trips/v1/mapbox/
     pathDirections: /directions/v5/mapbox/driving-traffic/

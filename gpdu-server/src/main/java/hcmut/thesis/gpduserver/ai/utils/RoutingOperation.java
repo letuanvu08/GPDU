@@ -46,7 +46,7 @@ public class RoutingOperation {
                     routingOrders.get(nextKey.getOrderIndex()).getPickup() :
                     routingOrders.get(nextKey.getOrderIndex()).getDelivery();
             if (startTime + vehicleDuration * 1000 < node.getEarliestTime()) {
-                waitingDuration += (node.getEarliestTime() - startTime) / 1000f - vehicleDuration ;
+                waitingDuration += (node.getEarliestTime() - startTime) / 1000f - vehicleDuration;
             }
             if (startTime + vehicleDuration * 1000 > node.getLatestTime()) {
                 lateDuration += vehicleDuration + (startTime - node.getLatestTime()) / 1000f;

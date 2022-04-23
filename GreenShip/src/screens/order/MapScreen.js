@@ -69,12 +69,7 @@ const MapScreen = ({navigation}) => {
   const handleSelectLocation = () => {
     navigation.navigate(routesEnum.CREATE_ORDER, {location, name});
   };
-  if (granted == null)
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size={'large'} color={colors.brand.primary} />
-      </View>
-    );
+  
   return (
     <View style={styles.container}>
       <MapView
