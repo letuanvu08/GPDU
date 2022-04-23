@@ -13,7 +13,7 @@ export const fetchVehicles = createAsyncThunk(
 const initialState = {
   vehicles: [],
   offset:0,
-  limit: 10,
+  limit: 1000,
   hasNext: true,
   vehicleSelected: null
 }

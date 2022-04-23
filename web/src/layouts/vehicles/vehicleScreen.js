@@ -25,13 +25,13 @@ function VehicleScreen() {
     console.log("vehicles: ", vehicles);
     console.log("offset: ", offset);
     console.log("limit: ", limit);
-    console.log("rows:", rows)
+    console.log("rows:", rows);
   }, [vehicles]);
 
-  const handleSelectVehicle = (item)=>{
-    dispatch(setSelectedVehicle(item))
+  const handleSelectVehicle = (item) => {
+    dispatch(setSelectedVehicle(item));
     setOpen(true);
-  }
+  };
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -70,7 +70,7 @@ function VehicleScreen() {
           </Grid>
         </Grid>
       </MDBox>
-      <ModalRoute item={vehicleSelected} open={open} setOpen={setOpen}/>
+      <ModalRoute item={vehicleSelected} open={open} setOpen={setOpen} />
     </DashboardLayout>
   );
 }

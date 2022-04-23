@@ -5,15 +5,17 @@ import MDBox from "components/MDBox";
 import Card from "@mui/material/Card";
 import PolylineOverlay from "components/PolylineOverlay";
 import MarkerMap from "components/Marker";
-import Location from "icons/location.png";
+import Location from "icons/location_blue.png";
 
 import useMap from "../../../../hooks/useMap";
 import { useSelector } from "react-redux";
 import useWindowDimensions from "../../../../hooks/useWindowDimensions";
+import { MarkNumber } from "../../../../components/Marker/MarkNumber";
 
 export default function RoutesVehicleMap() {
   const { viewport, setViewport } = useMap();
   const { routing, polyline, locationSelected } = useSelector(state => state.routing);
+  const { vehicleSelected } = useSelector(state => state.vehicles);
   const window = useWindowDimensions();
   useEffect(() => {
     setViewport({
@@ -34,12 +36,19 @@ export default function RoutesVehicleMap() {
           mapStyle="mapbox://styles/mapbox/streets-v9"
         >
           <PolylineOverlay points={polyline} />
-          {routing && routing.nodes.map(node => (
+          {routing && routing.nodes.map((node, index) => (
             <MarkerMap
               latitude={node.location.latitude}
               longitude={node.location.longitude}
-              image={Location}
-            />))}
+            >
+              <MarkNumber number={index + 1} />
+            </MarkerMap>))}
+          <MarkerMap
+            latitude={vehicleSelected?.currentLocation.latitude}
+            longitude={vehicleSelected?.currentLocation.longitude}
+          >
+            <img src={Location} style={{ width: 20, height: 20 }} />
+          </MarkerMap>
         </ReactMapGL>
       </MDBox>
     </Card>
