@@ -1,4 +1,4 @@
-export default statusCodes = {
+export default httpStatus = {
   BAD_REQUEST: 400,
   INTERNAL_SERVER_ERROR: 500,
   FORBBIDEN: 403,

@@ -16,18 +16,23 @@ import ArrowIncrease from "icons/arrowIncrease";
 import ArrowDecrease from "icons/arrowDecrease";
 import { Grid } from "@mui/material";
 import moment from "moment";
-function Shipment({ id, vehicle, order }) {
+import { hideApartString } from "utils/StringUtils";
+function Shipment({ item, onViewDetail }) {
+
+  const handleOnViewDetail= ()=>{
+     onViewDetail(item);
+  }
   return (
     <Card>
-      <MDBox padding="2rem">
+      <MDBox padding="1rem">
         <MDBox>
           <MDBox pt={1} px={1} display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography component="div" variant="button" color="text" fontWeight="light">
-                Shipment number
+                OrderId
               </MDTypography>
               <MDTypography variant="h6" textTransform="capitalize">
-                {id}
+                {item.id}
               </MDTypography>
             </MDBox>
             <Truck fontSize="medium" />
@@ -49,11 +54,11 @@ function Shipment({ id, vehicle, order }) {
               </Grid>
               <Grid item xs={12} md={10} xl={10} px={1}>
                 <MDTypography variant="h6" textTransform="capitalize">
-                  {order.pickup.address}
+                  {hideApartString(item.pickup.address,30)}
                 </MDTypography>
                 <MDTypography component="div" variant="button" color="text" fontWeight="light">
-                  {moment(order.pickup.earliestTime).format("hh:mm")} -{" "}
-                  {moment(order.pickup.latestTime).format("hh:mm")}
+                  {moment(item.pickup.earliestTime).format("hh:mm")} -{" "}
+                  {moment(item.pickup.latestTime).format("hh:mm")}
                 </MDTypography>
               </Grid>
             </Grid>
@@ -72,36 +77,38 @@ function Shipment({ id, vehicle, order }) {
               </Grid>
               <Grid item xs={12} md={10} xl={10} px={1}>
                 <MDTypography variant="h6" textTransform="capitalize">
-                  {order.delivery.address}
+                {hideApartString(item.delivery.address,30)}
                 </MDTypography>
                 <MDTypography component="div" variant="button" color="text" fontWeight="light">
-                  {moment(order.delivery.earliestTime).format("hh:mm")} -{" "}
-                  {moment(order.delivery.latestTime).format("hh:mm")}
+                  {moment(item.delivery.earliestTime).format("hh:mm")} -{" "}
+                  {moment(item.delivery.latestTime).format("hh:mm")}
                 </MDTypography>
               </Grid>
             </Grid>
           </MDBox>
           <Divider />
-          <MDBox p={2} display="flex" alignItems="left" flexDirection="column">
+          <MDBox p={1} display="flex" alignItems="left" flexDirection="column">
             <MDTypography component="div" variant="button" color="text" fontWeight="light">
               Customer
             </MDTypography>
             <MDTypography variant="h6" textTransform="capitalize">
-              {order.customer.name}
+              {item.userName}
             </MDTypography>
-            <MDTypography component="div" variant="button" color="text" fontWeight="light">
-              {order.customer.phone}
-            </MDTypography>
+            {/* <MDTypography component="div" variant="button" color="text" fontWeight="light">
+              {item.customer.phone}
+            </MDTypography> */}
           </MDBox>
         </MDBox>
         <MDBox display="flex" justifyContent="center" alignItems="center">
             <MDButton
+          
               component="a"
               target="_blank"
               rel="noreferrer"
               variant="outlined"
               size="small"
               color= "info"
+              onClick={handleOnViewDetail}
             >
               View detail
             </MDButton>

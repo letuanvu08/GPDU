@@ -1,24 +1,25 @@
-
-import RoutePage from "layouts/routes";
-import { Route as RouteIcon} from "icons/route";
-import { Order as OrderIcon} from "icons/order";
+import OrdersPage from "layouts/orders";
+import { Route as RouteIcon } from "icons/route";
+import { Order as OrderIcon } from "icons/order";
 import AddOrders from "layouts/addOrder";
+import { Truck } from "icons/truck";
+import VehicleScreen from "layouts/vehicles";
 const routes = [
   {
     type: "collapse",
-    name: "Routes",
-    key: "routes",
-    icon: <RouteIcon fontSize="small"/>,
-    route: "/routes",
-    component: <RoutePage />,
+    name: "Orders",
+    key: "orders",
+    icon: <OrderIcon fontSize="small" />,
+    route: "/orders",
+    component: <OrdersPage />,
   },
   {
     type: "collapse",
-    name: "Add orders",
-    key: "addOrders",
-    icon: <OrderIcon fontSize="small"/>,
-    route: "/addOrders",
-    component: <AddOrders />,
+    name: "Vehicles",
+    key: "vehicles",
+    icon: <Truck fontSize="small" />,
+    route: "/vehicles",
+    component: <VehicleScreen />,
   },
 ];
 

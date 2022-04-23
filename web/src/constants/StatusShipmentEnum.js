@@ -1,6 +1,6 @@
 const StatusShipmentEnum = {
-  SUCCESS:"success",
-  CANCEL:"cancel",
-  WAITING:"waiting",
+  FINISHED:"FINISHED",
+  UNFINISHED:"UNFINISHED",
+  CANCEL:"CANCEL",
 }
 export default StatusShipmentEnum;
