@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import hcmut.thesis.gpduserver.config.MapboxConfig;
 import hcmut.thesis.gpduserver.mapbox.commands.GetDurationCommand;
 import hcmut.thesis.gpduserver.mapbox.responses.DirectionResponse;
+import hcmut.thesis.gpduserver.mapbox.responses.GeocodingResponse;
 import hcmut.thesis.gpduserver.mapbox.responses.MatrixResponse;
 import hcmut.thesis.gpduserver.models.entity.Location;
 import okhttp3.*;
@@ -94,19 +95,42 @@ public class MapboxClient implements IMapboxClient {
                 }
                 result.add(res.get().get(24));
             }
-            coordinates = locations.subList(25, locations.size()).stream()
+            coordinates = locations.subList(24, locations.size()).stream()
                     .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
             Optional<List<List<Float>>> res = this.callMatrixAPI(coordinates);
             if (res.isEmpty()) return Optional.empty();
-            for (int i = 25; i < locations.size(); i++) {
+            for (int i = 24; i < locations.size(); i++) {
                 result.get(i).remove(24);
-                result.get(i).addAll(res.get().get(i - 25));
+                result.get(i).addAll(res.get().get(i - 24));
             }
-            return Optional.ofNullable(result);
+            return Optional.of(result);
         }
         String coordinates = locations.subList(0, locations.size()).stream()
                 .map(l -> l.getLongitude() + "," + l.getLatitude()).collect(Collectors.joining(";"));
         return this.callMatrixAPI(coordinates);
+    }
+
+    @Override
+    public String reverseGeocoding(Location location) {
+        final String REVERSE_GEOCODING_URL = "https://api.mapbox.com/geocoding/v5/mapbox.places/%f,%f.json";
+        HttpUrl.Builder urlBuilder
+                = HttpUrl.parse(String.format(REVERSE_GEOCODING_URL,
+                location.getLongitude(), location.getLatitude())).newBuilder();
+        urlBuilder.addQueryParameter("access_token", mapboxConfig.getToken());
+        String url = urlBuilder.build().toString();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.body() != null) {
+                GeocodingResponse geocodingResponse = JSON.parseObject(response.body().string(), GeocodingResponse.class);
+                return geocodingResponse.getFeatures().get(0).getPlace_name();
+            }
+        } catch (IOException exception) {
+            System.err.println(exception.getMessage());
+        }
+        return "";
     }
 
 }

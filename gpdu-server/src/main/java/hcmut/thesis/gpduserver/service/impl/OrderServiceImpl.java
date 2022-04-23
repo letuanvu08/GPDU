@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import hcmut.thesis.gpduserver.constants.enumations.StatusOrderEnum;
 import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
+import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
+import hcmut.thesis.gpduserver.models.entity.Location;
+import hcmut.thesis.gpduserver.models.entity.Node;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
+import hcmut.thesis.gpduserver.models.request.order.GenerateRandomRequest;
 import hcmut.thesis.gpduserver.models.request.order.OrderListRequest;
 import hcmut.thesis.gpduserver.repository.OrderRepository;
 import hcmut.thesis.gpduserver.service.OrderService;
@@ -18,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
+import hcmut.thesis.gpduserver.utils.LocationUtils;
 import hcmut.thesis.gpduserver.utils.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -34,7 +40,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
-
+    @Autowired
+    private IMapboxClient mapboxClient;
 
     @Override
     public Order createOrder(FormCreateOrder form) {
@@ -176,19 +183,52 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getTodayOrders() {
+    public List<Order> getTodayOrders(long start) {
         Document query = new Document()
                 .append("currentStatus", StatusOrderEnum.UNFINISHED.toString())
                 .append("$or", Arrays.asList(
                         new Document("$and", Arrays.asList(
-                                new Document("pickup.earliestTime", new Document("$gte", System.currentTimeMillis())),
+                                new Document("pickup.earliestTime", new Document("$gte", start)),
                                 new Document("pickup.earliestTime", new Document("$lte", TimeUtils.atEndOfDay())
                                 ))),
                         new Document("$and", Arrays.asList(
-                                new Document("delivery.earliestTime", new Document("$gte", System.currentTimeMillis())),
+                                new Document("delivery.earliestTime", new Document("$gte", start)),
                                 new Document("delivery.earliestTime", new Document("$lte", TimeUtils.atEndOfDay()))
                         ))));
         return orderRepository.getMany(query, new Document(), 0, 0).orElse(new ArrayList<>());
+    }
+
+    @Override
+    public void generateRandomOrders(GenerateRandomRequest request) {
+        for (int i = 0; i < request.getNumber(); i++) {
+            long startTime = TimeUtils.generateRandomTimeInToday(System.currentTimeMillis());
+            Location location = LocationUtils.generateHCMUTLocation();
+            Node pickup = Node.builder()
+                    .location(location)
+                    .earliestTime(startTime)
+                    .latestTime(startTime + ThreadLocalRandom.current().nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
+                            2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
+                    .address(mapboxClient.reverseGeocoding(location))
+                    .customerName("tu")
+                    .phone("0832183021")
+                    .build();
+            startTime = TimeUtils.generateRandomTimeInToday(System.currentTimeMillis());
+            location = LocationUtils.generateHCMUTLocation();
+            Node delivery = Node.builder()
+                    .location(location)
+                    .earliestTime(startTime)
+                    .latestTime(startTime + ThreadLocalRandom.current().nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
+                            2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
+                    .address(mapboxClient.reverseGeocoding(location))
+                    .customerName("vu")
+                    .phone("0908978878")
+                    .build();
+            FormCreateOrder formCreateOrder = FormCreateOrder.builder()
+                    .pickup(pickup)
+                    .delivery(delivery)
+                    .build();
+            this.createOrder(formCreateOrder);
+        }
     }
 
     @Override

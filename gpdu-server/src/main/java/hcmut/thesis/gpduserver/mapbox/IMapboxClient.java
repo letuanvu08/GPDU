@@ -11,4 +11,6 @@ public interface IMapboxClient {
 
     Optional<List<List<Float>>> retrieveDurationMatrix(List<Location> locations);
 
+    String reverseGeocoding(Location location);
+
 }
