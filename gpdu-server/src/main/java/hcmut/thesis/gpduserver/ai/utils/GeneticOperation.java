@@ -59,7 +59,7 @@ public class GeneticOperation {
 
     public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix, List<RoutingOrder> routingOrders) {
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
-        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders);
+        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
         return durations.getTravel() * config.getTravelCost() +
                 durations.getLate() * config.getLateCost() +
                 durations.getWaiting() * config.getLateCost();

@@ -9,6 +9,7 @@ import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.entity.UserSecure;
 import hcmut.thesis.gpduserver.models.reponse.ApiResponse;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
+import hcmut.thesis.gpduserver.models.request.order.GenerateRandomRequest;
 import hcmut.thesis.gpduserver.service.OrderService;
 
 import java.util.ArrayList;
@@ -65,6 +66,13 @@ public class OrderController {
         return new ApiResponse<Order>().success(order);
     }
 
+    @PostMapping("/generate-random")
+    public ApiResponse<Boolean> generateRandomOrders(
+            @RequestBody GenerateRandomRequest request) {
+        orderService.generateRandomOrders(request);
+        return new ApiResponse<Boolean>().success(true);
+    }
+
     @GetMapping("/{orderId}")
     public ApiResponse<Order> getOrderById(
             @PathVariable String orderId) {
@@ -109,4 +117,6 @@ public class OrderController {
         Boolean result = orderService.updateOrderStatus(orderId, status);
         return new ApiResponse<Boolean>().success(result);
     }
+
+
 }

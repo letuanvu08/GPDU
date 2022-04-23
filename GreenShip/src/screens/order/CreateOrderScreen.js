@@ -101,14 +101,14 @@ const CreateOrderScreen = ({ navigation, route }) => {
       dispatch(
         addNewOrder({
           senderAddress,
-          senderEarliestTime: Date.parse(senderEarliestTime) / 1000,
-          senderLatestTime: Date.parse(senderLatestTime) / 1000,
+          senderEarliestTime: Date.parse(senderEarliestTime),
+          senderLatestTime: Date.parse(senderLatestTime),
           senderLocation,
           senderName,
           senderPhone,
           receiverAddress,
-          receiverEarliestTime: Date.parse(receiverEarliestTime) / 1000,
-          receiverLatestTime: Date.parse(receiverLatestTime) / 1000,
+          receiverEarliestTime: Date.parse(receiverEarliestTime),
+          receiverLatestTime: Date.parse(receiverLatestTime),
           receiverLocation,
           receiverName,
           receiverPhone,

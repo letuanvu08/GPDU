@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import hcmut.thesis.gpduserver.utils.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,7 +160,8 @@ public class RoutingServiceImpl implements RoutingService {
 
     @Override
     public void routing() {
-        List<Order> orders = orderService.getOrderListByRequest(OrderListRequest.builder().build());
+        long startTime = System.currentTimeMillis() + TimeUtils.ONE_HOUR_IN_MILLIS_SECOND;
+        List<Order> orders = orderService.getTodayOrders(startTime);
         List<String> orderIds = orders.stream()
                 .map(o -> o.getId().toHexString()).collect(Collectors.toList());
         List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
@@ -204,14 +206,15 @@ public class RoutingServiceImpl implements RoutingService {
         }
         AIConfig config = AIConfig.builder()
                 .elitismRate(0.05f)
-                .lateCost(2)
-                .waitingCost(1)
-                .travelCost(10)
+                .lateCost(0.2f)
+                .waitingCost(0.1f)
+                .travelCost(2f)
                 .populationSize(50)
                 .tournamentSize(5)
                 .maxGeneration(100)
                 .crossover(0.8f)
                 .mutation(0.2f)
+                .startTime(startTime)
                 .build();
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
                 .orderNumber(orders.size())

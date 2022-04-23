@@ -10,14 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AIConfig {
-    private Integer populationSize;
-    private Integer travelCost;
-    private Integer waitingCost;
-    private Integer lateCost;
-    private Integer tournamentSize;
+    private int populationSize;
+    private float travelCost;
+    private float waitingCost;
+    private float lateCost;
+    private int tournamentSize;
     private float elitismRate;
     private float crossover;
     private float mutation;
-    private Integer maxGeneration;
+    private int maxGeneration;
+    private long startTime;
 
 }
