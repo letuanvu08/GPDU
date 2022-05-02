@@ -22,8 +22,8 @@ public class Vehicle  extends PO {
   @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId id;
   private String type;
-  private double capacity;
-  private double volume;
+  private Long capacity;
+  private Long volume;
   private Location currentLocation;
   private String ownerId;
 }

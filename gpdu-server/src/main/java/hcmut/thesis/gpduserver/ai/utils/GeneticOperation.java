@@ -4,14 +4,14 @@ import hcmut.thesis.gpduserver.ai.config.AIConfig;
 import hcmut.thesis.gpduserver.ai.models.*;
 import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 
+import hcmut.thesis.gpduserver.models.entity.Vehicle;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import hcmut.thesis.gpduserver.models.entity.Order;
-import hcmut.thesis.gpduserver.models.entity.Routing;
 import org.modelmapper.internal.Pair;
 
 public class GeneticOperation {
@@ -19,34 +19,43 @@ public class GeneticOperation {
 
     private final AIConfig config;
     private final List<RoutingOrder> routingOrders;
+    private final List<RoutingVehicle> vehicles;
 
-    public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders) {
+    public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders, List<RoutingVehicle> vehicles) {
         this.config = config;
         this.routingOrders = routingOrders;
+        this.vehicles = vehicles;
     }
 
-    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle, RoutingMatrix routingMatrix) {
+    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle,
+        RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
         List<Chromosome> buf = population.subList(0, index);
         while (index < size) {
             if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
                 Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
-                List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(), routingMatrix);
+                List<Chromosome> candidates = new ArrayList<>(
+                    List.of(pairParent.getLeft(), pairParent.getRight()));
+                List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(),
+                    routingMatrix);
                 children = children.stream().map(child -> {
                     if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
-                        return mutate(child, numberVehicle, routingMatrix);
+                        return mutate(child, routingMatrix);
                     }
                     return child;
                 }).collect(Collectors.toList());
-                buf.addAll(children);
+                candidates.addAll(children);
+                candidates.sort(Chromosome::compareTo);
+                buf.addAll(candidates.subList(0, 2));
                 index += 2;
             } else {
                 Chromosome luckyMan = population.get(RandomKey.random(index, size));
                 if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
 
-                    luckyMan = mutate(luckyMan, numberVehicle, routingMatrix);
-                    luckyMan.setFitness(calFitness(luckyMan.getGens(), routingMatrix, routingOrders));
+                    luckyMan = mutate(luckyMan, routingMatrix);
+                    luckyMan.setFitness(
+                        calFitness(luckyMan.getGens(), routingMatrix, routingOrders));
                 }
                 index += 1;
                 buf.add(luckyMan);
@@ -57,12 +66,15 @@ public class GeneticOperation {
         return buf.subList(0, config.getPopulationSize());
     }
 
-    public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix, List<RoutingOrder> routingOrders) {
+    public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix,
+        List<RoutingOrder> routingOrders) {
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
-        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
+        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders,
+            config.getStartTime());
+
         return durations.getTravel() * config.getTravelCost() +
-                durations.getLate() * config.getLateCost() +
-                durations.getWaiting() * config.getLateCost();
+            durations.getLate() * config.getLateCost() +
+            durations.getWaiting() * config.getLateCost();
     }
 
     public Pair<Chromosome, Chromosome> choosePairParent(List<Chromosome> population) {
@@ -98,17 +110,17 @@ public class GeneticOperation {
         int index2 = RandomKey.random(index1, size - 1);
 
         List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2),
-                genC1.subList(index2, size));
+            genC1.subList(index2, size));
         List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
-                genC2.subList(index2, size));
+            genC2.subList(index2, size));
         Chromosome child1 = Chromosome.builder()
-                .gens(gensChild1)
-                .fitness(calFitness(gensChild1, routingMatrix, routingOrders))
-                .build();
+            .gens(gensChild1)
+            .fitness(calFitness(gensChild1, routingMatrix, routingOrders))
+            .build();
         Chromosome child2 = Chromosome.builder()
-                .gens(gensChild2)
-                .fitness(calFitness(gensChild2, routingMatrix, routingOrders))
-                .build();
+            .gens(gensChild2)
+            .fitness(calFitness(gensChild2, routingMatrix, routingOrders))
+            .build();
         return List.of(child1, child2);
 
     }
@@ -118,16 +130,33 @@ public class GeneticOperation {
         return Stream.of(listGens).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    public Chromosome mutate(Chromosome chromosome, int numberOfVehicle, RoutingMatrix routingMatrix) {
-        int indexGen = RandomKey.random(0, chromosome.getGens().size());
-        while (chromosome.getGens().get(indexGen).getVehicleConstant()) {
-            indexGen = RandomKey.random(0, chromosome.getGens().size());
-        }
-        int vehicleId = RandomKey.generateInSize(numberOfVehicle);
-        chromosome.getGens().get(indexGen).setVehicle(vehicleId);
+    public Chromosome mutate(Chromosome chromosome, RoutingMatrix routingMatrix) {
+        Pair<Gen, Gen> pairGen = chooseGenMutation(chromosome);
+        swapVehicleGen(pairGen.getLeft(), pairGen.getRight());
         chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
         return chromosome;
     }
 
+    private void swapVehicleGen(Gen gen1, Gen gen2) {
+        Integer vehicle1 = gen1.getVehicle();
+        Integer vehicle2 = gen2.getVehicle();
+        gen1.setVehicle(vehicle2);
+        gen2.setVehicle(vehicle1);
+    }
+
+    private Pair<Gen, Gen> chooseGenMutation(Chromosome chromosome) {
+        int indexGen1 = RandomKey.random(0, chromosome.getGens().size());
+        while (chromosome.getGens().get(indexGen1).getVehicleConstant()) {
+            indexGen1 = RandomKey.random(0, chromosome.getGens().size());
+        }
+        int indexGen2 = RandomKey.random(0, chromosome.getGens().size());
+        while (chromosome.getGens().get(indexGen2).getVehicleConstant()
+            && indexGen2 != indexGen1
+            && chromosome.getGens().get(indexGen1).getVehicle()
+            .equals(chromosome.getGens().get(indexGen2).getVehicle())) {
+            indexGen2 = RandomKey.random(0, chromosome.getGens().size());
+        }
+        return Pair.of(chromosome.getGens().get(indexGen1), chromosome.getGens().get(indexGen2));
+    }
 
 }

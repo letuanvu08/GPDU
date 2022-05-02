@@ -32,7 +32,7 @@ public class AIRouter implements IAIRouter {
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
-        this.geneticOperation = new GeneticOperation(config, orders);
+        this.geneticOperation = new GeneticOperation(config, orders, vehicles);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {

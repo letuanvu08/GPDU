@@ -14,4 +14,6 @@ public class RoutingVehicle {
     private Integer id;
     private Location location;
     private RoutingKey nextNode;
+    private Long load;
+    private Long volume;
 }

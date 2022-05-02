@@ -18,6 +18,7 @@ public class RoutingOrder {
     private RoutingNode delivery;
     private Integer vehicleId;
     private Boolean vehicleConstant;
+    private Long weight;
 
     @Builder
     @Data

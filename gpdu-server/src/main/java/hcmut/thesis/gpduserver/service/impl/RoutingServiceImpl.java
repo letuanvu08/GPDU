@@ -177,45 +177,52 @@ public class RoutingServiceImpl implements RoutingService {
             RoutingVehicle routingVehicle = RoutingVehicle.builder()
                     .id(i)
                     .location(vehicles.get(i).getCurrentLocation())
+                .load(vehicles.get(i).getCapacity())
+                .volume(vehicles.get(i).getVolume())
                     .build();
-            routing.ifPresent(value -> routingVehicle.setNextNode(RoutingKey.builder()
-                    .orderId(orderIds.indexOf(value.getNextNode().getOrderId()))
-                    .type(value.getNextNode().getTypeNode())
-                    .build()));
+            routing.ifPresent(value ->
+                routingVehicle.setNextNode(
+                    RoutingKey.builder()
+                        .orderId(orderIds.indexOf(value.getNextNode().getOrderId()))
+                        .type(value.getNextNode().getTypeNode())
+                        .build()));
             routingVehicles.add(routingVehicle);
             locations.add(vehicles.get(i).getCurrentLocation());
         }
         for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
             RoutingOrder routingOrder = RoutingOrder.builder()
                     .id(i)
                     .delivery(RoutingOrder.RoutingNode.builder()
-                            .earliestTime(orders.get(i).getDelivery().getEarliestTime())
-                            .latestTime(orders.get(i).getDelivery().getLatestTime())
-                            .location(orders.get(i).getDelivery().getLocation())
+                            .earliestTime(order.getDelivery().getEarliestTime())
+                            .latestTime(order.getDelivery().getLatestTime())
+                            .location(order.getDelivery().getLocation())
                             .build())
                     .pickup(RoutingOrder.RoutingNode.builder()
-                            .earliestTime(orders.get(i).getPickup().getEarliestTime())
-                            .latestTime(orders.get(i).getPickup().getLatestTime())
+                            .earliestTime(order.getPickup().getEarliestTime())
+                            .latestTime(order.getPickup().getLatestTime())
                             .build())
-                    .vehicleId(vehicleIds.indexOf(orders.get(i).getVehicleId()))
-                    .vehicleConstant(!orders.get(i).getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.getLabel()))
+                    .vehicleId(vehicleIds.indexOf(order.getVehicleId()))
+                .weight(order.getPackageInfo().getWeight())
+                    .vehicleConstant(!order.getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.getLabel()))
                     .build();
             routingOrders.add(routingOrder);
-            locations.add(orders.get(i).getPickup().getLocation());
-            locations.add(orders.get(i).getDelivery().getLocation());
+            locations.add(order.getPickup().getLocation());
+            locations.add(order.getDelivery().getLocation());
         }
         AIConfig config = AIConfig.builder()
                 .elitismRate(0.05f)
                 .lateCost(0.2f)
                 .waitingCost(0.1f)
                 .travelCost(2f)
-                .populationSize(50)
-                .tournamentSize(5)
-                .maxGeneration(100)
-                .crossover(0.8f)
-                .mutation(0.2f)
+                .populationSize(1000)
+                .tournamentSize(3)
+                .maxGeneration(200)
+                .crossover(0.6f)
+                .mutation(0.1f)
                 .startTime(startTime)
                 .build();
+
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
                 .orderNumber(orders.size())
                 .vehicleNumber(vehicles.size())
@@ -251,4 +258,5 @@ public class RoutingServiceImpl implements RoutingService {
         }
         createListRouting(listRouting);
     }
+
 }

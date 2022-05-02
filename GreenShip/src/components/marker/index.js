@@ -2,16 +2,17 @@ import React from 'react';
 import {Marker} from 'react-native-maps';
 import Animated from 'react-native-reanimated';
 import {StyleSheet, View, Image} from 'react-native';
-export default function CustomMarker({coordinate, onSelect, image}) {
+export default function CustomMarker({coordinate, onSelect, children}) {
   return (
-    <Marker onPress={() => onSelect(node)} coordinate={coordinate}>
-      {image && (
-        <Image
-          source={image}
-          style={{width: 24, height: 24}}
-          resizeMode="contain"
-        />
-      )}
+    <Marker onPress={() => onSelect()} coordinate={coordinate}>
+      {children}
+      {/*{image && (*/}
+      {/*  <Image*/}
+      {/*    source={image}*/}
+      {/*    style={{width: 24, height: 24}}*/}
+      {/*    resizeMode="contain"*/}
+      {/*  />*/}
+      {/*)}*/}
     </Marker>
   );
 }
