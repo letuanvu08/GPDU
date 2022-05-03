@@ -12,16 +12,15 @@ import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.util.ListUtils;
 
 import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.net.http.HttpClient;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Component
 public class MapboxClient implements IMapboxClient {
@@ -128,6 +127,15 @@ public class MapboxClient implements IMapboxClient {
         }
         CallMatrixAPICommand command = CallMatrixAPICommand.builder()
                 .locations(locations.subList(0, locations.size()))
+                .build();
+        return this.callMatrixAPI(command);
+    }
+
+    @Override
+    public Optional<List<List<Float>>> retrieveDurationMatrix(List<Location> src, List<Location> des) {
+        CallMatrixAPICommand command = CallMatrixAPICommand.builder()
+                .locations(Stream.of(src, des).flatMap(Collection::stream).collect(Collectors.toList()))
+                .sources(IntStream.range(0, src.size()).boxed().collect(Collectors.toList()))
                 .build();
         return this.callMatrixAPI(command);
     }

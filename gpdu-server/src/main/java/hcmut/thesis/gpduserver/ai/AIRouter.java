@@ -12,6 +12,7 @@ import hcmut.thesis.gpduserver.ai.utils.RandomKey;
 import java.util.*;
 
 import hcmut.thesis.gpduserver.ai.utils.RoutingOperation;
+import hcmut.thesis.gpduserver.models.entity.Location;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,14 +25,15 @@ public class AIRouter implements IAIRouter {
     private final AIConfig config;
     private final RoutingMatrix routingMatrix;
     private final GeneticOperation geneticOperation;
-
+    private final Location repoLocation;
     public AIRouter(List<RoutingOrder> orders,
-                    List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix
-    ) {
+                    List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
+                    Location repoLocation) {
         this.orders = orders;
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
+        this.repoLocation = repoLocation;
         this.geneticOperation = new GeneticOperation(config, orders, vehicles);
     }
 

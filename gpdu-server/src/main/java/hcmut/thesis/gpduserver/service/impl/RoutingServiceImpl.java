@@ -3,20 +3,22 @@ package hcmut.thesis.gpduserver.service.impl;
 import hcmut.thesis.gpduserver.ai.AIRouter;
 import hcmut.thesis.gpduserver.ai.config.AIConfig;
 import hcmut.thesis.gpduserver.ai.models.*;
-import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
+import hcmut.thesis.gpduserver.ai.testcase.TestCaseConverter;
+import hcmut.thesis.gpduserver.ai.utils.RoutingConverter;
 import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
-import hcmut.thesis.gpduserver.constants.mongodb.QueryOperators;
 import hcmut.thesis.gpduserver.mapbox.MapboxClient;
 import hcmut.thesis.gpduserver.models.entity.*;
-import hcmut.thesis.gpduserver.models.request.order.OrderListRequest;
-import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 import hcmut.thesis.gpduserver.repository.RoutingRepository;
 import hcmut.thesis.gpduserver.service.OrderService;
 import hcmut.thesis.gpduserver.service.RoutingService;
 import hcmut.thesis.gpduserver.service.VehicleService;
 import hcmut.thesis.gpduserver.utils.GsonUtils;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.print.Doc;
 
 @Service
 @Slf4j
@@ -41,6 +41,7 @@ public class RoutingServiceImpl implements RoutingService {
     private VehicleService vehicleService;
     @Autowired
     private MapboxClient mapboxClient;
+
 
     @Override
     public List<Routing> createListRouting(List<Routing> requests) {
@@ -167,71 +168,105 @@ public class RoutingServiceImpl implements RoutingService {
         List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
         List<String> vehicleIds = vehicles.stream()
                 .map(v -> v.getId().toHexString()).collect(Collectors.toList());
-        List<RoutingOrder> routingOrders = new ArrayList<>();
-        List<Location> locations = new ArrayList<>();
         List<RoutingVehicle> routingVehicles = new ArrayList<>();
-        for (int i = 0; i < vehicles.size(); i++) {
+        List<RoutingOrder> routingOrders = new ArrayList<>();
+        List<Location> vehicleLocations = new ArrayList<>();
+        List<Location> orderNodeLocations = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
             Optional<Routing> routing = routingRepository.getByQuery(new Document()
                     .append("active", true)
-                    .append("vehicleId", vehicles.get(i).getId().toHexString()));
-            RoutingVehicle routingVehicle = RoutingVehicle.builder()
-                    .id(i)
-                    .location(vehicles.get(i).getCurrentLocation())
-                .load(vehicles.get(i).getCapacity())
-                .volume(vehicles.get(i).getVolume())
-                    .build();
-            routing.ifPresent(value ->
-                routingVehicle.setNextNode(
-                    RoutingKey.builder()
-                        .orderId(orderIds.indexOf(value.getNextNode().getOrderId()))
-                        .type(value.getNextNode().getTypeNode())
-                        .build()));
+                    .append("vehicleId", vehicle.getId().toHexString()));
+            RoutingKey key = null;
+            if (routing.isPresent()) {
+                key = RoutingKey.builder()
+                        .orderId(orderIds.indexOf(routing.get().getNextNode().getOrderId()))
+                        .type(routing.get().getNextNode().getTypeNode())
+                        .build();
+            }
+            RoutingVehicle routingVehicle = RoutingConverter.convertVehicle2RoutingVehicle(vehicle, key);
             routingVehicles.add(routingVehicle);
-            locations.add(vehicles.get(i).getCurrentLocation());
+            vehicleLocations.add(vehicle.getCurrentLocation());
         }
-        for (int i = 0; i < orders.size(); i++) {
-            Order order = orders.get(i);
-            RoutingOrder routingOrder = RoutingOrder.builder()
-                    .id(i)
-                    .delivery(RoutingOrder.RoutingNode.builder()
-                            .earliestTime(order.getDelivery().getEarliestTime())
-                            .latestTime(order.getDelivery().getLatestTime())
-                            .location(order.getDelivery().getLocation())
-                            .build())
-                    .pickup(RoutingOrder.RoutingNode.builder()
-                            .earliestTime(order.getPickup().getEarliestTime())
-                            .latestTime(order.getPickup().getLatestTime())
-                            .build())
-                    .vehicleId(vehicleIds.indexOf(order.getVehicleId()))
-                .weight(order.getPackageInfo().getWeight())
-                    .vehicleConstant(!order.getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.getLabel()))
-                    .build();
+        for (Order order : orders) {
+            RoutingOrder routingOrder = RoutingConverter.convertOrder2RoutingOrder(order,
+                    vehicleIds.indexOf(order.getVehicleId()));
             routingOrders.add(routingOrder);
-            locations.add(order.getPickup().getLocation());
-            locations.add(order.getDelivery().getLocation());
+            orderNodeLocations.add(order.getPickup().getLocation());
+            orderNodeLocations.add(order.getDelivery().getLocation());
         }
+
         AIConfig config = AIConfig.builder()
-                .elitismRate(0.05f)
-                .lateCost(0.2f)
-                .waitingCost(0.1f)
-                .travelCost(2f)
-                .populationSize(1000)
-                .tournamentSize(3)
-                .maxGeneration(200)
-                .crossover(0.6f)
-                .mutation(0.1f)
                 .startTime(startTime)
                 .build();
 
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
                 .orderNumber(orders.size())
                 .vehicleNumber(vehicles.size())
-                .value(mapboxClient.retrieveDurationMatrix(locations).orElseThrow())
+                .orderNodeMatrix(mapboxClient.retrieveDurationMatrix(orderNodeLocations).orElseThrow())
+                .vehicleMatrix(mapboxClient.retrieveDurationMatrix(vehicleLocations, orderNodeLocations).orElseThrow())
                 .build();
-        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix);
+        Location repoLocation = Location.builder()
+                .latitude(10.748696f)
+                .longitude(106.722653f)
+                .build();
+        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation);
         RoutingResponse res = router.routing();
+        this.saveRoutings(res, orders, vehicleIds);
+    }
+
+
+    @Override
+    public RoutingResponse routing(InputStream inputStream) throws Exception {
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            int orderNumber = Integer.parseInt(br.readLine().split("\t")[1]);
+            br.readLine();
+            List<RoutingOrder> routingOrders = new ArrayList<>();
+            for (int i = 0; i < orderNumber; i++) {
+                RoutingOrder routingOrder = TestCaseConverter.convertString2RoutingOrder(br.readLine());
+                routingOrders.add(routingOrder);
+            }
+            br.readLine();
+            List<List<Float>> orderNodeMatrix = new ArrayList<>();
+            for (int i = 0; i < orderNumber * 2; i++) {
+                orderNodeMatrix.add(Arrays.stream(br.readLine().split(","))
+                        .map(Float::parseFloat).collect(Collectors.toList()));
+            }
+            long capacity = Long.parseLong(br.readLine().split("\t")[1]);
+            int vehicleNumber = Integer.parseInt(br.readLine().split("\t")[1]);
+            br.readLine();
+            List<RoutingVehicle> routingVehicles = new ArrayList<>();
+            for (int i = 0; i < vehicleNumber; i++) {
+                RoutingVehicle routingVehicle = RoutingVehicle.builder()
+                        .load(capacity)
+                        .location(TestCaseConverter.convertString2VehicleLocation(br.readLine()))
+                        .build();
+                routingVehicles.add(routingVehicle);
+            }
+            br.readLine();
+            List<List<Float>> vehicleMatrix = new ArrayList<>();
+            for (int i = 0; i < vehicleNumber; i++) {
+                vehicleMatrix.add(Arrays.stream(br.readLine().split(","))
+                        .map(Float::parseFloat).collect(Collectors.toList()));
+            }
+            Location repoLocation = TestCaseConverter.convertString2RepoLocation(br.readLine());
+            AIConfig config = AIConfig.builder()
+                    .startTime(System.currentTimeMillis())
+                    .build();
+            RoutingMatrix routingMatrix = RoutingMatrix.builder()
+                    .orderNumber(orderNumber)
+                    .vehicleNumber(vehicleNumber)
+                    .orderNodeMatrix(orderNodeMatrix)
+                    .vehicleMatrix(vehicleMatrix)
+                    .build();
+            AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation);
+            return router.routing();
+        }
+    }
+
+    private void saveRoutings(RoutingResponse routingResponse, List<Order> orders, List<String> vehicleIds) {
         List<Routing> listRouting = new ArrayList<>();
-        for (RoutingResponse.Route route : res.getRoutes()) {
+        for (RoutingResponse.Route route : routingResponse.getRoutes()) {
             List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();
             for (RoutingKey routingKey : route.getRoutingKeys()) {
                 Order order = orders.get(routingKey.getOrderId());
@@ -256,7 +291,8 @@ public class RoutingServiceImpl implements RoutingService {
             listRouting.add(routing);
 
         }
-        createListRouting(listRouting);
+        this.createListRouting(listRouting);
     }
+
 
 }

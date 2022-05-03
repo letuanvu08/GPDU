@@ -9,3 +9,5 @@ grpc:
     useSSL: false
     poolSize: 4
     deadline: 1000
+storage:
+  url: file

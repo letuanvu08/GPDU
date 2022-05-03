@@ -1,8 +1,11 @@
 package hcmut.thesis.gpduserver.service;
 
+import hcmut.thesis.gpduserver.ai.models.RoutingResponse;
 import hcmut.thesis.gpduserver.models.entity.Routing;
 import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.bson.Document;
@@ -24,6 +27,8 @@ public interface RoutingService {
     Boolean updateRouting(Routing routing);
 
     void routing();
+
+    RoutingResponse routing(InputStream inputStream) throws Exception;
 
 
 }

@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RoutingOrder {
-    private Integer id;
     private RoutingNode pickup;
     private RoutingNode delivery;
     private Integer vehicleId;
-    private Boolean vehicleConstant;
+    @Builder.Default
+    private Boolean vehicleConstant = false;
     private Long weight;
 
     @Builder
