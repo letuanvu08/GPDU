@@ -28,6 +28,5 @@ public class AIConfig {
     private float mutation = 0.1f;
     @Builder.Default
     private int maxGeneration = 200;
-    private long startTime;
 
 }

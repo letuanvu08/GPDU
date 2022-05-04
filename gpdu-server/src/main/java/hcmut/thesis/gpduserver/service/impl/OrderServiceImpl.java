@@ -223,9 +223,15 @@ public class OrderServiceImpl implements OrderService {
                     .customerName("vu")
                     .phone("0908978878")
                     .build();
+            Order.Package packageInfo = Order.Package.builder()
+                    .weight(ThreadLocalRandom.current().nextLong(1,10))
+                    .name("package")
+                    .category("secret")
+                    .build();
             FormCreateOrder formCreateOrder = FormCreateOrder.builder()
                     .pickup(pickup)
                     .delivery(delivery)
+                    .packageInfo(packageInfo)
                     .build();
             this.createOrder(formCreateOrder);
         }

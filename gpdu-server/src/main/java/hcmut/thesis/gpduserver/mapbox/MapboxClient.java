@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 @Component
 public class MapboxClient implements IMapboxClient {
+    private final static int MAX_LOCATION_NUMBER = 25;
     @Autowired
     private MapboxConfig mapboxConfig;
     @Autowired
@@ -133,11 +134,25 @@ public class MapboxClient implements IMapboxClient {
 
     @Override
     public Optional<List<List<Float>>> retrieveDurationMatrix(List<Location> src, List<Location> des) {
-        CallMatrixAPICommand command = CallMatrixAPICommand.builder()
-                .locations(Stream.of(src, des).flatMap(Collection::stream).collect(Collectors.toList()))
-                .sources(IntStream.range(0, src.size()).boxed().collect(Collectors.toList()))
-                .build();
-        return this.callMatrixAPI(command);
+        List<List<Float>> result = new ArrayList<>();
+        for (int i = 0; i < src.size(); i++) {
+            List<Float> row = new ArrayList<>();
+            for (int j = 0; j < des.size(); j += MAX_LOCATION_NUMBER - 1) {
+                int desNumber = j + MAX_LOCATION_NUMBER - 1 > des.size() ?
+                        des.size() - j : MAX_LOCATION_NUMBER - 1;
+                List<Location> locations = new ArrayList<>(des.subList(j, j + desNumber));
+                locations.add(src.get(i));
+                CallMatrixAPICommand command = CallMatrixAPICommand.builder()
+                        .locations(locations)
+                        .sources(List.of(desNumber))
+                        .build();
+                Optional<List<List<Float>>> res = this.callMatrixAPI(command);
+                if (res.isEmpty()) return Optional.empty();
+                row.addAll(res.get().get(0).subList(0, desNumber));
+            }
+            result.add(row);
+        }
+        return Optional.of(result);
     }
 
     @Override

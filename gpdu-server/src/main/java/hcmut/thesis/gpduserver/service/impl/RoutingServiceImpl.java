@@ -161,8 +161,7 @@ public class RoutingServiceImpl implements RoutingService {
 
     @Override
     public void routing() {
-        long startTime = System.currentTimeMillis() + TimeUtils.ONE_HOUR_IN_MILLIS_SECOND;
-        List<Order> orders = orderService.getTodayOrders(startTime);
+        List<Order> orders = orderService.getTodayOrders(System.currentTimeMillis());
         List<String> orderIds = orders.stream()
                 .map(o -> o.getId().toHexString()).collect(Collectors.toList());
         List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
@@ -196,7 +195,6 @@ public class RoutingServiceImpl implements RoutingService {
         }
 
         AIConfig config = AIConfig.builder()
-                .startTime(startTime)
                 .build();
 
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
@@ -251,7 +249,6 @@ public class RoutingServiceImpl implements RoutingService {
             }
             Location repoLocation = TestCaseConverter.convertString2RepoLocation(br.readLine());
             AIConfig config = AIConfig.builder()
-                    .startTime(System.currentTimeMillis())
                     .build();
             RoutingMatrix routingMatrix = RoutingMatrix.builder()
                     .orderNumber(orderNumber)

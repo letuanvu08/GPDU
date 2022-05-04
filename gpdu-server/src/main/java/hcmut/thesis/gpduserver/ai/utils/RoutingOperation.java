@@ -15,7 +15,8 @@ public class RoutingOperation {
 
 
     public static Durations calDurations(List<Key<IntegerRouting>> keys, RoutingMatrix routingMatrix,
-                                         List<RoutingOrder> routingOrders, long startTime) {
+                                         List<RoutingOrder> routingOrders) {
+        long startTime = System.currentTimeMillis();
         int prevVehicle = -1;
         float travelDuration = 0;
         float waitingDuration = 0;
@@ -26,14 +27,16 @@ public class RoutingOperation {
             Key<IntegerRouting> nextKey = keys.get(i + 1);
             int currentVehicle = currentKey.getValue().getVehicle();
             if (prevVehicle != currentVehicle) {
-                travelDuration += vehicleDuration;
-                vehicleDuration = routingMatrix.getDurationVehicle(currentVehicle,
+                float tempDuration = routingMatrix.getDurationVehicle(currentVehicle,
                         currentKey.getOrderIndex(), currentKey.getType());
+                travelDuration += tempDuration;
+                vehicleDuration = tempDuration;
                 RoutingOrder.RoutingNode node = currentKey.getType().equals(PICKUP) ?
                         routingOrders.get(currentKey.getOrderIndex()).getPickup() :
                         routingOrders.get(currentKey.getOrderIndex()).getDelivery();
                 if (startTime + vehicleDuration * 1000 < node.getEarliestTime()) {
                     waitingDuration += (node.getEarliestTime() - startTime) / 1000f - vehicleDuration;
+                    vehicleDuration = (node.getEarliestTime() - startTime) / 1000f;
                 }
 
                 if (startTime + vehicleDuration * 1000 > node.getLatestTime()) {
@@ -41,13 +44,16 @@ public class RoutingOperation {
                 }
                 prevVehicle = currentVehicle;
             }
-            vehicleDuration += routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
+            float tempDuration = routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
                     currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType());
+            travelDuration += tempDuration;
+            vehicleDuration += tempDuration;
             RoutingOrder.RoutingNode node = nextKey.getType().equals(PICKUP) ?
                     routingOrders.get(nextKey.getOrderIndex()).getPickup() :
                     routingOrders.get(nextKey.getOrderIndex()).getDelivery();
             if (startTime + vehicleDuration * 1000 < node.getEarliestTime()) {
                 waitingDuration += (node.getEarliestTime() - startTime) / 1000f - vehicleDuration;
+                vehicleDuration = (node.getEarliestTime() - startTime) / 1000f;
             }
             if (startTime + vehicleDuration * 1000 > node.getLatestTime()) {
                 lateDuration += vehicleDuration + (startTime - node.getLatestTime()) / 1000f;
