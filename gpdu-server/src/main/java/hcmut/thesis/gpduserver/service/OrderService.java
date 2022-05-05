@@ -1,6 +1,7 @@
 package hcmut.thesis.gpduserver.service;
 
 
+import hcmut.thesis.gpduserver.models.entity.Location;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Order.Status;
 import hcmut.thesis.gpduserver.models.request.order.FormCreateOrder;
@@ -27,6 +28,8 @@ public interface OrderService {
     Boolean updateOrderRouting(String orderId, String currentRoutingId);
 
     Boolean updateOrder(Order order);
+
+    void updateCurrentLocationByVehicleId(String vehicleId, Location location);
 
     List<Order> getTodayOrders(long start);
 

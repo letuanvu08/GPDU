@@ -26,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import hcmut.thesis.gpduserver.utils.LocationUtils;
 import hcmut.thesis.gpduserver.utils.TimeUtils;
+import javax.print.Doc;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.bson.Document;
@@ -48,22 +49,22 @@ public class OrderServiceImpl implements OrderService {
         Order order = null;
         try {
             Status status = Status.builder()
-                    .step(StepOrderEnum.ORDER_RECEIVED.getLabel())
-                    .status(StatusOrderEnum.FINISHED.name())
-                    .timestamp(System.currentTimeMillis())
-                    .build();
+                .step(StepOrderEnum.ORDER_RECEIVED.getLabel())
+                .status(StatusOrderEnum.FINISHED.name())
+                .timestamp(System.currentTimeMillis())
+                .build();
             Order orderRequest = Order.builder()
-                    .userId(form.getUserId())
-                    .userName(form.getUserName())
-                    .currentStep(status)
-                    .delivery(form.getDelivery())
-                    .pickup(form.getPickup())
-                    .currentLocation(form.getPickup().getLocation())
-                    .historyStatus(List.of(status))
-                    .packageInfo(form.getPackageInfo())
-                    .currentStatus(StatusOrderEnum.UNFINISHED.name())
-                    .note(form.getNote())
-                    .build();
+                .userId(form.getUserId())
+                .userName(form.getUserName())
+                .currentStep(status)
+                .delivery(form.getDelivery())
+                .pickup(form.getPickup())
+                .currentLocation(form.getPickup().getLocation())
+                .historyStatus(List.of(status))
+                .packageInfo(form.getPackageInfo())
+                .currentStatus(StatusOrderEnum.UNFINISHED.name())
+                .note(form.getNote())
+                .build();
             order = orderRepository.insert(orderRequest).orElse(null);
             log.info("createOrder form: {}, result: {}", form, GsonUtils.toJsonString(order));
             return order;
@@ -79,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             Optional<Order> orderOptional = this.orderRepository.getById(id);
             log.info(" getOrderById: {}, resultL: {}", id,
-                    GsonUtils.toJsonString(orderOptional.orElse(null)));
+                GsonUtils.toJsonString(orderOptional.orElse(null)));
             return orderOptional.orElse(null);
         } catch (Exception e) {
             log.error("Error when getOrderById: {}", e.getMessage());
@@ -98,7 +99,8 @@ public class OrderServiceImpl implements OrderService {
                 request.append("vehicleId", orderListRequest.getVehicleId());
             }
             if (!Strings.isEmpty(orderListRequest.getLabelStep())) {
-                request.append("currentStep", new Document("step", orderListRequest.getLabelStep()));
+                request.append("currentStep",
+                    new Document("step", orderListRequest.getLabelStep()));
             }
             if (!Strings.isEmpty(orderListRequest.getStatus())) {
                 request.append("currentStatus", orderListRequest.getStatus());
@@ -106,11 +108,11 @@ public class OrderServiceImpl implements OrderService {
             int offset = orderListRequest.getOffset();
             int limit = orderListRequest.getLimit();
             Optional<List<Order>> orders = this.orderRepository.getMany(request,
-                    new Document("createdTime", -1), offset,
-                    limit);
+                new Document("createdTime", -1), offset,
+                limit);
             log.info("getOrdersUser by request: {}, offset: {}, limit: {}, result: {}",
-                    GsonUtils.toJsonString(request), offset, limit,
-                    GsonUtils.toJsonString(orders.orElse(new ArrayList<>())));
+                GsonUtils.toJsonString(request), offset, limit,
+                GsonUtils.toJsonString(orders.orElse(new ArrayList<>())));
             return orders.orElse(new ArrayList<>());
         } catch (Exception e) {
             log.error("getOrdersUser by request: {}, error: {}", orderListRequest, e.getMessage());
@@ -121,22 +123,23 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrderBysUserId(String userId, String status, int offset, int limit) {
         OrderListRequest request = OrderListRequest.builder()
-                .userId(userId)
-                .status(status)
-                .offset(offset)
-                .limit(limit)
-                .build();
+            .userId(userId)
+            .status(status)
+            .offset(offset)
+            .limit(limit)
+            .build();
         return getOrderListByRequest(request);
     }
 
     @Override
-    public List<Order> getOrdersByVehicleId(String vehicleId, String status, int offset, int limit) {
+    public List<Order> getOrdersByVehicleId(String vehicleId, String status, int offset,
+        int limit) {
         OrderListRequest request = OrderListRequest.builder()
-                .vehicleId(vehicleId)
-                .status(status)
-                .offset(offset)
-                .limit(limit)
-                .build();
+            .vehicleId(vehicleId)
+            .status(status)
+            .offset(offset)
+            .limit(limit)
+            .build();
         return getOrderListByRequest(request);
     }
 
@@ -170,7 +173,7 @@ public class OrderServiceImpl implements OrderService {
             Order order = orderOptional.get();
             order.getHistoryStatus().add(status);
             if (StepOrderEnum.Done.getLabel().equals(status.getStep()) ||
-                    StatusOrderEnum.CANCEL.name().equals(status.getStatus())) {
+                StatusOrderEnum.CANCEL.name().equals(status.getStatus())) {
                 order.setCurrentStatus(status.getStatus());
             }
             order.setCurrentStatus(status.getStatus());
@@ -185,16 +188,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getTodayOrders(long start) {
         Document query = new Document()
-                .append("currentStatus", StatusOrderEnum.UNFINISHED.toString())
-                .append("$or", Arrays.asList(
-                        new Document("$and", Arrays.asList(
-                                new Document("pickup.earliestTime", new Document("$gte", start)),
-                                new Document("pickup.earliestTime", new Document("$lte", TimeUtils.atEndOfDay())
-                                ))),
-                        new Document("$and", Arrays.asList(
-                                new Document("delivery.earliestTime", new Document("$gte", start)),
-                                new Document("delivery.earliestTime", new Document("$lte", TimeUtils.atEndOfDay()))
-                        ))));
+            .append("currentStatus", StatusOrderEnum.UNFINISHED.toString())
+            .append("$or", Arrays.asList(
+                new Document("$and", Arrays.asList(
+                    new Document("pickup.earliestTime", new Document("$gte", start)),
+                    new Document("pickup.earliestTime", new Document("$lte", TimeUtils.atEndOfDay())
+                    ))),
+                new Document("$and", Arrays.asList(
+                    new Document("delivery.earliestTime", new Document("$gte", start)),
+                    new Document("delivery.earliestTime",
+                        new Document("$lte", TimeUtils.atEndOfDay()))
+                ))));
         return orderRepository.getMany(query, new Document(), 0, 0).orElse(new ArrayList<>());
     }
 
@@ -204,14 +208,15 @@ public class OrderServiceImpl implements OrderService {
             long startTime = TimeUtils.generateRandomTimeInToday(System.currentTimeMillis());
             Location location = LocationUtils.generateHCMUTLocation();
             Node pickup = Node.builder()
-                    .location(location)
-                    .earliestTime(startTime)
-                    .latestTime(startTime + ThreadLocalRandom.current().nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
-                            2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
-                    .address(mapboxClient.reverseGeocoding(location))
-                    .customerName("tu")
-                    .phone("0832183021")
-                    .build();
+                .location(location)
+                .earliestTime(startTime)
+                .latestTime(startTime + ThreadLocalRandom.current()
+                    .nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
+                        2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
+                .address(mapboxClient.reverseGeocoding(location))
+                .customerName("tu")
+                .phone("0832183021")
+                .build();
             startTime = TimeUtils.generateRandomTimeInToday(System.currentTimeMillis());
             location = LocationUtils.generateHCMUTLocation();
             Node delivery = Node.builder()
@@ -264,5 +269,13 @@ public class OrderServiceImpl implements OrderService {
             log.error("Error when updateOrder: {}, exception: {}", order, e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public void updateCurrentLocationByVehicleId(String vehicleId, Location location) {
+        Document request = new Document().append("vehicleId", vehicleId)
+            .append("currentStep.step", StepOrderEnum.PICKUP_PACKAGE);
+        Document data = new Document().append("currentLocation", location);
+        orderRepository.updateMany(request, data);
     }
 }

@@ -31,7 +31,8 @@ public class RoutingOrder {
 
         @Override
         public int compareTo(RoutingNode other) {
-            return (int) (earliestTime - other.getEarliestTime());
+            int a=  (int) (earliestTime - other.getEarliestTime());
+            return a;
         }
     }
 }

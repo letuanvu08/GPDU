@@ -161,7 +161,7 @@ public class AIRouter implements IAIRouter {
             keys.add(Key.<RoutingOrder.RoutingNode>builder()
                     .orderIndex(i)
                     .type(DELIVERY)
-                    .value(order.getPickup())
+                    .value(order.getDelivery())
                     .build());
         }
         keys.sort(Comparator.comparing(Key::getValue));

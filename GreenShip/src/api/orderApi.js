@@ -47,4 +47,6 @@ export default orderApi = {
     httpClient.get('/orders', {params: {offset, limit: 5}}),
 
   getOrderById: ({orderId}) => httpClient.get(`/orders/${orderId}`),
+  updateOrderStatus: ({orderId, status})=>
+   httpClient.post(`/orders/${orderId}/status`, status)
 };

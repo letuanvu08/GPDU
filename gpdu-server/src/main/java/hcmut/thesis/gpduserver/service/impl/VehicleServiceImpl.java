@@ -4,6 +4,7 @@ import hcmut.thesis.gpduserver.models.entity.Location;
 import hcmut.thesis.gpduserver.models.entity.Vehicle;
 import hcmut.thesis.gpduserver.models.request.vehicle.FormAddVehicle;
 import hcmut.thesis.gpduserver.repository.VehicleRepository;
+import hcmut.thesis.gpduserver.service.OrderService;
 import hcmut.thesis.gpduserver.service.UserService;
 import hcmut.thesis.gpduserver.service.VehicleService;
 import hcmut.thesis.gpduserver.utils.GsonUtils;
@@ -24,6 +25,7 @@ public class VehicleServiceImpl implements VehicleService {
 
   @Autowired
   private UserService userService;
+
 
   @Override
   public Vehicle addVehicle(FormAddVehicle form) {

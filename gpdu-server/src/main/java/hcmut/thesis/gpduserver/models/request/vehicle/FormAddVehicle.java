@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 public class FormAddVehicle {
 
   private String type;
-  private long capacity;
-  private long volume;
+  private Long capacity;
+  private Long volume;
   private Location currentLocation;
   private String ownerId;
 }

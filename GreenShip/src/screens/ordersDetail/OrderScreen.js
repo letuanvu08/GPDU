@@ -49,6 +49,7 @@ export function OrderDetailScreen() {
           </View>
           <View style={styles.status}>
             <OrderStatus
+                orderId={order?.id}
               packageInfo={order?.historyStatus}
               typeUser={user?.typeUser}
             />
