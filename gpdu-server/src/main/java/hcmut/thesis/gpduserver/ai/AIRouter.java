@@ -83,7 +83,10 @@ public class AIRouter implements IAIRouter {
         while (generation < config.getMaxGeneration()) {
             population = geneticOperation.evolve(population, vehicles.size(), routingMatrix);
             log.info("Generation: {}", generation);
-            log.info("Best individual in generation: {} has fitness: {}", generation, population.get(0).getFitness());
+            log.info("Best individual in generation: has fitness: ");
+            for (int i = 1; i <= 10 ; i++){
+                log.info("Top {} has fitness: {}", i, population.get(population.size()-i).getFitness());
+            }
             generation += 1;
         }
 
