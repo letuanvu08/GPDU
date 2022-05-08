@@ -77,15 +77,15 @@ public class AIRouter implements IAIRouter {
 
     @Override
     public RoutingResponse routing() {
-        List<Key<RoutingOrder.RoutingNode>> keys = getListKeySortNodeByEarliestTime(orders);
-        List<Chromosome> population = this.initPopulation(keys);
+//        List<Key<RoutingOrder.RoutingNode>> keys = getListKeySortNodeByEarliestTime(orders);
+        List<Chromosome> population = this.initPopulation();
         int generation = 0;
         while (generation < config.getMaxGeneration()) {
             population = geneticOperation.evolve(population, vehicles.size(), routingMatrix);
             log.info("Generation: {}", generation);
             log.info("Best individual in generation: has fitness: ");
-            for (int i = 1; i <= 10 ; i++){
-                log.info("Top {} has fitness: {}", i, population.get(population.size()-i).getFitness());
+            for (int i = 0; i <= 1 ; i++){
+                log.info("Top {} has fitness: {}", i, population.get(i).getFitness());
             }
             generation += 1;
         }
@@ -93,11 +93,11 @@ public class AIRouter implements IAIRouter {
         return decodeChromosome(population.get(0));
     }
 
-    private List<Chromosome> initPopulation(List<Key<RoutingOrder.RoutingNode>> keys) {
+    private List<Chromosome> initPopulation() {
 
         List<Chromosome> result = new ArrayList<>();
         for (int i = 0; i < config.getPopulationSize(); i++) {
-            List<Gen> sample = this.getSample(keys, orders);
+            List<Gen> sample = this.getSample(orders);
             Chromosome chromosome = Chromosome.builder()
                     .gens(sample)
                     .fitness(geneticOperation.calFitness(sample, routingMatrix, orders))
@@ -108,11 +108,9 @@ public class AIRouter implements IAIRouter {
         return result;
     }
 
-    private List<Gen> getSample(List<Key<RoutingOrder.RoutingNode>> keys,
-                                List<RoutingOrder> orders) {
+    private List<Gen> getSample(List<RoutingOrder> orders){
         List<Gen> sample = new ArrayList<>();
-        List<Integer> sampleRandom = getSampleKeyRandom(keys.size());
-        for (int i = 0; i < orders.size(); i++) {
+        for(int i = 0; i< orders.size();i++){
             RoutingOrder order = orders.get(i);
             Integer vehicleId = RandomKey.generateInSize(vehicles.size());
             boolean vehicleConstant = false;
@@ -120,55 +118,78 @@ public class AIRouter implements IAIRouter {
                 vehicleId = order.getVehicleId();
                 vehicleConstant = true;
             }
-            int finalI = i;
-            Gen gene = Gen.builder()
-                    .pickup(sampleRandom.get(
-                            keys.indexOf(keys.stream().filter(
-                                            key -> key.getOrderIndex() == finalI && key.getType().equals(PICKUP))
-                                    .findFirst().orElse(null))))
-                    .delivery(sampleRandom.get(
-                            keys.indexOf(keys.stream().filter(
-                                            key -> key.getOrderIndex() == finalI && key.getType()
-                                                    .equals(DELIVERY))
-                                    .findFirst().orElse(null))))
-                    .vehicle(vehicleId)
-                    .vehicleConstant(vehicleConstant)
-                    .build();
-            sample.add(gene);
+            Gen gen = Gen.builder()
+                .pickup(RandomKey.generateInSize(10000))
+                .delivery(RandomKey.generateInSize(10000))
+                .vehicle(vehicleId)
+                .vehicleConstant(vehicleConstant)
+                .build();
+            sample.add(gen);
         }
         return sample;
     }
 
-    private List<Integer> getSampleKeyRandom(int size) {
-        List<Integer> sampleRandom = new ArrayList<>();
-        int prevRandom = INIT_RANDOM;
-        while (sampleRandom.size() < size) {
-            Integer currentRandom = RandomKey.generateBaseMin(prevRandom, BOUND_RANDOM_KEY);
-            sampleRandom.add(currentRandom);
-            prevRandom = currentRandom;
-        }
-        return sampleRandom;
-    }
+//    private List<Gen> getSample(List<Key<RoutingOrder.RoutingNode>> keys,
+//                                List<RoutingOrder> orders) {
+//        List<Gen> sample = new ArrayList<>();
+//        List<Integer> sampleRandom = getSampleKeyRandom(keys.size());
+//        for (int i = 0; i < orders.size(); i++) {
+//            RoutingOrder order = orders.get(i);
+//            Integer vehicleId = RandomKey.generateInSize(vehicles.size());
+//            boolean vehicleConstant = false;
+//            if (order.getVehicleConstant()) {
+//                vehicleId = order.getVehicleId();
+//                vehicleConstant = true;
+//            }
+//            int finalI = i;
+//            Gen gene = Gen.builder()
+//                    .pickup(sampleRandom.get(
+//                            keys.indexOf(keys.stream().filter(
+//                                            key -> key.getOrderIndex() == finalI && key.getType().equals(PICKUP))
+//                                    .findFirst().orElse(null))))
+//                    .delivery(sampleRandom.get(
+//                            keys.indexOf(keys.stream().filter(
+//                                            key -> key.getOrderIndex() == finalI && key.getType()
+//                                                    .equals(DELIVERY))
+//                                    .findFirst().orElse(null))))
+//                    .vehicle(vehicleId)
+//                    .vehicleConstant(vehicleConstant)
+//                    .build();
+//            sample.add(gene);
+//        }
+//        return sample;
+//    }
+
+//    private List<Integer> getSampleKeyRandom(int size) {
+//        List<Integer> sampleRandom = new ArrayList<>();
+//        int prevRandom = INIT_RANDOM;
+//        while (sampleRandom.size() < size) {
+//            Integer currentRandom = RandomKey.generateBaseMin(prevRandom, BOUND_RANDOM_KEY);
+//            sampleRandom.add(currentRandom);
+//            prevRandom = currentRandom;
+//        }
+//        return sampleRandom;
+//    }
 
 
-    private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(
-            List<RoutingOrder> orders) {
-        List<Key<RoutingOrder.RoutingNode>> keys = new ArrayList<>();
-        for (int i = 0; i < orders.size(); i++) {
-            RoutingOrder order = orders.get(i);
-            keys.add(Key.<RoutingOrder.RoutingNode>builder()
-                    .orderIndex(i)
-                    .type(PICKUP)
-                    .value(order.getPickup())
-                    .build());
-            keys.add(Key.<RoutingOrder.RoutingNode>builder()
-                    .orderIndex(i)
-                    .type(DELIVERY)
-                    .value(order.getDelivery())
-                    .build());
-        }
-        keys.sort(Comparator.comparing(Key::getValue));
-        return keys;
-    }
+//    private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(
+//            List<RoutingOrder> orders) {
+//        List<Key<RoutingOrder.RoutingNode>> keys = new ArrayList<>();
+//        for (int i = 0; i < orders.size(); i++) {
+//            RoutingOrder order = orders.get(i);
+//            keys.add(Key.<RoutingOrder.RoutingNode>builder()
+//                    .orderIndex(i)
+//                    .type(PICKUP)
+//                    .value(order.getPickup())
+//                    .build());
+//            keys.add(Key.<RoutingOrder.RoutingNode>builder()
+//                    .orderIndex(i)
+//                    .type(DELIVERY)
+//                    .value(order.getDelivery())
+//                    .build());
+//        }
+//        keys.sort(Comparator.comparing(Key::getValue));
+//        return keys;
+//    }
 
 }

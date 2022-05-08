@@ -28,5 +28,7 @@ public class AIConfig {
     private float mutation = 0.2f;
     @Builder.Default
     private int maxGeneration = 200;
+    @Builder.Default
+    private float swapVehicle = 0.7f;
 
 }

@@ -18,13 +18,13 @@ public class Chromosome implements Comparable<Chromosome> {
     private List<Gen> gens;
     private Float fitness = 0f;
 
+
     @Override
     public int compareTo(Chromosome other) {
         float sub = this.getFitness() - other.getFitness();
-        if(sub>0){
+        if (sub > 0) {
             return 1;
-        }
-        else if (sub<0){
+        } else if (sub < 0) {
             return -1;
         }
         return 0;
@@ -40,6 +40,15 @@ public class Chromosome implements Comparable<Chromosome> {
         private Integer delivery;
         private Integer vehicle;
         private Boolean vehicleConstant;
+
+        public Gen clone() {
+            return Gen.builder()
+                .pickup(pickup)
+                .delivery(delivery)
+                .vehicleConstant(vehicleConstant)
+                .vehicle(vehicle)
+                .build();
+        }
     }
 
 }

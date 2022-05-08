@@ -21,7 +21,8 @@ public class GeneticOperation {
     private final List<RoutingOrder> routingOrders;
     private final List<RoutingVehicle> vehicles;
 
-    public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders, List<RoutingVehicle> vehicles) {
+    public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders,
+        List<RoutingVehicle> vehicles) {
         this.config = config;
         this.routingOrders = routingOrders;
         this.vehicles = vehicles;
@@ -126,13 +127,22 @@ public class GeneticOperation {
 
     @SafeVarargs
     private List<Gen> concatGen(List<Gen>... listGens) {
-        return Stream.of(listGens).flatMap(Collection::stream).collect(Collectors.toList());
+        List<Gen> newGen = new ArrayList<>();
+        Stream.of(listGens).forEach(gens -> gens.forEach(gen -> newGen.add(gen.clone())));
+        return newGen;
     }
 
     public Chromosome mutate(Chromosome chromosome, RoutingMatrix routingMatrix) {
-        Pair<Gen, Gen> pairGen = chooseGenMutation(chromosome);
-        swapVehicleGen(pairGen.getLeft(), pairGen.getRight());
-        chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
+        if (ThreadLocalRandom.current().nextFloat() <= config.getSwapVehicle()) {
+            Pair<Gen, Gen> pairGen = chooseGenMutation(chromosome);
+            swapVehicleGen(pairGen.getLeft(), pairGen.getRight());
+            chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
+            return chromosome;
+        }
+        int genIndex = RandomKey.random(0, chromosome.getGens().size());
+        Gen gen = chromosome.getGens().get(genIndex);
+        gen.setDelivery(RandomKey.generateInSize(10000));
+        gen.setPickup(RandomKey.generateInSize(10000));
         return chromosome;
     }
 
