@@ -1,6 +1,7 @@
 package hcmut.thesis.gpduserver.ai.models;
 
 
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,14 @@ public class Chromosome implements Comparable<Chromosome> {
             return -1;
         }
         return 0;
+    }
+
+    public Chromosome clone(){
+        List<Gen> gens = new ArrayList<>();
+        this.getGens().forEach(gen -> gens.add(gen.clone()));
+        return Chromosome.builder()
+            .gens(gens)
+            .build();
     }
 
     @Data

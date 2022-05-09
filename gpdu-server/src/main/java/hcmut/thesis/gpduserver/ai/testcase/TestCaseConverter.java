@@ -25,7 +25,7 @@ public class TestCaseConverter {
                                 .longitude(Float.parseFloat(objectList[7]))
                                 .build())
                         .earliestTime(System.currentTimeMillis() + Long.parseLong(objectList[8]) * 1000)
-                        .latestTime(System.currentTimeMillis() + Long.parseLong(objectList[9]) + 1000)
+                        .latestTime(System.currentTimeMillis() + Long.parseLong(objectList[9]) * 1000)
                         .build())
                 .build();
     }

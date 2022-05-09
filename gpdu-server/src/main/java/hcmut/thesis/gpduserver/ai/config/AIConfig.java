@@ -19,7 +19,7 @@ public class AIConfig {
     @Builder.Default
     private float lateCost = 0.02f;
     @Builder.Default
-    private int tournamentSize = 3;
+    private int tournamentSize =10;
     @Builder.Default
     private float elitismRate = 0.1f;
     @Builder.Default

@@ -51,13 +51,12 @@ public class GeneticOperation {
                 buf.addAll(candidates.subList(0, 2));
                 index += 2;
             } else {
-                Chromosome luckyMan = population.get(RandomKey.random(index, size));
+                Chromosome luckyMan = population.get(RandomKey.random(index, size)).clone();
                 if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
-
                     luckyMan = mutate(luckyMan, routingMatrix);
-                    luckyMan.setFitness(
-                        calFitness(luckyMan.getGens(), routingMatrix, routingOrders));
                 }
+                luckyMan.setFitness(
+                    calFitness(luckyMan.getGens(), routingMatrix, routingOrders));
                 index += 1;
                 buf.add(luckyMan);
             }
@@ -94,7 +93,7 @@ public class GeneticOperation {
         while (tournament < config.getTournamentSize()) {
             random = RandomKey.generateInSize(size);
             Chromosome current = population.get(random);
-            if (best.getFitness() < current.getFitness()) {
+            if (best.getFitness() > current.getFitness()) {
                 best = current;
             }
             tournament++;
@@ -143,6 +142,7 @@ public class GeneticOperation {
         Gen gen = chromosome.getGens().get(genIndex);
         gen.setDelivery(RandomKey.generateInSize(10000));
         gen.setPickup(RandomKey.generateInSize(10000));
+        chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
         return chromosome;
     }
 

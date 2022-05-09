@@ -41,23 +41,26 @@ public class RoutingOperation {
                 }
 
                 if (startTime + vehicleDuration > node.getLatestTime()) {
-                    lateDuration += vehicleDuration + (startTime - node.getLatestTime());
+                    lateDuration += vehicleDuration - (node.getLatestTime() - startTime);
+
                 }
                 prevVehicle = currentVehicle;
             }
-            float tempDuration = routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
-                currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType()) * 1000;
-            travelDuration += tempDuration;
-            vehicleDuration += tempDuration;
-            RoutingOrder.RoutingNode node = nextKey.getType().equals(PICKUP) ?
-                routingOrders.get(nextKey.getOrderIndex()).getPickup() :
-                routingOrders.get(nextKey.getOrderIndex()).getDelivery();
-            if (startTime + vehicleDuration < node.getEarliestTime()) {
-                waitingDuration += (node.getEarliestTime() - startTime) - vehicleDuration;
-                vehicleDuration = (node.getEarliestTime() - startTime);
-            }
-            if (startTime + vehicleDuration > node.getLatestTime()) {
-                lateDuration += vehicleDuration + (startTime - node.getLatestTime());
+            if(currentKey.getValue().getVehicle() == nextKey.getValue().getVehicle()) {
+                float tempDuration = routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
+                    currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType()) * 1000;
+                travelDuration += tempDuration;
+                vehicleDuration += tempDuration;
+                RoutingOrder.RoutingNode node = nextKey.getType().equals(PICKUP) ?
+                    routingOrders.get(nextKey.getOrderIndex()).getPickup() :
+                    routingOrders.get(nextKey.getOrderIndex()).getDelivery();
+                if (startTime + vehicleDuration < node.getEarliestTime()) {
+                    waitingDuration += (node.getEarliestTime() - startTime) - vehicleDuration;
+                    vehicleDuration = (node.getEarliestTime() - startTime);
+                }
+                if (startTime + vehicleDuration > node.getLatestTime()) {
+                    lateDuration += vehicleDuration + (startTime - node.getLatestTime());
+                }
             }
         }
         travelDuration += vehicleDuration;
