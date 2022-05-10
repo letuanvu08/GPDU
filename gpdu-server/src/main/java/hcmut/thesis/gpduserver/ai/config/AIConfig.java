@@ -19,16 +19,16 @@ public class AIConfig {
     @Builder.Default
     private float lateCost = 0.02f;
     @Builder.Default
-    private int tournamentSize =10;
+    private int tournamentSize = 5;
     @Builder.Default
-    private float elitismRate = 0.1f;
+    private float elitismRate = 0.05f;
     @Builder.Default
-    private float crossover = 0.5f;
+    private float crossover = 0.7f;
     @Builder.Default
-    private float mutation = 0.2f;
+    private float mutation = 0.3f;
     @Builder.Default
-    private int maxGeneration = 200;
+    private int maxGeneration = 10000;
     @Builder.Default
-    private float swapVehicle = 0.7f;
+    private float swapVehicle = 0.6f;
 
 }

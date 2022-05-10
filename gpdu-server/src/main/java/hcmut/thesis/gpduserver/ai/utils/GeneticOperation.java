@@ -20,19 +20,21 @@ public class GeneticOperation {
     private final AIConfig config;
     private final List<RoutingOrder> routingOrders;
     private final List<RoutingVehicle> vehicles;
+    private final RoutingMatrix routingMatrix;
 
     public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders,
-        List<RoutingVehicle> vehicles) {
+        List<RoutingVehicle> vehicles, RoutingMatrix routingMatrix) {
         this.config = config;
         this.routingOrders = routingOrders;
         this.vehicles = vehicles;
+        this.routingMatrix = routingMatrix;
     }
 
     public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle,
         RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
-        List<Chromosome> buf = population.subList(0, index);
+        List<Chromosome> buf = population.subList(0,index).stream().map(chromosome -> chromosome).collect(Collectors.toList());
         while (index < size) {
             if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
                 Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
@@ -55,25 +57,27 @@ public class GeneticOperation {
                 if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
                     luckyMan = mutate(luckyMan, routingMatrix);
                 }
-                luckyMan.setFitness(
-                    calFitness(luckyMan.getGens(), routingMatrix, routingOrders));
+                calFitness(luckyMan);
                 index += 1;
                 buf.add(luckyMan);
             }
         }
         buf.sort(Chromosome::compareTo);
-
-        return buf.subList(0, config.getPopulationSize());
+        population.clear();
+        return buf.subList(0, config.getPopulationSize()).stream().map(chromosome -> chromosome).collect(
+            Collectors.toList());
     }
 
-    public float calFitness(List<Gen> gens, RoutingMatrix routingMatrix,
-        List<RoutingOrder> routingOrders) {
+    public void calFitness(Chromosome chromosome) {
+        List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
         Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders);
 
-        return durations.getTravel() * config.getTravelCost() +
+         float fitness = durations.getTravel() * config.getTravelCost() +
             durations.getLate() * config.getLateCost() +
             durations.getWaiting() * config.getLateCost();
+         chromosome.setFitness(fitness);
+         chromosome.setDurations(durations);
     }
 
     public Pair<Chromosome, Chromosome> choosePairParent(List<Chromosome> population) {
@@ -114,12 +118,12 @@ public class GeneticOperation {
             genC2.subList(index2, size));
         Chromosome child1 = Chromosome.builder()
             .gens(gensChild1)
-            .fitness(calFitness(gensChild1, routingMatrix, routingOrders))
             .build();
+        calFitness(child1);
         Chromosome child2 = Chromosome.builder()
             .gens(gensChild2)
-            .fitness(calFitness(gensChild2, routingMatrix, routingOrders))
             .build();
+        calFitness(child2);
         return List.of(child1, child2);
 
     }
@@ -135,14 +139,14 @@ public class GeneticOperation {
         if (ThreadLocalRandom.current().nextFloat() <= config.getSwapVehicle()) {
             Pair<Gen, Gen> pairGen = chooseGenMutation(chromosome);
             swapVehicleGen(pairGen.getLeft(), pairGen.getRight());
-            chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
+            calFitness(chromosome);
             return chromosome;
         }
         int genIndex = RandomKey.random(0, chromosome.getGens().size());
         Gen gen = chromosome.getGens().get(genIndex);
         gen.setDelivery(RandomKey.generateInSize(10000));
         gen.setPickup(RandomKey.generateInSize(10000));
-        chromosome.setFitness(calFitness(chromosome.getGens(), routingMatrix, routingOrders));
+        calFitness(chromosome);
         return chromosome;
     }
 

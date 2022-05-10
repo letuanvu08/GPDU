@@ -1,8 +1,6 @@
 package hcmut.thesis.gpduserver.ai.utils;
 
 import hcmut.thesis.gpduserver.ai.models.*;
-import hcmut.thesis.gpduserver.constants.enumations.TypeNode;
-import hcmut.thesis.gpduserver.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,7 +27,7 @@ public class RoutingOperation {
             int currentVehicle = currentKey.getValue().getVehicle();
             if (prevVehicle != currentVehicle) {
                 float tempDuration = routingMatrix.getDurationVehicle(currentVehicle,
-                    currentKey.getOrderIndex(), currentKey.getType()) * 1000;
+                        currentKey.getOrderIndex(), currentKey.getType()) * 1000;
                 travelDuration += tempDuration;
                 vehicleDuration = tempDuration;
                 RoutingOrder.RoutingNode node = currentKey.getType().equals(PICKUP) ?

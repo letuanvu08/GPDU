@@ -34,7 +34,7 @@ public class AIRouter implements IAIRouter {
         this.routingMatrix = routingMatrix;
         this.config = config;
         this.repoLocation = repoLocation;
-        this.geneticOperation = new GeneticOperation(config, orders, vehicles);
+        this.geneticOperation = new GeneticOperation(config, orders, vehicles, routingMatrix);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {
@@ -83,10 +83,9 @@ public class AIRouter implements IAIRouter {
         while (generation < config.getMaxGeneration()) {
             population = geneticOperation.evolve(population, vehicles.size(), routingMatrix);
             log.info("Generation: {}", generation);
-            log.info("Best individual in generation: has fitness: ");
-            for (int i = 0; i <= 1 ; i++){
-                log.info("Top {} has fitness: {}", i, population.get(i).getFitness());
-            }
+            Chromosome best = population.get(0);
+            log.info("Best individual in generation has fitness: {}, travelTime: {}, waitingTime: {}, lateTime: {}",
+                best.getFitness(),best.getDurations().getTravel(), best.getDurations().getWaiting(), best.getDurations().getLate());
             generation += 1;
         }
 
@@ -100,8 +99,8 @@ public class AIRouter implements IAIRouter {
             List<Gen> sample = this.getSample(orders);
             Chromosome chromosome = Chromosome.builder()
                     .gens(sample)
-                    .fitness(geneticOperation.calFitness(sample, routingMatrix, orders))
                     .build();
+            geneticOperation.calFitness(chromosome);
             result.add(chromosome);
         }
         result.sort(Chromosome::compareTo);

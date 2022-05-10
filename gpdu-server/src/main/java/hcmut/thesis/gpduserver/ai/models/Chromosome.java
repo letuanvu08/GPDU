@@ -18,7 +18,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
     private List<Gen> gens;
     private Float fitness = 0f;
-
+    private Durations durations;
 
     @Override
     public int compareTo(Chromosome other) {
