@@ -2,6 +2,7 @@ package hcmut.thesis.gpduserver.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import hcmut.thesis.gpduserver.config.cache.RoutingCache;
 import hcmut.thesis.gpduserver.constants.enumations.StatusOrderEnum;
 import hcmut.thesis.gpduserver.constants.enumations.StepOrderEnum;
 import hcmut.thesis.gpduserver.mapbox.IMapboxClient;
@@ -44,6 +45,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private IMapboxClient mapboxClient;
 
+    @Autowired
+    private RoutingCache routingCache;
+
     @Override
     public Order createOrder(FormCreateOrder form) {
         Order order = null;
@@ -67,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
             order = orderRepository.insert(orderRequest).orElse(null);
             log.info("createOrder form: {}, result: {}", form, GsonUtils.toJsonString(order));
+            routingCache.push(form.getPickup().getEarliestTime());
             return order;
         } catch (Exception e) {
             log.error("Error when createOrder: {}", e.getMessage());
@@ -220,24 +225,25 @@ public class OrderServiceImpl implements OrderService {
             startTime = TimeUtils.generateRandomTimeInToday(System.currentTimeMillis());
             location = LocationUtils.generateHCMUTLocation();
             Node delivery = Node.builder()
-                    .location(location)
-                    .earliestTime(startTime)
-                    .latestTime(startTime + ThreadLocalRandom.current().nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
-                            2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
-                    .address(mapboxClient.reverseGeocoding(location))
-                    .customerName("vu")
-                    .phone("0908978878")
-                    .build();
+                .location(location)
+                .earliestTime(startTime)
+                .latestTime(startTime + ThreadLocalRandom.current()
+                    .nextLong(TimeUtils.ONE_HOUR_IN_MILLIS_SECOND,
+                        2 * TimeUtils.ONE_HOUR_IN_MILLIS_SECOND))
+                .address(mapboxClient.reverseGeocoding(location))
+                .customerName("vu")
+                .phone("0908978878")
+                .build();
             Order.Package packageInfo = Order.Package.builder()
-                    .weight(ThreadLocalRandom.current().nextLong(1,10))
-                    .name("package")
-                    .category("secret")
-                    .build();
+                .weight(ThreadLocalRandom.current().nextLong(1, 10))
+                .name("package")
+                .category("secret")
+                .build();
             FormCreateOrder formCreateOrder = FormCreateOrder.builder()
-                    .pickup(pickup)
-                    .delivery(delivery)
-                    .packageInfo(packageInfo)
-                    .build();
+                .pickup(pickup)
+                .delivery(delivery)
+                .packageInfo(packageInfo)
+                .build();
             this.createOrder(formCreateOrder);
         }
     }

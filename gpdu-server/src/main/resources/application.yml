@@ -10,3 +10,7 @@ api:
     pathOptimized: /optimized-trips/v1/mapbox/
     pathDirections: /directions/v5/mapbox/driving-traffic/
     scheme: https
+
+dynamic-routing:
+  threshold: 1000
+  weightTime: 1000

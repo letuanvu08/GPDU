@@ -11,6 +11,7 @@ import hcmut.thesis.gpduserver.service.RoutingService;
 import hcmut.thesis.gpduserver.service.VehicleService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,5 +62,7 @@ public class RoutingController {
     List<Routes> routes = mapBoxService.getDirection(request);
     return new ApiResponse<List<Routes>>().success(routes);
   }
+
+
 
 }
