@@ -292,6 +292,9 @@ public class RoutingServiceImpl implements RoutingService {
                     .map(Float::parseFloat).collect(Collectors.toList()));
             }
             Location repoLocation = TestCaseConverter.convertString2RepoLocation(br.readLine());
+            br.readLine();
+            List<Float> repoDurationList = Arrays.stream(br.readLine().split(","))
+                    .map(Float::parseFloat).collect(Collectors.toList());
             AIConfig config = AIConfig.builder()
                 .build();
             RoutingMatrix routingMatrix = RoutingMatrix.builder()
@@ -299,6 +302,7 @@ public class RoutingServiceImpl implements RoutingService {
                     .vehicleNumber(vehicleNumber)
                     .orderNodeMatrix(orderNodeMatrix)
                     .vehicleMatrix(vehicleMatrix)
+                    .repoList(repoDurationList)
                     .build();
             Cost cost = Cost.builder()
                     .travel(TestCaseConverter.convertString2Cost(br.readLine()))

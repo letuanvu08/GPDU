@@ -13,8 +13,8 @@ public class RoutingOperation {
 
 
     public static Durations calDurations(List<Key<IntegerRouting>> keys,
-        RoutingMatrix routingMatrix,
-        List<RoutingOrder> routingOrders) {
+                                         RoutingMatrix routingMatrix,
+                                         List<RoutingOrder> routingOrders) {
         long startTime = System.currentTimeMillis();
         int prevVehicle = -1;
         float travelDuration = 0;
@@ -31,8 +31,8 @@ public class RoutingOperation {
                 travelDuration += tempDuration;
                 vehicleDuration = tempDuration;
                 RoutingOrder.RoutingNode node = currentKey.getType().equals(PICKUP) ?
-                    routingOrders.get(currentKey.getOrderIndex()).getPickup() :
-                    routingOrders.get(currentKey.getOrderIndex()).getDelivery();
+                        routingOrders.get(currentKey.getOrderIndex()).getPickup() :
+                        routingOrders.get(currentKey.getOrderIndex()).getDelivery();
                 if (startTime + vehicleDuration < node.getEarliestTime()) {
                     waitingDuration += (node.getEarliestTime() - startTime) - vehicleDuration;
                     vehicleDuration = (node.getEarliestTime() - startTime);
@@ -44,14 +44,14 @@ public class RoutingOperation {
                 }
                 prevVehicle = currentVehicle;
             }
-            if(currentKey.getValue().getVehicle() == nextKey.getValue().getVehicle()) {
+            if (currentKey.getValue().getVehicle() == nextKey.getValue().getVehicle()) {
                 float tempDuration = routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
-                    currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType()) * 1000;
+                        currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType()) * 1000;
                 travelDuration += tempDuration;
                 vehicleDuration += tempDuration;
                 RoutingOrder.RoutingNode node = nextKey.getType().equals(PICKUP) ?
-                    routingOrders.get(nextKey.getOrderIndex()).getPickup() :
-                    routingOrders.get(nextKey.getOrderIndex()).getDelivery();
+                        routingOrders.get(nextKey.getOrderIndex()).getPickup() :
+                        routingOrders.get(nextKey.getOrderIndex()).getDelivery();
                 if (startTime + vehicleDuration < node.getEarliestTime()) {
                     waitingDuration += (node.getEarliestTime() - startTime) - vehicleDuration;
                     vehicleDuration = (node.getEarliestTime() - startTime);
@@ -60,13 +60,16 @@ public class RoutingOperation {
                     lateDuration += vehicleDuration + (startTime - node.getLatestTime());
                 }
             }
+            else {
+                travelDuration += routingMatrix.getDurationRepo(currentKey.getOrderIndex(), currentKey.getType());
+            }
         }
         travelDuration += vehicleDuration;
         return Durations.builder()
-            .travel(travelDuration / 1000)
-            .late(lateDuration / 1000)
-            .waiting(waitingDuration / 1000)
-            .build();
+                .travel(travelDuration / 1000)
+                .late(lateDuration / 1000)
+                .waiting(waitingDuration / 1000)
+                .build();
     }
 
     public static List<Key<IntegerRouting>> sortKey(List<Chromosome.Gen> gens) {
@@ -74,21 +77,21 @@ public class RoutingOperation {
         for (int i = 0; i < gens.size(); i++) {
             Chromosome.Gen gen = gens.get(i);
             keys.add(Key.<IntegerRouting>builder()
-                .value(IntegerRouting.builder()
-                    .randomKey(gen.getPickup())
-                    .vehicle(gen.getVehicle())
-                    .build())
-                .orderIndex(i)
-                .type(PICKUP)
-                .build());
+                    .value(IntegerRouting.builder()
+                            .randomKey(gen.getPickup())
+                            .vehicle(gen.getVehicle())
+                            .build())
+                    .orderIndex(i)
+                    .type(PICKUP)
+                    .build());
             keys.add(Key.<IntegerRouting>builder()
-                .value(IntegerRouting.builder()
-                    .randomKey(gen.getDelivery())
-                    .vehicle(gen.getVehicle())
-                    .build())
-                .orderIndex(i)
-                .type(DELIVERY)
-                .build());
+                    .value(IntegerRouting.builder()
+                            .randomKey(gen.getDelivery())
+                            .vehicle(gen.getVehicle())
+                            .build())
+                    .orderIndex(i)
+                    .type(DELIVERY)
+                    .build());
         }
         keys.sort(Comparator.comparing(Key::getValue));
         return keys;
