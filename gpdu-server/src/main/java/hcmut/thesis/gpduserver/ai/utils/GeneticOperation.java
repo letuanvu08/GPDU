@@ -1,12 +1,11 @@
 package hcmut.thesis.gpduserver.ai.utils;
 
 import hcmut.thesis.gpduserver.ai.config.AIConfig;
+import hcmut.thesis.gpduserver.ai.config.Cost;
 import hcmut.thesis.gpduserver.ai.models.*;
 import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 
-import hcmut.thesis.gpduserver.models.entity.Vehicle;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -21,17 +20,19 @@ public class GeneticOperation {
     private final List<RoutingOrder> routingOrders;
     private final List<RoutingVehicle> vehicles;
     private final RoutingMatrix routingMatrix;
+    private final Cost cost;
 
     public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders,
-        List<RoutingVehicle> vehicles, RoutingMatrix routingMatrix) {
+                            List<RoutingVehicle> vehicles, RoutingMatrix routingMatrix, Cost cost) {
         this.config = config;
         this.routingOrders = routingOrders;
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
+        this.cost = cost;
     }
 
     public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle,
-        RoutingMatrix routingMatrix) {
+                                   RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
         List<Chromosome> buf = population.subList(0,index).stream().map(chromosome -> chromosome).collect(Collectors.toList());
@@ -39,9 +40,9 @@ public class GeneticOperation {
             if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
                 Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
                 List<Chromosome> candidates = new ArrayList<>(
-                    List.of(pairParent.getLeft(), pairParent.getRight()));
+                        List.of(pairParent.getLeft(), pairParent.getRight()));
                 List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(),
-                    routingMatrix);
+                        routingMatrix);
                 children = children.stream().map(child -> {
                     if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
                         return mutate(child, routingMatrix);
@@ -73,11 +74,12 @@ public class GeneticOperation {
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
         Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders);
 
-         float fitness = durations.getTravel() * config.getTravelCost() +
-            durations.getLate() * config.getLateCost() +
-            durations.getWaiting() * config.getLateCost();
+         float fitness = durations.getTravel() * cost.getTravel() +
+            durations.getLate() * cost.getLate() +
+            durations.getWaiting() * cost.getWaiting();
          chromosome.setFitness(fitness);
          chromosome.setDurations(durations);
+
     }
 
     public Pair<Chromosome, Chromosome> choosePairParent(List<Chromosome> population) {
@@ -113,9 +115,9 @@ public class GeneticOperation {
         int index2 = RandomKey.random(index1, size - 1);
 
         List<Gen> gensChild1 = concatGen(genC1.subList(0, index1), genC2.subList(index1, index2),
-            genC1.subList(index2, size));
+                genC1.subList(index2, size));
         List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
-            genC2.subList(index2, size));
+                genC2.subList(index2, size));
         Chromosome child1 = Chromosome.builder()
             .gens(gensChild1)
             .build();
@@ -125,7 +127,6 @@ public class GeneticOperation {
             .build();
         calFitness(child2);
         return List.of(child1, child2);
-
     }
 
     @SafeVarargs
@@ -164,9 +165,9 @@ public class GeneticOperation {
         }
         int indexGen2 = RandomKey.random(0, chromosome.getGens().size());
         while (chromosome.getGens().get(indexGen2).getVehicleConstant()
-            && indexGen2 != indexGen1
-            && chromosome.getGens().get(indexGen1).getVehicle()
-            .equals(chromosome.getGens().get(indexGen2).getVehicle())) {
+                && indexGen2 != indexGen1
+                && chromosome.getGens().get(indexGen1).getVehicle()
+                .equals(chromosome.getGens().get(indexGen2).getVehicle())) {
             indexGen2 = RandomKey.random(0, chromosome.getGens().size());
         }
         return Pair.of(chromosome.getGens().get(indexGen1), chromosome.getGens().get(indexGen2));

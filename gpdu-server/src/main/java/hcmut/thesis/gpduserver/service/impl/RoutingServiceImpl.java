@@ -2,6 +2,7 @@ package hcmut.thesis.gpduserver.service.impl;
 
 import hcmut.thesis.gpduserver.ai.AIRouter;
 import hcmut.thesis.gpduserver.ai.config.AIConfig;
+import hcmut.thesis.gpduserver.ai.config.Cost;
 import hcmut.thesis.gpduserver.ai.models.*;
 import hcmut.thesis.gpduserver.ai.testcase.TestCaseConverter;
 import hcmut.thesis.gpduserver.ai.utils.RoutingConverter;
@@ -245,11 +246,11 @@ public class RoutingServiceImpl implements RoutingService {
                 .orElseThrow())
             .build();
         Location repoLocation = Location.builder()
-            .latitude(10.748696f)
-            .longitude(106.722653f)
-            .build();
-        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix,
-            repoLocation);
+                .latitude(10.748696f)
+                .longitude(106.722653f)
+                .build();
+        Cost cost = new Cost();
+        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost);
         RoutingResponse res = router.routing();
         this.saveRoutings(res, orders, vehicleIds);
     }
@@ -294,13 +295,17 @@ public class RoutingServiceImpl implements RoutingService {
             AIConfig config = AIConfig.builder()
                 .build();
             RoutingMatrix routingMatrix = RoutingMatrix.builder()
-                .orderNumber(orderNumber)
-                .vehicleNumber(vehicleNumber)
-                .orderNodeMatrix(orderNodeMatrix)
-                .vehicleMatrix(vehicleMatrix)
-                .build();
-            AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix,
-                repoLocation);
+                    .orderNumber(orderNumber)
+                    .vehicleNumber(vehicleNumber)
+                    .orderNodeMatrix(orderNodeMatrix)
+                    .vehicleMatrix(vehicleMatrix)
+                    .build();
+            Cost cost = Cost.builder()
+                    .travel(TestCaseConverter.convertString2Cost(br.readLine()))
+                    .waiting(TestCaseConverter.convertString2Cost(br.readLine()))
+                    .late(TestCaseConverter.convertString2Cost(br.readLine()))
+                    .build();
+            AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost);
             return router.routing();
         }
     }

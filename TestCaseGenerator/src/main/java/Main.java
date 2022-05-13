@@ -1,7 +1,6 @@
 import models.Coordinates;
 import models.Order;
 import models.Vehicle;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -12,9 +11,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
-    public static final int ORDER_NUMBER = 100;
+    public static final int ORDER_NUMBER = 20;
     public static final int VEHICLE_CAPACITY = 50;
-    public static final int VEHICLE_NUMBER = 10;
+    public static final int VEHICLE_NUMBER = 4;
 
     public static void main(String[] args) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("testcase.txt"))) {
@@ -61,6 +60,16 @@ public class Main {
             Coordinates repoCoordinates = Generator.genRandomCoordinates();
             writer.write(String.format("RepoCoordinates:\t%s,%s",
                     repoCoordinates.getLatitude(), repoCoordinates.getLongitude()));
+            writer.newLine();
+            writer.write("RepoDurationList");
+            writer.newLine();
+            writer.write(StringUtils.convertDurationMatrix2String(List.of(DurationCalculator.
+                    getRepoDurationList(repoCoordinates, orders))));
+            writer.write("TravelCost:\t" + 2);
+            writer.newLine();
+            writer.write("WaitingCost:\t" + 0.01);
+            writer.newLine();
+            writer.write("LateCost:\t" + 0.02);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

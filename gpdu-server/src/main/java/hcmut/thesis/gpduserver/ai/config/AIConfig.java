@@ -13,13 +13,7 @@ public class AIConfig {
     @Builder.Default
     private int populationSize = 1000;
     @Builder.Default
-    private float travelCost = 2f;
-    @Builder.Default
-    private float waitingCost = 0.01f;
-    @Builder.Default
-    private float lateCost = 0.02f;
-    @Builder.Default
-    private int tournamentSize = 5;
+    private int tournamentSize = 3;
     @Builder.Default
     private float elitismRate = 0.05f;
     @Builder.Default

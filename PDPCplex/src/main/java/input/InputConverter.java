@@ -1,17 +1,15 @@
-package hcmut.thesis.gpduserver.ai.testcase;
+package input;
 
 
-import hcmut.thesis.gpduserver.ai.models.RoutingOrder;
-import hcmut.thesis.gpduserver.models.entity.Location;
+import models.Location;
+import models.Order;
 
-import java.util.List;
-
-public class TestCaseConverter {
-    public static RoutingOrder convertString2RoutingOrder(String input) {
+public class InputConverter {
+    public static Order convertString2Order(String input) {
         String[] objectList = input.split("[ ]+");
-        return RoutingOrder.builder()
+        return Order.builder()
                 .weight(Long.parseLong(objectList[1]))
-                .pickup(RoutingOrder.RoutingNode.builder()
+                .pickup(Order.Node.builder()
                         .location(Location.builder()
                                 .latitude(Float.parseFloat(objectList[2]))
                                 .longitude(Float.parseFloat(objectList[3]))
@@ -19,13 +17,13 @@ public class TestCaseConverter {
                         .earliestTime(System.currentTimeMillis() + Long.parseLong(objectList[4]) * 1000)
                         .latestTime(System.currentTimeMillis() + Long.parseLong(objectList[5]) * 1000)
                         .build())
-                .delivery(RoutingOrder.RoutingNode.builder()
+                .delivery(Order.Node.builder()
                         .location(Location.builder()
                                 .latitude(Float.parseFloat(objectList[6]))
                                 .longitude(Float.parseFloat(objectList[7]))
                                 .build())
                         .earliestTime(System.currentTimeMillis() + Long.parseLong(objectList[8]) * 1000)
-                        .latestTime(System.currentTimeMillis() + Long.parseLong(objectList[9]) * 1000)
+                        .latestTime(System.currentTimeMillis() + Long.parseLong(objectList[9]) + 1000)
                         .build())
                 .build();
     }

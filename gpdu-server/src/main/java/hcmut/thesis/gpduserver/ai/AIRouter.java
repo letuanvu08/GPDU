@@ -1,9 +1,7 @@
 package hcmut.thesis.gpduserver.ai;
 
-import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.DELIVERY;
-import static hcmut.thesis.gpduserver.constants.enumations.TypeNode.PICKUP;
-
 import hcmut.thesis.gpduserver.ai.config.AIConfig;
+import hcmut.thesis.gpduserver.ai.config.Cost;
 import hcmut.thesis.gpduserver.ai.models.*;
 import hcmut.thesis.gpduserver.ai.models.Chromosome.Gen;
 import hcmut.thesis.gpduserver.ai.utils.GeneticOperation;
@@ -26,15 +24,18 @@ public class AIRouter implements IAIRouter {
     private final RoutingMatrix routingMatrix;
     private final GeneticOperation geneticOperation;
     private final Location repoLocation;
+    private final Cost cost;
+
     public AIRouter(List<RoutingOrder> orders,
                     List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
-                    Location repoLocation) {
+                    Location repoLocation, Cost cost) {
         this.orders = orders;
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
         this.repoLocation = repoLocation;
-        this.geneticOperation = new GeneticOperation(config, orders, vehicles, routingMatrix);
+        this.cost = cost;
+        this.geneticOperation = new GeneticOperation(config, orders, vehicles, routingMatrix, cost);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {

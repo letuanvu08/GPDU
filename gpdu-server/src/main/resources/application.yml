@@ -12,5 +12,5 @@ api:
     scheme: https
 
 dynamic-routing:
-  threshold: 1000
-  weightTime: 1000
+  threshold: 1000f
+  weightTime: 1000f

@@ -7,8 +7,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Generator {
     public static final double MIN_LAT = 10.705198;
     public static final double MIN_LNG = 106.689546;
-    public static final double MAX_LAT = 10.751411;
-    public static final double MAX_LNG = 106.743105;
+    public static final double MAX_LAT = 10.729301;
+    public static final double MAX_LNG = 106.731766;
     public static final int MIN_TIME_WINDOW = 60 * 60;
     public static final int MAX_TIME_WINDOW = 3 * 60 * 60;
     public static final int MIN_WEIGHT = 4;

@@ -2,6 +2,7 @@ import models.Coordinates;
 import models.Order;
 import models.Vehicle;
 
+import javax.xml.stream.Location;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,15 @@ public class DurationCalculator {
                 row.add(calDuration(vehicles.get(i).getCoordinates(), orders.get(j).getDelivery().getCoordinates()));
             }
             result.add(row);
+        }
+        return result;
+    }
+
+    public static List<Integer> getRepoDurationList(Coordinates repoCoordinates, List<Order> orders) {
+        List<Integer> result = new ArrayList<>();
+        for (int j = 0; j < orders.size(); j++) {
+            result.add(calDuration(repoCoordinates, orders.get(j).getPickup().getCoordinates()));
+            result.add(calDuration(repoCoordinates, orders.get(j).getDelivery().getCoordinates()));
         }
         return result;
     }
