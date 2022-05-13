@@ -67,4 +67,11 @@ public class DurationCalculator {
         }
         return result;
     }
+    public static List<Integer> getVehicleRepoDurationList(Coordinates repoCoordinates, List<Vehicle> vehicles) {
+        List<Integer> result = new ArrayList<>();
+        for (int j = 0; j < vehicles.size(); j++) {
+            result.add(calDuration(repoCoordinates, vehicles.get(j).getCoordinates()));
+        }
+        return result;
+    }
 }

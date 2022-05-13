@@ -14,8 +14,7 @@ public class RoutingOperation {
 
     public static Durations calDurations(List<Key<IntegerRouting>> keys,
                                          RoutingMatrix routingMatrix,
-                                         List<RoutingOrder> routingOrders) {
-        long startTime = System.currentTimeMillis();
+                                         List<RoutingOrder> routingOrders, long startTime) {
         int prevVehicle = -1;
         float travelDuration = 0;
         float waitingDuration = 0;
@@ -26,6 +25,10 @@ public class RoutingOperation {
             Key<IntegerRouting> nextKey = keys.get(i + 1);
             int currentVehicle = currentKey.getValue().getVehicle();
             if (prevVehicle != currentVehicle) {
+                int skipVehicleNumber = currentVehicle - prevVehicle - 1;
+                for (int j = 0; j < skipVehicleNumber; j++) {
+                    travelDuration += routingMatrix.getDurationVehicleRepo(prevVehicle + 1 + j);
+                }
                 float tempDuration = routingMatrix.getDurationVehicle(currentVehicle,
                         currentKey.getOrderIndex(), currentKey.getType()) * 1000;
                 travelDuration += tempDuration;
@@ -59,8 +62,7 @@ public class RoutingOperation {
                 if (startTime + vehicleDuration > node.getLatestTime()) {
                     lateDuration += vehicleDuration + (startTime - node.getLatestTime());
                 }
-            }
-            else {
+            } else {
                 travelDuration += routingMatrix.getDurationRepo(currentKey.getOrderIndex(), currentKey.getType());
             }
         }

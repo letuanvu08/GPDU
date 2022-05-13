@@ -4,6 +4,8 @@ import input.Input;
 import models.Order;
 import utils.TimeUtils;
 
+import java.util.Arrays;
+
 public class PDPCplex {
     private Input input;
     private IloCplex cplex;
@@ -23,12 +25,11 @@ public class PDPCplex {
 
     public Response solve() throws IloException {
         long startTime = System.currentTimeMillis();
-        System.out.println(cplex.getModel());
         cplex.setParam(IloCplex.Param.RootAlgorithm, IloCplex.Algorithm.Primal);
-        cplex.solve();
+        boolean isSolved = cplex.solve();
         long endTime = System.currentTimeMillis();
         return Response.builder()
-                .cost(cplex.getObjValue())
+                .cost(isSolved? cplex.getObjValue(): 0)
                 .time((endTime - startTime) / 1000)
                 .build();
     }
@@ -40,15 +41,19 @@ public class PDPCplex {
         IloNumVar[] xNodeVars = cplex.boolVarArray(nodeVarNum);
         IloNumVar[] xVehicleVars = cplex.boolVarArray(vehicleVarNum);
         IloNumVar[] xRepoVars = cplex.boolVarArray(repoVarNum);
+        IloNumVar[] xVehicleRepoVars = cplex.boolVarArray(input.getVehicles().size());
         IloNumVar[] tNodeVars = cplex.intVarArray(nodeNum * input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT);
-        IloNumVar[] tVehicleVars = cplex.intVarArray(vehicleVarNum, 0, TimeUtils.WORKING_TIME_LIMIT);
-        IloNumVar[] tRepoVars = cplex.intVarArray(input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT);
-        IloNumVar[] wNodeVars = cplex.intVarArray(nodeNum * input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT);
-        IloNumVar[] lNodeVars = cplex.intVarArray(nodeNum * input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT);
+        IloNumVar[] wNodeVars = cplex.intVarArray(nodeNum * input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT - 1);
+        IloNumVar[] lNodeVars = cplex.intVarArray(nodeNum * input.getVehicles().size(), 0, TimeUtils.WORKING_TIME_LIMIT - 1);
         IloNumVar[] oTimeVars = cplex.boolVarArray(nodeNum * input.getVehicles().size());
         IloNumVar[] oWaitingVars = cplex.boolVarArray(nodeNum * input.getVehicles().size());
         IloNumVar[] oLateVars = cplex.boolVarArray(nodeNum * input.getVehicles().size());
         cplex.addMinimize(this.createObjectiveFunction(xNodeVars, xVehicleVars, xRepoVars, wNodeVars, lNodeVars));
+        // c1 && c2
+        for (int i = 0; i < input.getVehicles().size(); i++) {
+            cplex.addEq(this.getComingRepoVarExpr(i, xRepoVars), 1);
+            cplex.addEq(this.getLeavingVehicleVarExpr(i, xVehicleVars), 1);
+        }
         // c3
         for (int i = 0; i < nodeNum; i++) {
             for (int j = 0; j < input.getVehicles().size(); j++) {
@@ -77,38 +82,33 @@ public class PDPCplex {
             }
         }
         // time constraints
-        // start time = 0
-        for (int i = 0; i < tVehicleVars.length; i++) {
-            cplex.addEq(tVehicleVars[i], 0);
-        }
-        // time
-        for (int i = 0; i < input.getVehicles().size(); i++) {
-            for (int j = 0; j < nodeNum; j++) {
-                Order.Node node = j % 2 == 0 ? input.getOrders().get(j / 2).getPickup() :
-                        input.getOrders().get(j / 2).getDelivery();
-                IloNumExpr comingExpr = this.getComingTimeVarExpr(i, j, xNodeVars, tNodeVars, xVehicleVars);
-                // t = max(earliest, coming)
-                int index = i * nodeNum + j;
-                cplex.addGe(tNodeVars[index], comingExpr);
-                cplex.addGe(tNodeVars[index], node.getEarliestTime());
-                cplex.addLe(tNodeVars[index], cplex.sum(comingExpr,
-                        cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oTimeVars[index])))));
-                cplex.addLe(tNodeVars[index], cplex.sum(node.getEarliestTime(),
-                        cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oTimeVars[index])));
-                // waiting = max(0, earliest - coming)
-                IloNumExpr waitingExpr = cplex.sum(cplex.prod(this.getComingNodeVarExpr(j, i, xNodeVars, xVehicleVars),
-                        node.getEarliestTime()), cplex.prod(-1, comingExpr));
-                cplex.addGe(wNodeVars[index], waitingExpr);
-                cplex.addLe(wNodeVars[index], cplex.sum(waitingExpr, cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oWaitingVars[index])));
-                cplex.addLe(wNodeVars[index], cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oWaitingVars[index]))));
-                // late = max(0, coming - latest)
-                IloNumExpr lateExpr = cplex.sum(comingExpr, cplex.prod(-1, cplex.prod(this.getComingNodeVarExpr(j, i, xNodeVars, xVehicleVars),
-                        node.getEarliestTime())));
-                cplex.addGe(lNodeVars[index], lateExpr);
-                cplex.addLe(lNodeVars[index], cplex.sum(lateExpr, cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oLateVars[index])));
-                cplex.addLe(lNodeVars[index], cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oLateVars[index]))));
-            }
-        }
+//        for (int i = 0; i < input.getVehicles().size(); i++) {
+//            for (int j = 0; j < nodeNum; j++) {
+//                Order.Node node = j % 2 == 0 ? input.getOrders().get(j / 2).getPickup() :
+//                        input.getOrders().get(j / 2).getDelivery();
+//                IloNumExpr comingExpr = this.getComingTimeVarExpr(i, j, xNodeVars, tNodeVars, xVehicleVars);
+//                // t = max(earliest, coming)
+//                int index = i * nodeNum + j;
+//                cplex.addGe(tNodeVars[index], comingExpr);
+//                cplex.addGe(tNodeVars[index], node.getEarliestTime());
+//                cplex.addLe(tNodeVars[index], cplex.sum(comingExpr,
+//                        cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oTimeVars[index])))));
+//                cplex.addLe(tNodeVars[index], cplex.sum(node.getEarliestTime(),
+//                        cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oTimeVars[index])));
+//                // waiting = max(0, earliest - coming)
+//                IloNumExpr waitingExpr = cplex.sum(cplex.prod(this.getComingNodeVarExpr(j, i, xNodeVars, xVehicleVars),
+//                        node.getEarliestTime()), cplex.prod(-1, comingExpr));
+//                cplex.addGe(wNodeVars[index], waitingExpr);
+//                cplex.addLe(wNodeVars[index], cplex.sum(waitingExpr, cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oWaitingVars[index])));
+//                cplex.addLe(wNodeVars[index], cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oWaitingVars[index]))));
+//                // late = max(0, coming - latest)
+//                IloNumExpr lateExpr = cplex.sum(comingExpr, cplex.prod(-1, cplex.prod(this.getComingNodeVarExpr(j, i, xNodeVars, xVehicleVars),
+//                        node.getEarliestTime())));
+//                cplex.addGe(lNodeVars[index], lateExpr);
+//                cplex.addLe(lNodeVars[index], cplex.sum(lateExpr, cplex.prod(TimeUtils.WORKING_TIME_LIMIT, oLateVars[index])));
+//                cplex.addLe(lNodeVars[index], cplex.prod(TimeUtils.WORKING_TIME_LIMIT, cplex.sum(1, cplex.prod(-1, oLateVars[index]))));
+//            }
+//        }
 
     }
 
@@ -136,8 +136,10 @@ public class PDPCplex {
         for (IloNumVar iloNumVar : lNodeVar) {
             lExpr.addTerm(1, iloNumVar);
         }
-        return cplex.sum(cplex.prod(input.getCost().getTravel(), tExpr), cplex.sum(cplex.prod(input.getCost().getLate(), lExpr),
-                cplex.prod(input.getCost().getWaiting(), wExpr)));
+        return cplex.prod(input.getCost().getTravel(), tExpr);
+//        return cplex.sum(cplex.prod(input.getCost().getTravel(), tExpr),
+//                cplex.sum(cplex.prod(input.getCost().getLate(), lExpr), cplex.prod(input.getCost().getWaiting(), wExpr))
+//        );
     }
 
     private IloLinearNumExpr getComingNodeVarExpr(int node, IloNumVar[] nodeVars, IloNumVar[] vehicleVars) throws IloException {
@@ -154,8 +156,8 @@ public class PDPCplex {
     private IloLinearNumExpr getComingNodeVarExpr(int node, int vehicle, IloNumVar[] nodeVars, IloNumVar[] vehicleVars) throws IloException {
         IloLinearNumExpr expr = cplex.linearNumExpr();
         int nodeOffset = vehicle * nodeNum * nodeNum;
-        for (int i = nodeOffset + node; i < nodeOffset + nodeNum * nodeNum; i += nodeNum) {
-            expr.addTerm(1, nodeVars[i]);
+        for (int i = node; i < nodeNum * nodeNum; i += nodeNum) {
+            expr.addTerm(1, nodeVars[nodeOffset + i]);
         }
         int vehicleOffset = nodeNum * vehicle;
         expr.addTerm(1, vehicleVars[vehicleOffset + node]);
@@ -164,7 +166,7 @@ public class PDPCplex {
 
     private IloLinearNumExpr getLeavingNodeVarExpr(int node, IloNumVar[] nodeVars, IloNumVar[] repoVars) throws IloException {
         IloLinearNumExpr expr = cplex.linearNumExpr();
-        for (int i = node * nodeNum; i < nodeVars.length; i += nodeNum) {
+        for (int i = node * nodeNum; i < nodeVars.length; i += nodeNum * nodeNum) {
             for (int j = 0; j < nodeNum; j++) {
                 expr.addTerm(1, nodeVars[i + j]);
             }
@@ -193,13 +195,30 @@ public class PDPCplex {
         for (int i = 0; i < nodeNum; i += 1) {
             int xIndex = vehicle * nodeNum * nodeNum + i * nodeNum + node;
             expr1.addTerm(1, tNodeVars[vehicle * nodeNum + i], xNodeVars[xIndex]);
-            expr2.addTerm(input.getDuration().getOrderNodeMatrix().get(i).get(node),
-                    xNodeVars[xIndex]);
-
-
+            expr2.addTerm(input.getDuration().getOrderNodeMatrix().get(i).get(node), xNodeVars[xIndex]);
         }
         int index = vehicle * nodeNum + node;
         expr2.addTerm(input.getDuration().getVehicleMatrix().get(vehicle).get(node), xVehicleVars[index]);
         return cplex.sum(expr1, expr2);
+    }
+
+    private IloNumExpr getComingRepoVarExpr(int vehicle, IloNumVar[] repoVars, IloNumVar[] vehicleRepoVars) throws IloException {
+        IloLinearNumExpr expr = cplex.linearNumExpr();
+        int repoOffset = vehicle * nodeNum;
+        for (int i = 0; i < nodeNum; i++) {
+            expr.addTerm(1, repoVars[repoOffset + i]);
+        }
+        expr.addTerm(1, vehicleRepoVars[vehicle]);
+        return expr;
+    }
+
+    private IloNumExpr getLeavingVehicleVarExpr(int vehicle, IloNumVar[] vehicleVars, IloNumVar[] vehicleRepoVars) throws  IloException {
+        IloLinearNumExpr expr = cplex.linearNumExpr();
+        int vehicleOffset = vehicle * nodeNum;
+        for (int i = 0; i < nodeNum; i++) {
+            expr.addTerm(1, vehicleVars[vehicleOffset + i]);
+        }
+        expr.addTerm(1, vehicleRepoVars[vehicle]);
+        return expr;
     }
 }

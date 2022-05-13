@@ -18,6 +18,7 @@ public class RoutingMatrix {
     private List<List<Float>> vehicleMatrix;
     private List<List<Float>> orderNodeMatrix;
     private List<Float> repoList;
+    private List<Float> vehicleRepoList;
 
     public Float getDurationVehicle(Integer vehicleIndex, Integer orderIndex, TypeNode type) {
         return vehicleMatrix.get(vehicleIndex).get(orderIndex * 2 + type.ordinal());
@@ -30,4 +31,8 @@ public class RoutingMatrix {
     public Float getDurationRepo(Integer orderIndex, TypeNode type) {
         return repoList.get(orderIndex + type.ordinal() * 2);
     }
+    public Float getDurationVehicleRepo(Integer vehicle) {
+        return vehicleRepoList.get(vehicle);
+    }
+
 }

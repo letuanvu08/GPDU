@@ -72,7 +72,7 @@ public class GeneticOperation {
     public void calFitness(Chromosome chromosome) {
         List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
-        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders);
+        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
 
          float fitness = durations.getTravel() * cost.getTravel() +
             durations.getLate() * cost.getLate() +
