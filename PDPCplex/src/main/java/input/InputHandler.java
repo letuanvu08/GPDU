@@ -48,10 +48,14 @@ public class InputHandler {
             br.readLine();
             List<Float> repoDurationList = Arrays.stream(br.readLine().split(","))
                     .map(Float::parseFloat).collect(Collectors.toList());
+            br.readLine();
+            List<Float> vehicleRepoDurationList = Arrays.stream(br.readLine().split(","))
+                    .map(Float::parseFloat).collect(Collectors.toList());
             Duration duration = Duration.builder()
                     .orderNodeMatrix(orderNodeMatrix)
                     .vehicleMatrix(vehicleMatrix)
                     .repoList(repoDurationList)
+                    .vehicleRepoList(vehicleRepoDurationList)
                     .build();
             Cost cost = Cost.builder()
                     .travel(InputConverter.convertString2Cost(br.readLine()))

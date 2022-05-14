@@ -12,7 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Duration {
-    List<List<Float>> orderNodeMatrix;
-    List<List<Float>> vehicleMatrix;
-    List<Float> repoList;
+    private List<List<Float>> orderNodeMatrix;
+    private List<List<Float>> vehicleMatrix;
+    private List<Float> repoList;
+    private List<Float> vehicleRepoList;
 }
