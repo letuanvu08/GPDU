@@ -68,9 +68,9 @@ public class RoutingServiceImpl implements RoutingService {
     private boolean isOverThreshold() {
         Long currentTimestamp = System.currentTimeMillis();
         float point = routingCache.getOrdersCache()
-            .stream()
-            .map(order -> pointOfOrder(currentTimestamp, order))
-            .reduce(0f, Float::sum);
+                .stream()
+                .map(order -> pointOfOrder(currentTimestamp, order))
+                .reduce(0f, Float::sum);
         return point >= dynamicRoutingConfig.getThreshold();
     }
 
@@ -88,7 +88,7 @@ public class RoutingServiceImpl implements RoutingService {
             });
         } catch (Exception e) {
             log.info("Error when createRouting, request: {}, exception: {}",
-                GsonUtils.toJsonString(requests), e.getMessage());
+                    GsonUtils.toJsonString(requests), e.getMessage());
         }
         return routings;
     }
@@ -97,14 +97,14 @@ public class RoutingServiceImpl implements RoutingService {
         try {
             Optional<Routing> routing = routingRepository.insert(request);
             routing.ifPresent(value -> request.getNodes().forEach(nodeRouting ->
-                orderService.updateOrderRouting(nodeRouting.getOrderId(),
-                    value.getId().toString())));
+                    orderService.updateOrderRouting(nodeRouting.getOrderId(),
+                            value.getId().toString())));
             log.info("createRouting, request: {}. result: {}", GsonUtils.toJsonString(request),
-                GsonUtils.toJsonString(routing.orElse(null)));
+                    GsonUtils.toJsonString(routing.orElse(null)));
             return routing.orElse(null);
         } catch (Exception e) {
             log.info("Error when createRouting, request: {}, exception: {}",
-                GsonUtils.toJsonString(request), e.getMessage());
+                    GsonUtils.toJsonString(request), e.getMessage());
             return null;
         }
     }
@@ -128,8 +128,8 @@ public class RoutingServiceImpl implements RoutingService {
     @Override
     public Routing getRoutingActiveByOrderId(String orderId) {
         Document request = new Document()
-            .append("nodes.orderId", orderId)
-            .append("active", true);
+                .append("nodes.orderId", orderId)
+                .append("active", true);
         return getRoutingByRequest(request);
     }
 
@@ -138,13 +138,13 @@ public class RoutingServiceImpl implements RoutingService {
         try {
             Optional<Routing> routingOptional = routingRepository.getByQuery(request);
             log.info("getRoutingByRequest, request: {}, result: {}",
-                GsonUtils.toJsonString(request),
-                GsonUtils.toJsonString(routingOptional.orElse(null)));
+                    GsonUtils.toJsonString(request),
+                    GsonUtils.toJsonString(routingOptional.orElse(null)));
             return routingOptional.orElse(null);
         } catch (Exception e) {
             log.info("Error when getOrderByRequest, request: {}, exception: {}",
-                GsonUtils.toJsonString(request),
-                e.getMessage());
+                    GsonUtils.toJsonString(request),
+                    e.getMessage());
             return null;
         }
     }
@@ -154,16 +154,16 @@ public class RoutingServiceImpl implements RoutingService {
         try {
             Document request = new Document().append("vehicleId", vehicleId);
             Optional<List<Routing>> routingList = routingRepository.getMany(request, new Document(),
-                offset,
-                limit);
+                    offset,
+                    limit);
             log.info("getListRoutingByVehicleId: {}, offset: {}, limit: {},  result: {}",
-                vehicleId, offset, limit,
-                GsonUtils.toJsonString(routingList.orElse(new ArrayList<>())));
+                    vehicleId, offset, limit,
+                    GsonUtils.toJsonString(routingList.orElse(new ArrayList<>())));
             return routingList.orElse(new ArrayList<>());
         } catch (Exception e) {
             log.error(
-                "Error when getListRoutingByVehicleId: {}, offset: {}, limit: {}, exception: {}",
-                vehicleId, offset, limit, e.getMessage());
+                    "Error when getListRoutingByVehicleId: {}, offset: {}, limit: {}, exception: {}",
+                    vehicleId, offset, limit, e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -189,9 +189,9 @@ public class RoutingServiceImpl implements RoutingService {
     public Boolean updateRouting(Routing routing) {
         try {
             Optional<Boolean> result = routingRepository.update(routing.getId().toString(),
-                routing);
+                    routing);
             log.info("updateRouting, routing: {}, result: {}", routing,
-                GsonUtils.toJsonString(result.orElse(false)));
+                    GsonUtils.toJsonString(result.orElse(false)));
             return result.orElse(false);
         } catch (Exception e) {
             log.info("Error updateRouting, routing: {}, exception: {}", routing, e.getMessage());
@@ -203,48 +203,48 @@ public class RoutingServiceImpl implements RoutingService {
     public void routing() {
         List<Order> orders = orderService.getTodayOrders(System.currentTimeMillis());
         List<String> orderIds = orders.stream()
-            .map(o -> o.getId().toHexString()).collect(Collectors.toList());
+                .map(o -> o.getId().toHexString()).collect(Collectors.toList());
         List<Vehicle> vehicles = vehicleService.getVehicleList(0, 0);
         List<String> vehicleIds = vehicles.stream()
-            .map(v -> v.getId().toHexString()).collect(Collectors.toList());
+                .map(v -> v.getId().toHexString()).collect(Collectors.toList());
         List<RoutingVehicle> routingVehicles = new ArrayList<>();
         List<RoutingOrder> routingOrders = new ArrayList<>();
         List<Location> vehicleLocations = new ArrayList<>();
         List<Location> orderNodeLocations = new ArrayList<>();
         for (Vehicle vehicle : vehicles) {
             Optional<Routing> routing = routingRepository.getByQuery(new Document()
-                .append("active", true)
-                .append("vehicleId", vehicle.getId().toHexString()));
+                    .append("active", true)
+                    .append("vehicleId", vehicle.getId().toHexString()));
             RoutingKey key = null;
             if (routing.isPresent()) {
                 key = RoutingKey.builder()
-                    .orderId(orderIds.indexOf(routing.get().getNextNode().getOrderId()))
-                    .type(routing.get().getNextNode().getTypeNode())
-                    .build();
+                        .orderId(orderIds.indexOf(routing.get().getNextNode().getOrderId()))
+                        .type(routing.get().getNextNode().getTypeNode())
+                        .build();
             }
             RoutingVehicle routingVehicle = RoutingConverter.convertVehicle2RoutingVehicle(vehicle,
-                key);
+                    key);
             routingVehicles.add(routingVehicle);
             vehicleLocations.add(vehicle.getCurrentLocation());
         }
         for (Order order : orders) {
             RoutingOrder routingOrder = RoutingConverter.convertOrder2RoutingOrder(order,
-                vehicleIds.indexOf(order.getVehicleId()));
+                    vehicleIds.indexOf(order.getVehicleId()));
             routingOrders.add(routingOrder);
             orderNodeLocations.add(order.getPickup().getLocation());
             orderNodeLocations.add(order.getDelivery().getLocation());
         }
 
         AIConfig config = AIConfig.builder()
-            .build();
+                .build();
 
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
-            .orderNumber(orders.size())
-            .vehicleNumber(vehicles.size())
-            .orderNodeMatrix(mapboxClient.retrieveDurationMatrix(orderNodeLocations).orElseThrow())
-            .vehicleMatrix(mapboxClient.retrieveDurationMatrix(vehicleLocations, orderNodeLocations)
-                .orElseThrow())
-            .build();
+                .orderNumber(orders.size())
+                .vehicleNumber(vehicles.size())
+                .orderNodeMatrix(mapboxClient.retrieveDurationMatrix(orderNodeLocations).orElseThrow())
+                .vehicleMatrix(mapboxClient.retrieveDurationMatrix(vehicleLocations, orderNodeLocations)
+                        .orElseThrow())
+                .build();
         Location repoLocation = Location.builder()
                 .latitude(10.748696f)
                 .longitude(106.722653f)
@@ -259,20 +259,20 @@ public class RoutingServiceImpl implements RoutingService {
     @Override
     public RoutingResponse routing(InputStream inputStream) throws Exception {
         try (BufferedReader br
-            = new BufferedReader(new InputStreamReader(inputStream))) {
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
             int orderNumber = Integer.parseInt(br.readLine().split("\t")[1]);
             br.readLine();
             List<RoutingOrder> routingOrders = new ArrayList<>();
             for (int i = 0; i < orderNumber; i++) {
                 RoutingOrder routingOrder = TestCaseConverter.convertString2RoutingOrder(
-                    br.readLine());
+                        br.readLine());
                 routingOrders.add(routingOrder);
             }
             br.readLine();
             List<List<Float>> orderNodeMatrix = new ArrayList<>();
             for (int i = 0; i < orderNumber * 2; i++) {
                 orderNodeMatrix.add(Arrays.stream(br.readLine().split(","))
-                    .map(Float::parseFloat).collect(Collectors.toList()));
+                        .map(Float::parseFloat).collect(Collectors.toList()));
             }
             long capacity = Long.parseLong(br.readLine().split("\t")[1]);
             int vehicleNumber = Integer.parseInt(br.readLine().split("\t")[1]);
@@ -280,16 +280,16 @@ public class RoutingServiceImpl implements RoutingService {
             List<RoutingVehicle> routingVehicles = new ArrayList<>();
             for (int i = 0; i < vehicleNumber; i++) {
                 RoutingVehicle routingVehicle = RoutingVehicle.builder()
-                    .load(capacity)
-                    .location(TestCaseConverter.convertString2VehicleLocation(br.readLine()))
-                    .build();
+                        .load(capacity)
+                        .location(TestCaseConverter.convertString2VehicleLocation(br.readLine()))
+                        .build();
                 routingVehicles.add(routingVehicle);
             }
             br.readLine();
             List<List<Float>> vehicleMatrix = new ArrayList<>();
             for (int i = 0; i < vehicleNumber; i++) {
                 vehicleMatrix.add(Arrays.stream(br.readLine().split(","))
-                    .map(Float::parseFloat).collect(Collectors.toList()));
+                        .map(Float::parseFloat).collect(Collectors.toList()));
             }
             Location repoLocation = TestCaseConverter.convertString2RepoLocation(br.readLine());
             br.readLine();
@@ -299,7 +299,8 @@ public class RoutingServiceImpl implements RoutingService {
             List<Float> vehicleRepoDurationList = Arrays.stream(br.readLine().split(","))
                     .map(Float::parseFloat).collect(Collectors.toList());
             AIConfig config = AIConfig.builder()
-                .build();
+                    .startTime(0)
+                    .build();
             RoutingMatrix routingMatrix = RoutingMatrix.builder()
                     .orderNumber(orderNumber)
                     .vehicleNumber(vehicleNumber)
@@ -319,31 +320,31 @@ public class RoutingServiceImpl implements RoutingService {
     }
 
     private void saveRoutings(RoutingResponse routingResponse, List<Order> orders,
-        List<String> vehicleIds) {
+                              List<String> vehicleIds) {
         List<Routing> listRouting = new ArrayList<>();
         for (RoutingResponse.Route route : routingResponse.getRoutes()) {
             List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();
             for (RoutingKey routingKey : route.getRoutingKeys()) {
                 Order order = orders.get(routingKey.getOrderId());
                 Node node = routingKey.getType().equals(TypeNode.PICKUP) ? order.getPickup()
-                    : order.getDelivery();
+                        : order.getDelivery();
                 Routing.NodeRouting nodeRouting = Routing.NodeRouting.builder()
-                    .address(node.getAddress())
-                    .customerName(node.getCustomerName())
-                    .earliestTime(node.getEarliestTime())
-                    .latestTime(node.getLatestTime())
-                    .location(node.getLocation())
-                    .phone(node.getPhone())
-                    .typeNode(routingKey.getType())
-                    .orderId(order.getId().toHexString())
-                    .build();
+                        .address(node.getAddress())
+                        .customerName(node.getCustomerName())
+                        .earliestTime(node.getEarliestTime())
+                        .latestTime(node.getLatestTime())
+                        .location(node.getLocation())
+                        .phone(node.getPhone())
+                        .typeNode(routingKey.getType())
+                        .orderId(order.getId().toHexString())
+                        .build();
                 nodeRoutings.add(nodeRouting);
             }
             Routing routing = Routing.builder()
-                .vehicleId(vehicleIds.get(route.getVehicleId()))
-                .nodes(nodeRoutings)
-                .nextNode(nodeRoutings.get(0))
-                .build();
+                    .vehicleId(vehicleIds.get(route.getVehicleId()))
+                    .nodes(nodeRoutings)
+                    .nextNode(nodeRoutings.get(0))
+                    .build();
             listRouting.add(routing);
 
         }

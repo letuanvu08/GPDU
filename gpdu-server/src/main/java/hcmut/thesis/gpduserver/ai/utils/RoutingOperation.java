@@ -27,10 +27,10 @@ public class RoutingOperation {
             if (prevVehicle != currentVehicle) {
                 int skipVehicleNumber = currentVehicle - prevVehicle - 1;
                 for (int j = 0; j < skipVehicleNumber; j++) {
-                    travelDuration += routingMatrix.getDurationVehicleRepo(prevVehicle + 1 + j) * 1000;
+                    travelDuration += routingMatrix.getDurationVehicleRepo(prevVehicle + 1 + j);
                 }
                 float tempDuration = routingMatrix.getDurationVehicle(currentVehicle,
-                        currentKey.getOrderIndex(), currentKey.getType()) * 1000;
+                        currentKey.getOrderIndex(), currentKey.getType());
                 travelDuration += tempDuration;
                 vehicleDuration = tempDuration;
                 RoutingOrder.RoutingNode node = currentKey.getType().equals(PICKUP) ?
@@ -49,7 +49,7 @@ public class RoutingOperation {
             }
             if (currentKey.getValue().getVehicle() == nextKey.getValue().getVehicle()) {
                 float tempDuration = routingMatrix.getDurationOrder(currentKey.getOrderIndex(),
-                        currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType()) * 1000;
+                        currentKey.getType(), nextKey.getOrderIndex(), nextKey.getType());
                 travelDuration += tempDuration;
                 vehicleDuration += tempDuration;
                 RoutingOrder.RoutingNode node = nextKey.getType().equals(PICKUP) ?
@@ -63,18 +63,18 @@ public class RoutingOperation {
                     lateDuration += vehicleDuration + (startTime - node.getLatestTime());
                 }
             } else {
-                travelDuration += routingMatrix.getDurationRepo(currentKey.getOrderIndex(), currentKey.getType()) * 1000;
+                travelDuration += routingMatrix.getDurationRepo(currentKey.getOrderIndex(), currentKey.getType());
             }
         }
         Key<IntegerRouting> finalKey = keys.get(keys.size() - 1);
-        travelDuration += routingMatrix.getDurationRepo(finalKey.getOrderIndex(), finalKey.getType()) * 1000;
+        travelDuration += routingMatrix.getDurationRepo(finalKey.getOrderIndex(), finalKey.getType());
         for (int i = finalKey.getValue().getVehicle() + 1; i < routingMatrix.getVehicleMatrix().size(); i++) {
-            travelDuration += routingMatrix.getDurationVehicleRepo(i) * 1000;
+            travelDuration += routingMatrix.getDurationVehicleRepo(i);
         }
         return Durations.builder()
-                .travel(travelDuration / 1000)
-                .late(lateDuration / 1000)
-                .waiting(waitingDuration / 1000)
+                .travel(travelDuration)
+                .late(lateDuration)
+                .waiting(waitingDuration)
                 .build();
     }
 

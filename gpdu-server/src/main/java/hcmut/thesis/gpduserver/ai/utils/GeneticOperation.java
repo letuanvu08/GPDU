@@ -71,7 +71,9 @@ public class GeneticOperation {
         List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
         Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
-
+        if(durations.getTravel() == 1465) {
+            System.out.println("-------------------------");
+        }
          float fitness = durations.getTravel() * cost.getTravel() +
             durations.getLate() * cost.getLate() +
             durations.getWaiting() * cost.getWaiting();

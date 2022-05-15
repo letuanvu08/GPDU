@@ -12,19 +12,19 @@ public class RoutingConverter {
     public static RoutingOrder convertOrder2RoutingOrder(Order order, int id) {
         return RoutingOrder.builder()
                 .delivery(RoutingOrder.RoutingNode.builder()
-                        .earliestTime(order.getDelivery().getEarliestTime())
-                        .latestTime(order.getDelivery().getLatestTime())
+                        .earliestTime(order.getDelivery().getEarliestTime() / 1000)
+                        .latestTime(order.getDelivery().getLatestTime() / 1000)
                         .location(order.getDelivery().getLocation())
                         .build())
                 .pickup(RoutingOrder.RoutingNode.builder()
-                        .earliestTime(order.getPickup().getEarliestTime())
-                        .latestTime(order.getPickup().getLatestTime())
+                        .earliestTime(order.getPickup().getEarliestTime() / 1000)
+                        .latestTime(order.getPickup().getLatestTime() / 1000)
                         .build())
                 .weight(order.getPackageInfo().getWeight())
                 .vehicleConstant(!order.getCurrentStep().getStep().equals(StepOrderEnum.ORDER_RECEIVED.getLabel()))
                 .build();
     }
-    
+
     public static RoutingVehicle convertVehicle2RoutingVehicle(Vehicle vehicle, RoutingKey routingKey) {
         return RoutingVehicle.builder()
                 .location(vehicle.getCurrentLocation())

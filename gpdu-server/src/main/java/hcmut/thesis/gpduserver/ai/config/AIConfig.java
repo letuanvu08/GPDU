@@ -25,6 +25,6 @@ public class AIConfig {
     @Builder.Default
     private float swapVehicle = 0.6f;
     @Builder.Default
-    private long startTime = System.currentTimeMillis();
+    private long startTime = System.currentTimeMillis() / 1000;
 
 }

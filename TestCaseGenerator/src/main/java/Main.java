@@ -12,9 +12,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
-    public static final int ORDER_NUMBER = 6;
+    public static final int ORDER_NUMBER = 5;
     public static final int VEHICLE_CAPACITY = 50;
-    public static final int VEHICLE_NUMBER = 3;
+    public static final int VEHICLE_NUMBER = 2;
 
     public static void main(String[] args) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("testcase.txt"))) {

@@ -120,15 +120,32 @@ public class PDPCplex {
                 System.out.println(i + 1);
             }
         }
+        System.out.println("-------------------------");
         a = cplex.getValues(xRepoVars);
         for (int i = 0; i < xRepoVars.length; i++) {
-            if (a[i] != 0)
+            if (a[i] != 0) {
                 sum += input.getDuration().getRepoList().get(i % nodeNum);
+                System.out.println(i + 1);
+            }
+
         }
+        System.out.println("-------------------------");
         a = cplex.getValues(xVehicleVars);
         for (int i = 0; i < xVehicleVars.length; i++) {
-            if (a[i] != 0)
+            if (a[i] != 0) {
                 sum += input.getDuration().getVehicleMatrix().get(i / nodeNum).get(i % nodeNum);
+                System.out.println(i + 1);
+            }
+        }
+        System.out.println("-------------------------");
+
+        a = cplex.getValues(xVehicleRepoVars);
+        for (int i = 0; i < xVehicleRepoVars.length; i++) {
+            if (a[i] != 0) {
+                sum += input.getDuration().getVehicleRepoList().get(i);
+                System.out.println(i + 1);
+            }
+
         }
         System.out.println(sum);
         a = cplex.getValues(wNodeVars);
