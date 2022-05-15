@@ -29,6 +29,7 @@ public class PDPCplex {
 
     public Response solve() throws IloException {
         long startTime = System.currentTimeMillis();
+        cplex.setParam(IloCplex.Param.TimeLimit, 3600);
         cplex.setParam(IloCplex.Param.RootAlgorithm, IloCplex.Algorithm.Primal);
         boolean solved = cplex.solve();
         long endTime = System.currentTimeMillis();
@@ -109,8 +110,29 @@ public class PDPCplex {
                 cplex.addLe(tNodeVars[j], tNodeVars[j + 1]);
             }
         }
-        cplex.setParam( IloCplex.IntParam.RootAlgorithm, IloCplex.Algorithm.Dual);
+        cplex.setParam(IloCplex.IntParam.RootAlgorithm, IloCplex.Algorithm.Dual);
         cplex.solve();
+        double[] a = cplex.getValues(xNodeVars);
+        int sum = 0;
+        for (int i = 0; i < xNodeVars.length; i++) {
+            if (a[i] != 0) {
+                sum += input.getDuration().getOrderNodeMatrix().get(i / nodeNum % nodeNum).get(i % nodeNum);
+                System.out.println(i + 1);
+            }
+        }
+        a = cplex.getValues(xRepoVars);
+        for (int i = 0; i < xRepoVars.length; i++) {
+            if (a[i] != 0)
+                sum += input.getDuration().getRepoList().get(i % nodeNum);
+        }
+        a = cplex.getValues(xVehicleVars);
+        for (int i = 0; i < xVehicleVars.length; i++) {
+            if (a[i] != 0)
+                sum += input.getDuration().getVehicleMatrix().get(i / nodeNum).get(i % nodeNum);
+        }
+        System.out.println(sum);
+        a = cplex.getValues(wNodeVars);
+        System.out.println(Arrays.stream(a).reduce(0, Double::sum));
     }
 
 
