@@ -34,7 +34,7 @@ public class GeneticOperation {
                                    RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
-        List<Chromosome> buf = population.subList(0,index).stream().map(chromosome -> chromosome).collect(Collectors.toList());
+        List<Chromosome> buf = population.subList(0, index).stream().map(chromosome -> chromosome).collect(Collectors.toList());
         while (index < size) {
             if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
                 Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
@@ -65,21 +65,18 @@ public class GeneticOperation {
         buf.sort(Chromosome::compareTo);
         population.clear();
         return buf.subList(0, config.getPopulationSize()).stream().map(chromosome -> chromosome).collect(
-            Collectors.toList());
+                Collectors.toList());
     }
 
     public void calFitness(Chromosome chromosome) {
         List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
         Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
-        if(durations.getTravel() == 1465) {
-            System.out.println("-------------------------");
-        }
-         float fitness = durations.getTravel() * cost.getTravel() +
-            durations.getLate() * cost.getLate() +
-            durations.getWaiting() * cost.getWaiting();
-         chromosome.setFitness(fitness);
-         chromosome.setDurations(durations);
+        float fitness = durations.getTravel() * cost.getTravel() +
+                durations.getLate() * cost.getLate() +
+                durations.getWaiting() * cost.getWaiting();
+        chromosome.setFitness(fitness);
+        chromosome.setDurations(durations);
 
     }
 
@@ -120,12 +117,12 @@ public class GeneticOperation {
         List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
                 genC2.subList(index2, size));
         Chromosome child1 = Chromosome.builder()
-            .gens(gensChild1)
-            .build();
+                .gens(gensChild1)
+                .build();
         calFitness(child1);
         Chromosome child2 = Chromosome.builder()
-            .gens(gensChild2)
-            .build();
+                .gens(gensChild2)
+                .build();
         calFitness(child2);
         return List.of(child1, child2);
     }
