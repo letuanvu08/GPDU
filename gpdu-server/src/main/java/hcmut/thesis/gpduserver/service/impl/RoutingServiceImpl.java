@@ -237,17 +237,18 @@ public class RoutingServiceImpl implements RoutingService {
 
         AIConfig config = AIConfig.builder()
                 .build();
-
+        Storage storage = new Storage();
+        Location repoLocation = storage.getLocation();
         RoutingMatrix routingMatrix = RoutingMatrix.builder()
                 .orderNumber(orders.size())
                 .vehicleNumber(vehicles.size())
                 .orderNodeMatrix(mapboxClient.retrieveDurationMatrix(orderNodeLocations).orElseThrow())
                 .vehicleMatrix(mapboxClient.retrieveDurationMatrix(vehicleLocations, orderNodeLocations)
                         .orElseThrow())
-                .build();
-        Location repoLocation = Location.builder()
-                .latitude(10.748696f)
-                .longitude(106.722653f)
+                .vehicleRepoList(mapboxClient.retrieveDurationMatrix(vehicleLocations, List.of(repoLocation)).orElseThrow()
+                        .stream().flatMap(List::stream).collect(Collectors.toList()))
+                .repoList(mapboxClient.retrieveDurationMatrix(orderNodeLocations, List.of(repoLocation)).orElseThrow()
+                        .stream().flatMap(List::stream).collect(Collectors.toList()))
                 .build();
         Cost cost = new Cost();
         AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost);

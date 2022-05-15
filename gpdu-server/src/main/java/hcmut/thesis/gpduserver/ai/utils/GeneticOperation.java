@@ -63,7 +63,7 @@ public class GeneticOperation {
         buf.sort(Chromosome::compareTo);
         population.clear();
         return buf.subList(0, config.getPopulationSize()).stream().map(chromosome -> chromosome).collect(
-            Collectors.toList());
+                Collectors.toList());
     }
 
     public void calFitness(Chromosome chromosome) {
@@ -114,12 +114,12 @@ public class GeneticOperation {
         List<Gen> gensChild2 = concatGen(genC2.subList(0, index1), genC1.subList(index1, index2),
                 genC2.subList(index2, size));
         Chromosome child1 = Chromosome.builder()
-            .gens(gensChild1)
-            .build();
+                .gens(gensChild1)
+                .build();
         calFitness(child1);
         Chromosome child2 = Chromosome.builder()
-            .gens(gensChild2)
-            .build();
+                .gens(gensChild2)
+                .build();
         calFitness(child2);
         return List.of(child1, child2);
     }
