@@ -80,7 +80,7 @@ public class AIRouter implements IAIRouter {
         List<Chromosome> population = this.initPopulation();
         int generation = 0;
         while (generation < config.getMaxGeneration()) {
-            population = geneticOperation.evolve(population, vehicles.size(), routingMatrix);
+            population = geneticOperation.evolve(population, routingMatrix);
             log.info("Generation: {}", generation);
             Chromosome best = population.get(0);
             log.info("Best individual in generation has fitness: {}, travelTime: {}, waitingTime: {}, lateTime: {}",

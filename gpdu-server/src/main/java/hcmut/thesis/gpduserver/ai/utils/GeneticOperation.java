@@ -30,7 +30,7 @@ public class GeneticOperation {
         this.cost = cost;
     }
 
-    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle, RoutingMatrix routingMatrix) {
+    public List<Chromosome> evolve(List<Chromosome> population, RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
         int initIndex = index;
