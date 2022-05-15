@@ -80,5 +80,5 @@ export const styles = StyleSheet.create({
     height: 120,
     marginBottom: 10,
   },
-  status: {height: 150},
+  status: {height: 170},
 });

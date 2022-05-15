@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Dimensions} from 'react-native';
+import {StyleSheet, View, Dimensions, Image} from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import mapStyle from './map.style';
 import TopBar from '~/components/topBar';
@@ -136,11 +136,14 @@ export function RoutesScreen() {
         style={styles.mapStyle}
         initialRegion={initialRegion}
         mapType="standard">
-          <CustomMarker coordinate={location} image={LocationImage}/>
+          <CustomMarker coordinate={location}>
+            <Image source={LocationImage} style={{height: 24, width: 24}}/>
+          </CustomMarker>
         {nodes.map((node, index) => (
           <CustomMarker
             coordinate={node.location}
-          />
+          >
+          </CustomMarker>
         ))}
         {polyline.length > 0 && <CustomPolyLine coordinates={polyline} />}
       </MapView>

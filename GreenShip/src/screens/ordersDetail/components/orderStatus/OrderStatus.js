@@ -54,7 +54,7 @@ export function OrderStatus({orderId, currentStep, typeUser}) {
             }
         }
 
-    }, [orderStatus])
+    }, [orderId])
 
     const handleButtonFinish = () => {
         if (currentPosition < 3) {

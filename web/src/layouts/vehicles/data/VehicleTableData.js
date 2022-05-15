@@ -4,10 +4,7 @@ import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
 
 // Images
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
-import truck from "icons/delivery-truck-5245.png";
+import truck from "icons/shipper.png";
 import { Image } from "react-bootstrap";
 
 export default function VehicleTableData({ vehicles }) {
