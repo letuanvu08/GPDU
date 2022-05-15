@@ -15,13 +15,13 @@ public class AIConfig {
     @Builder.Default
     private int tournamentSize = 3;
     @Builder.Default
-    private float elitismRate = 0.05f;
+    private float elitismRate = 0.01f;
     @Builder.Default
-    private float crossover = 0.7f;
+    private float crossover = 0.8f;
     @Builder.Default
     private float mutation = 0.3f;
     @Builder.Default
-    private int maxGeneration = 10000;
+    private int maxGeneration = 100;
     @Builder.Default
     private float swapVehicle = 0.6f;
     @Builder.Default

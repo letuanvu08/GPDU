@@ -30,18 +30,17 @@ public class GeneticOperation {
         this.cost = cost;
     }
 
-    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle,
-                                   RoutingMatrix routingMatrix) {
+    public List<Chromosome> evolve(List<Chromosome> population, int numberVehicle, RoutingMatrix routingMatrix) {
         int size = population.size();
         int index = (int) ((float) size * config.getElitismRate());
+        int initIndex = index;
         List<Chromosome> buf = population.subList(0,index).stream().map(chromosome -> chromosome).collect(Collectors.toList());
         while (index < size) {
             if (ThreadLocalRandom.current().nextFloat() <= config.getCrossover()) {
                 Pair<Chromosome, Chromosome> pairParent = choosePairParent(population);
                 List<Chromosome> candidates = new ArrayList<>(
                         List.of(pairParent.getLeft(), pairParent.getRight()));
-                List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(),
-                        routingMatrix);
+                List<Chromosome> children = mate(pairParent.getLeft(), pairParent.getRight(), routingMatrix);
                 children = children.stream().map(child -> {
                     if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
                         return mutate(child, routingMatrix);
@@ -53,10 +52,9 @@ public class GeneticOperation {
                 buf.addAll(candidates.subList(0, 2));
                 index += 2;
             } else {
-                Chromosome luckyMan = population.get(RandomKey.random(index, size)).clone();
-                if (ThreadLocalRandom.current().nextFloat() <= config.getMutation()) {
-                    luckyMan = mutate(luckyMan, routingMatrix);
-                }
+                Integer indexLucky = RandomKey.random(initIndex, size-1);
+                Chromosome luckyMan = population.get(indexLucky).clone();
+                luckyMan = mutate(luckyMan, routingMatrix);
                 calFitness(luckyMan);
                 index += 1;
                 buf.add(luckyMan);
@@ -72,15 +70,11 @@ public class GeneticOperation {
         List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
         Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
-        if(durations.getTravel() == 1465) {
-            System.out.println("-------------------------");
-        }
          float fitness = durations.getTravel() * cost.getTravel() +
             durations.getLate() * cost.getLate() +
             durations.getWaiting() * cost.getWaiting();
          chromosome.setFitness(fitness);
          chromosome.setDurations(durations);
-
     }
 
     public Pair<Chromosome, Chromosome> choosePairParent(List<Chromosome> population) {
