@@ -13,6 +13,7 @@ public class Main {
         Input input = InputHandler.handle("../TestCaseGenerator/testcase.txt");
         if (input != null) {
             PDPCplex cplex = new PDPCplex(input);
+            cplex.exportModel("model.lp");
             Response response = cplex.solve();
             System.out.println(response);
         }

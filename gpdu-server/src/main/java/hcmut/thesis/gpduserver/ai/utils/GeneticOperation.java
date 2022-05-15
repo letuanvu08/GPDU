@@ -18,15 +18,13 @@ public class GeneticOperation {
 
     private final AIConfig config;
     private final List<RoutingOrder> routingOrders;
-    private final List<RoutingVehicle> vehicles;
     private final RoutingMatrix routingMatrix;
     private final Cost cost;
 
     public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders,
-                            List<RoutingVehicle> vehicles, RoutingMatrix routingMatrix, Cost cost) {
+                            RoutingMatrix routingMatrix, Cost cost) {
         this.config = config;
         this.routingOrders = routingOrders;
-        this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.cost = cost;
     }

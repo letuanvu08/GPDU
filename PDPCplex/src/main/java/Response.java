@@ -11,4 +11,5 @@ public class Response
 {
     private double cost;
     private long time;
+    private boolean solved;
 }

@@ -24,7 +24,6 @@ public class AIRouter implements IAIRouter {
     private final RoutingMatrix routingMatrix;
     private final GeneticOperation geneticOperation;
     private final Location repoLocation;
-    private final Cost cost;
 
     public AIRouter(List<RoutingOrder> orders,
                     List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
@@ -34,8 +33,7 @@ public class AIRouter implements IAIRouter {
         this.routingMatrix = routingMatrix;
         this.config = config;
         this.repoLocation = repoLocation;
-        this.cost = cost;
-        this.geneticOperation = new GeneticOperation(config, orders, vehicles, routingMatrix, cost);
+        this.geneticOperation = new GeneticOperation(config, orders, routingMatrix, cost);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {
