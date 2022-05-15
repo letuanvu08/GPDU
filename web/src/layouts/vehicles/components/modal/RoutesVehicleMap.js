@@ -72,7 +72,7 @@ export default function RoutesVehicleMap() {
             latitude={storage.location.latitude}
             longitude={storage?.location.longitude}
           >
-            <img src={warehouse} style={{ width: 32, height: 32 }} />
+            <img src={warehouse} style={{ width: 24, height: 24 }} />
           </MarkerMap>}
         </ReactMapGL>
       </MDBox>

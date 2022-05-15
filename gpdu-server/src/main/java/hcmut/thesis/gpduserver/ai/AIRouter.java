@@ -18,7 +18,7 @@ public class AIRouter implements IAIRouter {
 
     private final List<RoutingOrder> orders;
     private final List<RoutingVehicle> vehicles;
-    private static final Integer BOUND_RANDOM_KEY = 1000;
+    private static final Integer BOUND_RANDOM_KEY = 10000;
     private static final Integer INIT_RANDOM = 1000;
     private final AIConfig config;
     private final RoutingMatrix routingMatrix;
@@ -116,9 +116,11 @@ public class AIRouter implements IAIRouter {
                 vehicleId = order.getVehicleId();
                 vehicleConstant = true;
             }
+            Integer randomKeyPickup = RandomKey.generateInSize(BOUND_RANDOM_KEY-1);
+            Integer randomKeyDelivery = RandomKey.generateBaseMin(randomKeyPickup, BOUND_RANDOM_KEY);
             Gen gen = Gen.builder()
-                .pickup(RandomKey.generateInSize(10000))
-                .delivery(RandomKey.generateInSize(10000))
+                .pickup(randomKeyPickup)
+                .delivery(randomKeyDelivery)
                 .vehicle(vehicleId)
                 .vehicleConstant(vehicleConstant)
                 .build();

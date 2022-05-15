@@ -2,6 +2,6 @@ import httpClient from './httpClient';
 
 export default storageApi = {
   getRoutingByOrderId: () => {
-    return httpClient.get(`/api/storage`);
+    return httpClient.get(`/api/admin/storages`);
   },
 };

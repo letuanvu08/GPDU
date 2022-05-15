@@ -15,6 +15,7 @@ import org.modelmapper.internal.Pair;
 
 public class GeneticOperation {
 
+    private static final Integer BOUND_RANDOM_KEY = 10000;
 
     private final AIConfig config;
     private final List<RoutingOrder> routingOrders;
@@ -145,8 +146,10 @@ public class GeneticOperation {
         }
         int genIndex = RandomKey.random(0, chromosome.getGens().size());
         Gen gen = chromosome.getGens().get(genIndex);
-        gen.setDelivery(RandomKey.generateInSize(10000));
-        gen.setPickup(RandomKey.generateInSize(10000));
+        Integer randomKeyPickup = RandomKey.generateInSize(BOUND_RANDOM_KEY-1);
+        Integer randomKeyDelivery = RandomKey.generateBaseMin(randomKeyPickup, BOUND_RANDOM_KEY);
+        gen.setDelivery(randomKeyPickup);
+        gen.setPickup(randomKeyDelivery);
         calFitness(chromosome);
         return chromosome;
     }

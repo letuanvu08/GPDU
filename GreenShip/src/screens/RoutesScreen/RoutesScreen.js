@@ -95,7 +95,10 @@ export function RoutesScreen() {
     if (!!routing && storage) {
       console.log('routing: ', routing);
       const locations = routing.nodes.map(node => node.location);
-      locations.push(storage.location);
+      locations.push({
+        latitude: 10.773372865851005,
+        longitude: 106.65959845041081
+      })
       setNotes(routing.nodes);
       getPolyline(locations);
     }
@@ -153,7 +156,7 @@ export function RoutesScreen() {
         <CustomMarker coordinate={location}>
           <Image source={LocationImage} style={{height: 24, width: 24}}/>
         </CustomMarker>
-        {storage && <CustomMarker coordinate={storage.location}>
+        { <CustomMarker coordinate={ {latitude: 10.773372865851005, longitude: 106.65959845041081}}>
           <Image source={wareHose} style={{height: 24, width: 24}}/>
         </CustomMarker>}
         {nodes.map((node, index) => (
