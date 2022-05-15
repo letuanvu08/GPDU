@@ -45,6 +45,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/users/register",
             "/ping",
             "/api/routing/mapbox",
+            "/api/storage/**",
             "/api/admin/**").permitAll()
         .antMatchers(
             "/api/orders/**",

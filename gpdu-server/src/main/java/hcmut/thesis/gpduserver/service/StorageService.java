@@ -1,6 +1,7 @@
 package hcmut.thesis.gpduserver.service;
 
 import hcmut.thesis.gpduserver.models.Exception.ValidationException;
+import hcmut.thesis.gpduserver.models.entity.Storage;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,8 @@ public interface StorageService {
     Path load(String filename);
 
     Resource loadAsResource(String filename) throws Exception;
+
+    Storage getStorage();
 
     void deleteAll();
 }

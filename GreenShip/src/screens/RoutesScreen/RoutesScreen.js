@@ -17,14 +17,19 @@ import mapboxApi from '~/api/mapboxAPI';
 import Geolocation from 'react-native-geolocation-service';
 import {default as LocationImage} from '~/assets/icons/location_blue.png';
 import vehicleApi from '~/api/vehicleApi';
+import StorageApi from "~/api/storageApi";
+import storageApi from "~/api/storageApi";
+import wareHose from '~/assets/icons/warehouse.png'
+
 export function RoutesScreen() {
   const user = useSelector(state => state.auth.profile);
   const [routing, setRouting] = useState(null);
   const [polyline, setPolyline] = useState([]);
   const [nodes, setNotes] = useState([]);
+  const [storage, setStorage] = useState(null);
   const {mapRef, handelResetInitialToLocation, setSelectedMarker} = useMap();
   const dispatch = useDispatch();
-    const [location, setLocation] = useState({
+  const [location, setLocation] = useState({
     latitude: 10.7758439,
     longitude: 106.7017555,
   });
@@ -35,6 +40,14 @@ export function RoutesScreen() {
     longitudeDelta: 0.05,
   });
 
+  useEffect(() => {
+    storageApi.getRoutingByOrderId().then(res => {
+      const data = res.Data;
+      if (data) {
+        setStorage(data);
+      }
+    })
+  }, [])
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchLocation();
@@ -79,13 +92,14 @@ export function RoutesScreen() {
     }
   }, [user]);
   useEffect(() => {
-    if (!!routing) {
+    if (!!routing && storage) {
       console.log('routing: ', routing);
       const locations = routing.nodes.map(node => node.location);
+      locations.push(storage.location);
       setNotes(routing.nodes);
       getPolyline(locations);
     }
-  }, [routing]);
+  }, [routing, storage]);
 
   const getRouting = user => {
     routingApi
@@ -128,7 +142,7 @@ export function RoutesScreen() {
 
   return (
     <View style={styles.container}>
-      <TopBar onPressElement={()=> handelResetInitialToLocation(location)} />
+      <TopBar onPressElement={() => handelResetInitialToLocation(location)}/>
       <MapView
         ref={mapRef}
         customMapStyle={mapStyle}
@@ -136,21 +150,24 @@ export function RoutesScreen() {
         style={styles.mapStyle}
         initialRegion={initialRegion}
         mapType="standard">
-          <CustomMarker coordinate={location}>
-            <Image source={LocationImage} style={{height: 24, width: 24}}/>
-          </CustomMarker>
+        <CustomMarker coordinate={location}>
+          <Image source={LocationImage} style={{height: 24, width: 24}}/>
+        </CustomMarker>
+        {storage && <CustomMarker coordinate={storage.location}>
+          <Image source={wareHose} style={{height: 24, width: 24}}/>
+        </CustomMarker>}
         {nodes.map((node, index) => (
           <CustomMarker
             coordinate={node.location}
           >
           </CustomMarker>
         ))}
-        {polyline.length > 0 && <CustomPolyLine coordinates={polyline} />}
+        {polyline.length > 0 && <CustomPolyLine coordinates={polyline}/>}
       </MapView>
       <BottomSheet
         items={nodes}
         renderItem={item => (
-          <ListItem item={item} onSelected={handleSelectedMarker} />
+          <ListItem item={item} onSelected={handleSelectedMarker}/>
         )}
       />
     </View>

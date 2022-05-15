@@ -4,6 +4,7 @@ import com.google.protobuf.Api;
 import hcmut.thesis.gpduserver.ai.models.RoutingResponse;
 import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Routing;
+import hcmut.thesis.gpduserver.models.entity.Storage;
 import hcmut.thesis.gpduserver.models.entity.Vehicle;
 import hcmut.thesis.gpduserver.models.reponse.ApiResponse;
 import hcmut.thesis.gpduserver.models.request.order.OrderListRequest;
@@ -30,6 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AdminController {
+
+    @Autowired
+    private StorageService storageService;
 
     @Autowired
     private VehicleService vehicleService;
@@ -98,4 +102,9 @@ public class AdminController {
         return new ApiResponse<List<Vehicle>>().success(vehicles);
     }
 
+    @GetMapping("/storages")
+    public ApiResponse<Storage> getStorage() {
+        Storage storage = storageService.getStorage();
+        return new ApiResponse<Storage>().success(storage);
+    }
 }

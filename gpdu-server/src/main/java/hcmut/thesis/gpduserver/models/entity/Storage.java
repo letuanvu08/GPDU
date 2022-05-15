@@ -20,10 +20,9 @@ import org.bson.types.ObjectId;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Storage extends PO {
-
-  private String address;
-  private String phone;
-  private String owner;
-  private Location location;
+  @Builder.Default
+  private String address= "";
+  @Builder.Default
+  private Location location = new Location(10.773372865851005f, 106.65959845041081f)  ;
 
 }

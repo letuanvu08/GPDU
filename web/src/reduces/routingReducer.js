@@ -10,6 +10,12 @@ const initState = {
     longitude: 106.70175527777778,
     zoom: 15,
   },
+  storage:{
+    location:{
+      latitude: 10.773372865851005,
+      longitude: 106.65959845041081
+    },
+  }
 };
 
 export const getRoutingByOrderId = createAsyncThunk(
@@ -34,6 +40,10 @@ export const getPolyline = createAsyncThunk(
   "routing/getPolyline",
   async ({ routing }, { getState }) => {
     const locations = routing.nodes.map((node) => node.location);
+    locations.push({
+      latitude: 10.773372865851005,
+      longitude: 106.65959845041081
+    })
     const res = await mapboxApi.direction(locations);
     console.log("getPolyline response: ", res)
     return res;

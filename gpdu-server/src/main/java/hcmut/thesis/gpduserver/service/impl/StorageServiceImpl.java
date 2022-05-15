@@ -3,6 +3,7 @@ package hcmut.thesis.gpduserver.service.impl;
 import hcmut.thesis.gpduserver.config.StorageConfig;
 import hcmut.thesis.gpduserver.constants.enumations.BaseCodeEnum;
 import hcmut.thesis.gpduserver.models.Exception.ValidationException;
+import hcmut.thesis.gpduserver.models.entity.Storage;
 import hcmut.thesis.gpduserver.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -79,6 +80,11 @@ public class StorageServiceImpl implements StorageService {
         }
 
 
+    }
+
+    @Override
+    public Storage getStorage() {
+        return Storage.builder().build();
     }
 
     @Override
