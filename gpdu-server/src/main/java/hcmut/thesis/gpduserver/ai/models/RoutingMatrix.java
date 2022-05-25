@@ -29,7 +29,7 @@ public class RoutingMatrix {
     }
 
     public Float getDurationRepo(Integer orderIndex, TypeNode type) {
-        return repoList.get(orderIndex + type.ordinal() * 2);
+        return repoList.get(orderIndex * 2 + type.ordinal());
     }
     public Float getDurationVehicleRepo(Integer vehicle) {
         return vehicleRepoList.get(vehicle);

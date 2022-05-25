@@ -79,7 +79,8 @@ public class AIRouter implements IAIRouter {
 //        List<Key<RoutingOrder.RoutingNode>> keys = getListKeySortNodeByEarliestTime(orders);
         List<Chromosome> population = this.initPopulation();
         int generation = 0;
-        while (generation < config.getMaxGeneration()) {
+        long start = System.currentTimeMillis();
+        while (generation < config.getMaxGeneration()* orders.size()) {
             population = geneticOperation.evolve(population, routingMatrix);
             log.info("Generation: {}", generation);
             Chromosome best = population.get(0);
@@ -87,7 +88,8 @@ public class AIRouter implements IAIRouter {
                 best.getFitness(),best.getDurations().getTravel(), best.getDurations().getWaiting(), best.getDurations().getLate());
             generation += 1;
         }
-
+        long elapsedTime = System.currentTimeMillis() - start;
+        log.info("Time executed: {}", elapsedTime/1000F);
         return decodeChromosome(population.get(0));
     }
 
