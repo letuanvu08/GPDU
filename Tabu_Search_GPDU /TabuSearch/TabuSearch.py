@@ -117,7 +117,7 @@ class TabuSearch:
             if s_best['fitness'] > best_candidate['fitness']:
                 s_best = best_candidate
                 best_keep_turn = 0
-            if best_keep_turn > self.config.stopping_turn:
+            if best_keep_turn > self.config.stopping_turn * len(self.orders)    :
                 stop = True
             tabu_list.append(best_candidate)
             if len(tabu_list) > self.config.neighbors_size:
