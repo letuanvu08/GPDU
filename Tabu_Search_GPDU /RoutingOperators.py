@@ -32,10 +32,12 @@ def fitness_vehicle(vehicle_index, node_vehicle, start_time, orders, matrix: Rou
         vehicle_time = node.earliest_time
     elif vehicle_time > node.latest_time:
         late_time = get_late_time(vehicle_time, node.latest_time)
-    prev_node_index = 0
+    prev_node_index = node_vehicle[0]
     for i in node_vehicle[1:]:
         next_node = get_node(orders, i)
-        travel_duration += matrix.get_duration_order(prev_node_index, i)
+        current_travel_duration = matrix.get_duration_order(prev_node_index, i)
+        vehicle_time += current_travel_duration
+        travel_duration += current_travel_duration
         if next_node.earliest_time > vehicle_time:
             waiting_time += get_waiting_time(vehicle_time, next_node.earliest_time)
             vehicle_time = next_node.earliest_time

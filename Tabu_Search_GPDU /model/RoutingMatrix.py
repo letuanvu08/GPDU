@@ -8,13 +8,17 @@ class MatrixRouting:
         self.num_order = num_order
 
     def get_duration_vehicle(self, vehicle_index, node_index):
+        # print("duration vehicle: ", vehicle_index, node_index)
         return self.matrix_vehicle[vehicle_index][node_index]
 
     def get_duration_order(self, from_node, to_node):
+        # print("duration order: ", from_node, to_node)
         return self.matrix_order[from_node][to_node]
 
     def get_duration_depot_order(self, order_index):
+        # print("duration  depot order: ", order_index)
         return self.matrix_depot_order[order_index]
 
     def get_duration_depot_vehicle(self, vehicle_index):
+        # print("duration  depot vehicle: ", vehicle_index)
         return self.matrix_depot_vehicle[vehicle_index]

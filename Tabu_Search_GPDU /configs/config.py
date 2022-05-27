@@ -5,5 +5,5 @@ class Config:
         self.weight_late = float(0.02)
         self.neighbors_size = 1000
         self.reshuffle = 0.9
-        self.stopping_turn = 20
+        self.stopping_turn = 200
         self.tabu_size = 200

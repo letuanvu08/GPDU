@@ -15,10 +15,9 @@ class TabuSearch:
 
     def get_neighbors(self, state):
         neighbors1 = self.get_neighbors_shuffle_each_vehicle(state, self.config.neighbors_size // 3)
-        neighbors2 = self.get_neighbors_reassign_same_orders_vehicle(state, self.num_vehicle,
-                                                                     self.config.neighbors_size // 3)
+        neighbors2 = self.get_neighbors_reassign_same_orders_vehicle(state, self.num_vehicle, self.config.neighbors_size // 3)
         neighbors3 = self.get_neighbors_reorders(state, self.config.neighbors_size // 3)
-        return neighbors1 + neighbors2 + neighbors3
+        return  neighbors1 + neighbors3 + neighbors2
 
     def get_neighbors_shuffle_each_vehicle(self, state, size):
         neighbors = []
@@ -77,25 +76,19 @@ class TabuSearch:
         return nodes
 
     def init_candidate(self):
-        state = dict()
-        state['orders'] = list(range(len(self.orders)))
-        node_vehicles = []
-        order_vehicles = []
-        indexs = self.random_index(0, len(self.orders), self.num_vehicle)
-        from_index = indexs[0]
-        for to_index in indexs[1:]:
-            order_vehicle = list(range(from_index, to_index))
-            node_vehicles.append(self.get_node_order(order_vehicle))
-            from_index = to_index
-        state['node_vehicles'] = node_vehicles
-        self.shuffle(state)
-        self.cal_fitness(state)
+        print("num_order: ", len(self.orders))
+        orders = list(range(len(self.orders)))
+        print([orders])
+        state = self.generate_candidate(orders)
+
+        print("init: ", [state['node_vehicles']])
         return state
 
     def cal_fitness(self, state):
+        # print([state['node_vehicles']])
         fitness_state = fitness(state, self.start_time, self.orders, self.matrix)
         state['fitness'] = fitness_state['travel_duration'] * self.config.weight_travel + fitness_state[
-            'waiting_time'] * self.config.weight_waiting + fitness_state['waiting_time'] * self.config.weight_late
+            'waiting_time'] * self.config.weight_waiting + fitness_state['late_time'] * self.config.weight_late
         return state
 
     def tabu_search(self):
@@ -117,7 +110,7 @@ class TabuSearch:
             if s_best['fitness'] > best_candidate['fitness']:
                 s_best = best_candidate
                 best_keep_turn = 0
-            if best_keep_turn > self.config.stopping_turn * len(self.orders)    :
+            if best_keep_turn > self.config.stopping_turn * len(self.orders):
                 stop = True
             tabu_list.append(best_candidate)
             if len(tabu_list) > self.config.neighbors_size:
@@ -168,13 +161,13 @@ class TabuSearch:
         candidate['node_vehicles'] = node_vehicles
 
     def random_index(self, from_index, to_index, num_block):
-        arr = list(range(from_index + 1, to_index -1))
+        arr = list(range(from_index + 1, to_index - 1))
         indexs = []
         while len(indexs) < num_block - 1:
             index = random.choice(arr)
             arr.remove(index)
             indexs.append(index)
         indexs.append(from_index)
-        indexs.append(to_index -1)
+        indexs.append(to_index)
         indexs.sort()
         return indexs
