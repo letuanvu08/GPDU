@@ -16,13 +16,14 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import routesEnum from "~/constants/routesEnum";
 import VectorImage from "react-native-vector-image";
-import { login } from "~/reduces/AuthReducer";
+import {login, logout} from "~/reduces/AuthReducer";
 import requestStatusEnum from "~/utils/requestStatusEnum";
 import { useDispatch } from "react-redux";
 import userApi from "~/api/user/userApi";
 import EncryptedStorage from "react-native-encrypted-storage";
 import storageKeys from "~/utils/storageKeys";
 import {default as UserGreenIcon} from '~/assets/icons/user-green.png';
+import TypeUser from "~/constants/TypeUser";
 
 const CustomerLoginScreen = ({ navigation }) => {
   const [userName, setUserName] = useState("");
@@ -47,9 +48,14 @@ const CustomerLoginScreen = ({ navigation }) => {
         );
         const profile = await userApi.getProfile();
         navigation.goBack();
+        if(profile.Data.typeUser !== TypeUser.CUSTOMER){
+            await EncryptedStorage.setItem(storageKeys.ACCESS_TOKEN, "");
+            await EncryptedStorage.setItem(storageKeys.REFRESH_TOKEN, "");
+            dispatch(logout());
+            return;
+        }
         dispatch(login(profile.Data));
       } catch (e) {
-        
         navigation.goBack();
         console.log(e);
       } finally {
