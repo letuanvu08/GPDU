@@ -24,4 +24,8 @@ public class TimeUtils {
     public static long generateRandomTimeInToday(long start) {
         return ThreadLocalRandom.current().nextLong(start, atEndOfDay());
     }
+
+    public static long generateRandomTimeInToday(long start, long endTime) {
+        return ThreadLocalRandom.current().nextLong(start, endTime);
+    }
 }

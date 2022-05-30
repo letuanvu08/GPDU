@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
             order = orderRepository.insert(orderRequest).orElse(null);
             log.info("createOrder form: {}, result: {}", form, GsonUtils.toJsonString(order));
-            routingCache.push(form.getPickup().getEarliestTime());
+            routingCache.push(order);
             return order;
         } catch (Exception e) {
             log.error("Error when createOrder: {}", e.getMessage());

@@ -1,6 +1,8 @@
 package hcmut.thesis.gpduserver.service;
 
+import hcmut.thesis.gpduserver.ai.models.RoutingMatrix;
 import hcmut.thesis.gpduserver.ai.models.RoutingResponse;
+import hcmut.thesis.gpduserver.models.entity.Order;
 import hcmut.thesis.gpduserver.models.entity.Routing;
 import hcmut.thesis.gpduserver.models.request.routing.RequestCreateRouting;
 
@@ -29,6 +31,8 @@ public interface RoutingService {
     void routing();
 
     RoutingResponse routing(InputStream inputStream) throws Exception;
+
+    List<Routing>  routing(RoutingMatrix matrix, List<Order> orders);
 
 
 }

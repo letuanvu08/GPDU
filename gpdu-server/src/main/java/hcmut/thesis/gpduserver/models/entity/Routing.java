@@ -30,7 +30,7 @@ public class Routing extends PO {
   private Boolean active = true;
   private NodeRouting nextNode;
   private List<NodeRouting> nodes;
-
+  private List<Float> timeDoneNoes;
   @Embedded
   @Data
   @NoArgsConstructor

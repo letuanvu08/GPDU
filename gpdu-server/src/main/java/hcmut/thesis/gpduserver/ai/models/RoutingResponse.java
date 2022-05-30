@@ -21,6 +21,7 @@ public class RoutingResponse {
     public static class Route {
         private Integer vehicleId;
         private List<RoutingKey> routingKeys;
+        private List<Float> timeDoneNode;
     }
 
 }

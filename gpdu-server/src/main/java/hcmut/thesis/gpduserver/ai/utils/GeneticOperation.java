@@ -21,13 +21,15 @@ public class GeneticOperation {
     private final List<RoutingOrder> routingOrders;
     private final RoutingMatrix routingMatrix;
     private final Cost cost;
+    private final List<Long> startTimeVehicles;
 
     public GeneticOperation(AIConfig config, List<RoutingOrder> routingOrders,
-                            RoutingMatrix routingMatrix, Cost cost) {
+                            RoutingMatrix routingMatrix, Cost cost, List<Long> startTimeVehicles) {
         this.config = config;
         this.routingOrders = routingOrders;
         this.routingMatrix = routingMatrix;
         this.cost = cost;
+        this.startTimeVehicles = startTimeVehicles;
     }
 
     public List<Chromosome> evolve(List<Chromosome> population, RoutingMatrix routingMatrix) {
@@ -69,7 +71,7 @@ public class GeneticOperation {
     public void calFitness(Chromosome chromosome) {
         List<Gen> gens = chromosome.getGens();
         List<Key<IntegerRouting>> keys = RoutingOperation.sortKey(gens);
-        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, config.getStartTime());
+        Durations durations = RoutingOperation.calDurations(keys, routingMatrix, routingOrders, this.startTimeVehicles);
          float fitness = durations.getTravel() * cost.getTravel() +
             durations.getLate() * cost.getLate() +
             durations.getWaiting() * cost.getWaiting();

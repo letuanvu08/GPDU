@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,28 +54,9 @@ public class RoutingServiceImpl implements RoutingService {
     @Autowired
     private DynamicRoutingConfig dynamicRoutingConfig;
 
-    @Scheduled(cron = "0 */10 6-16 * * *")
-    public void autoTriggerDynamicRouting() {
-        if (isOverThreshold()) {
-            routingCache.cleanCache();
-            /// m thích trigger cái gi thì tuỳ , có thể là dùng test api để lấy order
-            // hoặc load order dưới database
-            routing();
-        }
-    }
 
-    private boolean isOverThreshold() {
-        Long currentTimestamp = System.currentTimeMillis();
-        float point = routingCache.getOrdersCache()
-                .stream()
-                .map(order -> pointOfOrder(currentTimestamp, order))
-                .reduce(0f, Float::sum);
-        return point >= dynamicRoutingConfig.getThreshold();
-    }
 
-    private float pointOfOrder(Long currentTimestamp, Long orderTimestamp) {
-        return dynamicRoutingConfig.getWeightTime() / ((orderTimestamp - currentTimestamp));
-    }
+
 
     @Override
     public List<Routing> createListRouting(List<Routing> requests) {
@@ -251,7 +231,12 @@ public class RoutingServiceImpl implements RoutingService {
                         .stream().flatMap(List::stream).collect(Collectors.toList()))
                 .build();
         Cost cost = new Cost();
-        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost);
+        List<Long> startTimeVehicle = new ArrayList<>();
+        Long currentTime = System.currentTimeMillis();
+        for(int i = 0; i < vehicleIds.size(); i++){
+            startTimeVehicle.add(currentTime);
+        }
+        AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost, startTimeVehicle);
         RoutingResponse res = router.routing();
         this.saveRoutings(res, orders, vehicleIds);
     }
@@ -315,41 +300,54 @@ public class RoutingServiceImpl implements RoutingService {
                     .waiting(TestCaseConverter.convertString2Cost(br.readLine()))
                     .late(TestCaseConverter.convertString2Cost(br.readLine()))
                     .build();
-            AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost);
+            AIRouter router = new AIRouter(routingOrders, routingVehicles, config, routingMatrix, repoLocation, cost, null);
             return router.routing();
         }
     }
 
+    @Override
+    public List<Routing> routing(RoutingMatrix matrix, List<Order> orders) {
+
+        return null;
+    }
+
+
     private void saveRoutings(RoutingResponse routingResponse, List<Order> orders,
                               List<String> vehicleIds) {
+        List<Routing> listRouting = buildRouting(routingResponse, orders, vehicleIds);
+        this.createListRouting(listRouting);
+    }
+
+    private List<Routing> buildRouting(RoutingResponse routingResponse, List<Order> orders,
+        List<String> vehicleIds){
         List<Routing> listRouting = new ArrayList<>();
         for (RoutingResponse.Route route : routingResponse.getRoutes()) {
             List<Routing.NodeRouting> nodeRoutings = new ArrayList<>();
             for (RoutingKey routingKey : route.getRoutingKeys()) {
                 Order order = orders.get(routingKey.getOrderId());
                 Node node = routingKey.getType().equals(TypeNode.PICKUP) ? order.getPickup()
-                        : order.getDelivery();
+                    : order.getDelivery();
                 Routing.NodeRouting nodeRouting = Routing.NodeRouting.builder()
-                        .address(node.getAddress())
-                        .customerName(node.getCustomerName())
-                        .earliestTime(node.getEarliestTime())
-                        .latestTime(node.getLatestTime())
-                        .location(node.getLocation())
-                        .phone(node.getPhone())
-                        .typeNode(routingKey.getType())
-                        .orderId(order.getId().toHexString())
-                        .build();
+                    .address(node.getAddress())
+                    .customerName(node.getCustomerName())
+                    .earliestTime(node.getEarliestTime())
+                    .latestTime(node.getLatestTime())
+                    .location(node.getLocation())
+                    .phone(node.getPhone())
+                    .typeNode(routingKey.getType())
+                    .orderId(order.getId().toHexString())
+                    .build();
                 nodeRoutings.add(nodeRouting);
             }
             Routing routing = Routing.builder()
-                    .vehicleId(vehicleIds.get(route.getVehicleId()))
-                    .nodes(nodeRoutings)
-                    .nextNode(nodeRoutings.get(0))
-                    .build();
+                .vehicleId(vehicleIds.get(route.getVehicleId()))
+                .nodes(nodeRoutings)
+                .nextNode(nodeRoutings.get(0))
+                .timeDoneNoes(route.getTimeDoneNode())
+                .build();
             listRouting.add(routing);
-
         }
-        this.createListRouting(listRouting);
+        return listRouting;
     }
 
 

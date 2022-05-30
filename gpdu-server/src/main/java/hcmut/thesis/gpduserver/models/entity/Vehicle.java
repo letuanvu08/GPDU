@@ -26,6 +26,7 @@ public class Vehicle  extends PO {
   private Long volume;
   private Location currentLocation;
   private String ownerId;
+  private Long startTime;
 }
 
 

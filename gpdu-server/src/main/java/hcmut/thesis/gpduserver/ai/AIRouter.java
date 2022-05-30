@@ -24,16 +24,18 @@ public class AIRouter implements IAIRouter {
     private final RoutingMatrix routingMatrix;
     private final GeneticOperation geneticOperation;
     private final Location repoLocation;
+    private final List<Long> startTimeVehicles;
 
     public AIRouter(List<RoutingOrder> orders,
-                    List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
-                    Location repoLocation, Cost cost) {
+        List<RoutingVehicle> vehicles, AIConfig config, RoutingMatrix routingMatrix,
+        Location repoLocation, Cost cost, List<Long> startTimeVehicles) {
         this.orders = orders;
         this.vehicles = vehicles;
         this.routingMatrix = routingMatrix;
         this.config = config;
         this.repoLocation = repoLocation;
-        this.geneticOperation = new GeneticOperation(config, orders, routingMatrix, cost);
+        this.startTimeVehicles = startTimeVehicles;
+        this.geneticOperation = new GeneticOperation(config, orders, routingMatrix, cost, this.startTimeVehicles);
     }
 
     private RoutingResponse decodeChromosome(Chromosome chromosome) {
@@ -41,16 +43,19 @@ public class AIRouter implements IAIRouter {
         List<RoutingResponse.Route> routes = new ArrayList<>();
         List<RoutingKey> routingKeys = new ArrayList<>();
         Integer vehicle = keys.get(0).getValue().getVehicle();
+        List<List<Float>> timeDoneNodes = RoutingOperation.calDurationsTimeDoneNodes(keys,
+            routingMatrix, orders, this.startTimeVehicles);
         for (int i = 0; i < keys.size() - 1; i++) {
             RoutingKey temp = RoutingKey.builder()
-                    .orderId(keys.get(i).getOrderIndex())
-                    .type(keys.get(i).getType())
-                    .build();
+                .orderId(keys.get(i).getOrderIndex())
+                .type(keys.get(i).getType())
+                .build();
             if (keys.get(i).getValue().getVehicle() != vehicle) {
                 RoutingResponse.Route route = RoutingResponse.Route.builder()
-                        .vehicleId(vehicle)
-                        .routingKeys(routingKeys)
-                        .build();
+                    .vehicleId(vehicle)
+                    .routingKeys(routingKeys)
+                    .timeDoneNode(timeDoneNodes.get(i))
+                    .build();
                 routes.add(route);
                 routingKeys = new ArrayList<>();
                 routingKeys.add(temp);
@@ -60,18 +65,18 @@ public class AIRouter implements IAIRouter {
             }
         }
         RoutingKey temp = RoutingKey.builder()
-                .orderId(keys.get(keys.size() - 1).getOrderIndex())
-                .type(keys.get(keys.size() - 1).getType())
-                .build();
+            .orderId(keys.get(keys.size() - 1).getOrderIndex())
+            .type(keys.get(keys.size() - 1).getType())
+            .build();
         routingKeys.add(temp);
         RoutingResponse.Route route = RoutingResponse.Route.builder()
-                .vehicleId(vehicle)
-                .routingKeys(routingKeys)
-                .build();
+            .vehicleId(vehicle)
+            .routingKeys(routingKeys)
+            .build();
         routes.add(route);
         return RoutingResponse.builder()
-                .routes(routes)
-                .build();
+            .routes(routes)
+            .build();
     }
 
     @Override
@@ -80,16 +85,18 @@ public class AIRouter implements IAIRouter {
         List<Chromosome> population = this.initPopulation();
         int generation = 0;
         long start = System.currentTimeMillis();
-        while (generation < config.getMaxGeneration()* orders.size()) {
+        while (generation < config.getMaxGeneration() * orders.size()) {
             population = geneticOperation.evolve(population, routingMatrix);
             log.info("Generation: {}", generation);
             Chromosome best = population.get(0);
-            log.info("Best individual in generation has fitness: {}, travelTime: {}, waitingTime: {}, lateTime: {}",
-                best.getFitness(),best.getDurations().getTravel(), best.getDurations().getWaiting(), best.getDurations().getLate());
+            log.info(
+                "Best individual in generation has fitness: {}, travelTime: {}, waitingTime: {}, lateTime: {}",
+                best.getFitness(), best.getDurations().getTravel(),
+                best.getDurations().getWaiting(), best.getDurations().getLate());
             generation += 1;
         }
         long elapsedTime = System.currentTimeMillis() - start;
-        log.info("Time executed: {}", elapsedTime/1000F);
+        log.info("Time executed: {}", elapsedTime / 1000F);
         return decodeChromosome(population.get(0));
     }
 
@@ -99,8 +106,8 @@ public class AIRouter implements IAIRouter {
         for (int i = 0; i < config.getPopulationSize(); i++) {
             List<Gen> sample = this.getSample(orders);
             Chromosome chromosome = Chromosome.builder()
-                    .gens(sample)
-                    .build();
+                .gens(sample)
+                .build();
             geneticOperation.calFitness(chromosome);
             result.add(chromosome);
         }
@@ -108,9 +115,9 @@ public class AIRouter implements IAIRouter {
         return result;
     }
 
-    private List<Gen> getSample(List<RoutingOrder> orders){
+    private List<Gen> getSample(List<RoutingOrder> orders) {
         List<Gen> sample = new ArrayList<>();
-        for(int i = 0; i< orders.size();i++){
+        for (int i = 0; i < orders.size(); i++) {
             RoutingOrder order = orders.get(i);
             Integer vehicleId = RandomKey.generateInSize(vehicles.size());
             boolean vehicleConstant = false;
@@ -118,8 +125,9 @@ public class AIRouter implements IAIRouter {
                 vehicleId = order.getVehicleId();
                 vehicleConstant = true;
             }
-            Integer randomKeyPickup = RandomKey.generateInSize(BOUND_RANDOM_KEY-1);
-            Integer randomKeyDelivery = RandomKey.generateBaseMin(randomKeyPickup, BOUND_RANDOM_KEY);
+            Integer randomKeyPickup = RandomKey.generateInSize(BOUND_RANDOM_KEY - 1);
+            Integer randomKeyDelivery = RandomKey.generateBaseMin(randomKeyPickup,
+                BOUND_RANDOM_KEY);
             Gen gen = Gen.builder()
                 .pickup(randomKeyPickup)
                 .delivery(randomKeyDelivery)
@@ -172,7 +180,6 @@ public class AIRouter implements IAIRouter {
 //        }
 //        return sampleRandom;
 //    }
-
 
 //    private List<Key<RoutingOrder.RoutingNode>> getListKeySortNodeByEarliestTime(
 //            List<RoutingOrder> orders) {
