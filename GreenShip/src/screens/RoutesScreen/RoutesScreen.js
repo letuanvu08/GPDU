@@ -92,13 +92,14 @@ export function RoutesScreen() {
     }
   }, [user]);
   useEffect(() => {
-    if (!!routing && storage) {
+    if (!!routing) {
       console.log('routing: ', routing);
       const locations = routing.nodes.map(node => node.location);
       locations.push({
         latitude: 10.773372865851005,
         longitude: 106.65959845041081
       })
+      locations.unshift(location)
       setNotes(routing.nodes);
       getPolyline(locations);
     }

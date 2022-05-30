@@ -28,7 +28,12 @@ const initialState = {
 const ordersSlice = createSlice({
   name: "orders",
   initialState,
-  reducers: {},
+  reducers: {
+    flushOrders: (state) => {
+      state.items = [];
+      state.offset = 0;
+    }
+  },
   extraReducers(builder) {
     builder
       .addCase(addNewOrder.fulfilled, (state, action) => {
@@ -41,5 +46,7 @@ const ordersSlice = createSlice({
       });
   },
 });
+
+export const {flushOrders} = ordersSlice.actions;
 
 export default ordersSlice.reducer;

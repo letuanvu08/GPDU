@@ -15,6 +15,7 @@ import {MediumText, SmallText} from '~/components/Text';
 import {useEffect} from "react";
 import orderApi from "~/api/orderApi";
 import moment from 'moment';
+import TypeUser from '~/constants/TypeUser';
 
 const secondIndicatorStyles = {
     stepIndicatorSize: 30,

@@ -61,6 +61,7 @@ export default function Navigation() {
               component={OrderDetailScreen}
             />
             <Stack.Screen
+              options={{headerShown: false}}
               name={routesEnum.DRIVER_PROFILE}
               component={CustomerProfile}
             />
