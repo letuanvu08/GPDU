@@ -74,6 +74,7 @@ const CustomerSignupScreen = ({navigation}) => {
         />
         <Fumi
           label={"Password"}
+          inputStyle={{color: "#000"}}
           iconClass={FontAwesomeIcon}
           iconName={"lock"}
           iconColor={colors.brand.primary}
